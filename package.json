@@ -1,0 +1,18 @@
+{
+  "name": "scrc",
+  "version": "0.0.0",
+  "description": "Wrapper for npm scripts",
+  "keywords": [
+    "npm",
+    "scripts"
+  ],
+  "repository": "github:vanyauhalin/scrc",
+  "license": "MIT",
+  "author": "Ivan Uhalin <vanyauhalin@gmail.com>",
+  "type": "module",
+  "main": "lib/index.js",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=7"
+  }
+}
