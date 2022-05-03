@@ -1,3 +1,9 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts}"
+      run: eslint {staged_files}
+
 commit-msg:
   commands:
     lint:
