@@ -1,0 +1,31 @@
+{
+  "name": "scrc",
+  "version": "0.0.0",
+  "description": "Wrapper for npm scripts",
+  "keywords": [
+    "npm",
+    "scripts"
+  ],
+  "repository": "github:vanyauhalin/scrc",
+  "license": "MIT",
+  "author": "Ivan Uhalin <vanyauhalin@gmail.com>",
+  "type": "module",
+  "main": "lib/index.js",
+  "devDependencies": {
+    "@arkweid/lefthook": "^0.7.7",
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
+    "@vanyauhalin/eslint-config-typescript": "^0.5.2",
+    "esbuild": "^0.14.38",
+    "eslint": "^8.14.0",
+    "typescript": "^4.6.4",
+    "uvu": "^0.5.3"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=7"
+  },
+  "dependencies": {
+    "kleur": "^4.1.4"
+  }
+}

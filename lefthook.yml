@@ -1,0 +1,15 @@
+pre-commit:
+  commands:
+    lint:
+      glob: "*.{js,ts}"
+      run: eslint {staged_files}
+
+commit-msg:
+  commands:
+    lint:
+      run: commitlint --edit
+
+pre-push:
+  scripts:
+    "lint.sh":
+      runner: bash
