@@ -14,5 +14,8 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=7"
+  },
+  "devDependencies": {
+    "@arkweid/lefthook": "^0.7.7"
   }
 }
