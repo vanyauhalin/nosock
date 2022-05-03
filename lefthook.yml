@@ -11,5 +11,5 @@ commit-msg:
 
 pre-push:
   scripts:
-    "lint-branch.sh":
+    "lint.sh":
       runner: bash
