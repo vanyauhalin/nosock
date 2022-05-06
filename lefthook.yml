@@ -8,8 +8,3 @@ commit-msg:
   commands:
     lint:
       run: commitlint --edit
-
-pre-push:
-  scripts:
-    "lint.sh":
-      runner: bash
