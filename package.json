@@ -11,6 +11,9 @@
   "author": "Ivan Uhalin <vanyauhalin@gmail.com>",
   "type": "module",
   "main": "lib/index.js",
+  "dependencies": {
+    "kleur": "^4.1.4"
+  },
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
     "@commitlint/cli": "^16.2.4",
@@ -24,8 +27,5 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=7"
-  },
-  "dependencies": {
-    "kleur": "^4.1.4"
   }
 }
