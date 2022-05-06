@@ -16,6 +16,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "rootDir": ".",
+    "types": [
+      "node"
+    ],
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": false,
