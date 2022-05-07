@@ -9,7 +9,6 @@ interface Script {
 }
 interface ScriptContext {
   rejected: string[];
-  running: Set<string>;
   scripts: Record<string, () => Promise<unknown>>;
 }
 

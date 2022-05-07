@@ -16,7 +16,6 @@ async function runner(ctx: ScriptContext, cmd: string): Promise<void> {
   if (ctx.rejected.length) return;
   const colored = kleur.blue(cmd);
 
-  ctx.running.add(cmd);
   log(`Running ${colored} ...`);
   if (!commands.includes(cmd)) {
     log.warn(`${colored} not found in package.json`);
@@ -24,25 +23,20 @@ async function runner(ctx: ScriptContext, cmd: string): Promise<void> {
 
   const callback = ctx.scripts[cmd];
   if (!callback) {
-    ctx.running.delete(cmd);
     ctx.rejected.push(cmd);
     log.error.trace(`${colored} is not described or has no callback`);
-    if (!ctx.running.size) log.empty();
     return;
   }
 
   await callback();
-  ctx.running.delete(cmd);
   log[ctx.rejected.length
     ? 'error'
     : 'done'](`Finished ${colored} after ${lap()}`);
-  if (!ctx.running.size) log.empty();
 }
 
 function create(): Script {
   const ctx: ScriptContext = {
     rejected: [],
-    running: new Set<string>(),
     scripts: {},
   };
   const script = init(ctx);
