@@ -1,48 +1,48 @@
 import kleur from 'kleur';
-import type { Logger } from 'types/logger';
-import type { Callback, Script } from 'types/script';
+import type { Script, ScriptCallback } from 'types';
+import { log } from './logger';
 import { isAsync, stopwatch } from './utils';
 
-function create(log: Logger): Script {
+function create(): Script {
   const rejected = new Set<string>();
   const running = new Set<string>();
-  const scripts = new Map<string, Callback<unknown>>();
+  const scripts = new Map<string, ScriptCallback<unknown>>();
   function inner<T extends unknown>(
-    script: string,
-    callback: Callback<T>,
+    event: string,
+    callback: ScriptCallback<T>,
   ): void {
-    scripts.set(script, callback);
+    scripts.set(event, callback);
   }
   function empty(): void {
     if (!running.size) log.empty();
   }
   inner.run = (
-    script = process.env['npm_lifecycle_event'],
+    event = process.env['npm_lifecycle_event'],
   ) => new Promise((resolve) => {
     const { lap } = stopwatch();
 
-    if (!script) {
+    if (!event) {
       log.error.trace('No script to run');
       return;
     }
     if (rejected.size) return;
-    const colored = kleur.blue(script);
+    const colored = kleur.blue(event);
 
     empty();
-    running.add(script);
+    running.add(event);
     log(`Running ${colored} ...`);
 
     const reject = (message: string): void => {
-      running.delete(script);
-      rejected.add(script);
+      running.delete(event);
+      rejected.add(event);
       log.error.trace(message);
       empty();
     };
-    if (!scripts.has(script)) {
+    if (!scripts.has(event)) {
       reject(`${colored} not found`);
       return;
     }
-    const callback = scripts.get(script);
+    const callback = scripts.get(event);
     if (!callback) {
       reject(`Callback for ${colored} not found`);
       return;
@@ -52,7 +52,7 @@ function create(log: Logger): Script {
       log[rejected.size
         ? 'error'
         : 'done'](`Finished ${colored} after ${lap()}`);
-      running.delete(script);
+      running.delete(event);
       empty();
       resolve(returns);
     };

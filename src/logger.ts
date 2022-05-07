@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import kleur from 'kleur';
-import type { Logger, Types } from 'types/logger';
+import type { LoggerTypes } from 'types';
 import { pd, time, trace } from './utils';
 
 const prefix = (() => {
@@ -19,14 +19,14 @@ const max = Math.max.apply(null, Object.keys(map).map((type) => type.length));
 const raw = Object.keys(map).reduce((acc, type) => ({
   ...acc,
   [type]: type.length === max ? type : type.padEnd(max, ' '),
-}), {} as Record<Types, string>);
-const colored = (Object.entries(map) as [Types, keyof kleur.Kleur][])
+}), {} as Record<LoggerTypes, string>);
+const colored = (Object.entries(map) as [LoggerTypes, keyof kleur.Kleur][])
   .reduce((acc, [type, color]) => ({
     ...acc,
     [type]: kleur[color](raw[type]),
-  }), {} as Record<Types, string>);
+  }), {} as Record<LoggerTypes, string>);
 
-function create(): Logger {
+const log = (() => {
   function inner(type: string, message?: string): void {
     console.log(`${prefix()}${message
       ? `${type} ${message}`
@@ -54,8 +54,8 @@ function create(): Logger {
     inner(colored.warn, message);
   };
   return inner;
-}
+})();
 
 export {
-  create,
+  log,
 };

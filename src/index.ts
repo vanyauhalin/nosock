@@ -1,12 +1,11 @@
-import { create as createLogger } from './logger';
-import { create as createScript } from './script';
+import type { Script } from 'types';
+import { log } from './logger';
+import { create } from './script';
 
-const log = createLogger();
-const script = createScript(log);
+const suite = (): Script => create();
+const script = suite();
 
 export {
-  createLogger,
-  createScript,
   log,
   script,
 };
