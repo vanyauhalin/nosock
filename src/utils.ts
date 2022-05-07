@@ -1,16 +1,16 @@
 import { env, hrtime } from 'node:process';
 import type { Stopwatch, TraceReturns } from 'types';
 
-function extractEvents(): string[] {
-  const events = [];
+function extractCommands(): string[] {
+  const commands = [];
   for (const key in env) {
     if (/^npm_package_scripts_.+/.test(key)) {
-      events.push(key
+      commands.push(key
         .replace(/^npm_package_scripts_/, '')
         .replace(/_/g, '-'));
     }
   }
-  return events;
+  return commands;
 }
 
 const AsyncConstructor = (async () => {}).constructor;
@@ -61,7 +61,7 @@ function trace(error: Error): TraceReturns {
 }
 
 export {
-  extractEvents,
+  extractCommands,
   isAsync,
   stopwatch,
   time,

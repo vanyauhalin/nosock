@@ -1,8 +1,8 @@
 declare type LoggerTypes = 'done' | 'error' | 'warn';
 
 interface Script {
-  <T extends unknown>(event: string, callback: ScriptCallback<T>): void;
-  run(event?: string): Promise<unknown>;
+  <T extends unknown>(cmd: string, callback: ScriptCallback<T>): void;
+  run(cmd?: string): Promise<unknown>;
 }
 declare type ScriptCallback<T> = (() => T) | (() => Promise<T>);
 interface ScriptContext {

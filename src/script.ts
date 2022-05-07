@@ -1,46 +1,46 @@
 import kleur from 'kleur';
 import type { Script, ScriptCallback, ScriptContext } from 'types';
 import { log } from './logger';
-import { extractEvents, isAsync, stopwatch } from './utils';
+import { extractCommands, isAsync, stopwatch } from './utils';
 
-const events = extractEvents();
+const commands = extractCommands();
 
 function init(ctx: ScriptContext): Script {
-  return ((event, callback) => {
-    ctx.scripts.set(event, callback);
+  return ((cmd, callback) => {
+    ctx.scripts.set(cmd, callback);
   }) as Script;
 }
 
-function runner(ctx: ScriptContext, event: string): Promise<unknown> {
+function runner(ctx: ScriptContext, cmd: string): Promise<unknown> {
   return new Promise((resolve) => {
     const { lap } = stopwatch();
     if (ctx.rejected.size) return;
-    const colored = kleur.blue(event);
+    const colored = kleur.blue(cmd);
 
-    ctx.running.add(event);
+    ctx.running.add(cmd);
     log(`Running ${colored} ...`);
-    if (!events.includes(event)) {
+    if (!commands.includes(cmd)) {
       log.warn(`${colored} not found in package.json`);
     }
 
     const reject = (message: string): void => {
-      ctx.running.delete(event);
-      ctx.rejected.add(event);
+      ctx.running.delete(cmd);
+      ctx.rejected.add(cmd);
       log.error.trace(message);
       if (!ctx.running.size) log.empty();
     };
-    if (!ctx.scripts.has(event)) {
+    if (!ctx.scripts.has(cmd)) {
       reject(`${colored} not found`);
       return;
     }
-    const callback = ctx.scripts.get(event);
+    const callback = ctx.scripts.get(cmd);
     if (!callback) {
       reject(`Callback for ${colored} not found`);
       return;
     }
 
     const done = (returns: unknown): void => {
-      ctx.running.delete(event);
+      ctx.running.delete(cmd);
       log[ctx.rejected.size
         ? 'error'
         : 'done'](`Finished ${colored} after ${lap()}`);
@@ -63,12 +63,12 @@ function create(): Script {
     scripts: new Map<string, ScriptCallback<unknown>>(),
   };
   const script = init(ctx);
-  script.run = async (event = process.env['npm_lifecycle_event']) => {
-    if (!event) {
+  script.run = async (cmd = process.env['npm_lifecycle_event']) => {
+    if (!cmd) {
       log.error.trace('No script to run');
       return;
     }
-    await runner(ctx, event);
+    await runner(ctx, cmd);
   };
   return script;
 }
