@@ -1,4 +1,4 @@
-import type { Stopwatch, TraceReturns } from 'types/utils';
+import type { Stopwatch, TraceReturns } from 'types';
 
 const AsyncConstructor = (async () => {}).constructor;
 function isAsync(fn: unknown, returns: unknown): boolean {
