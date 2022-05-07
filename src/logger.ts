@@ -52,8 +52,8 @@ const log = (() => {
   inner.done = (message: string) => {
     inner(colored.done, message);
   };
-  inner.empty = () => {
-    process.stdout.write('\n');
+  inner.empty = (message?: string) => {
+    process.stdout.write(message ? `${message}\n` : '\n');
   };
   inner.error = (() => {
     function errorInner(message: string): void {
