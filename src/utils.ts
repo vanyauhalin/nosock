@@ -13,15 +13,6 @@ function extractCommands(): string[] {
   return commands;
 }
 
-const AsyncConstructor = (async () => {}).constructor;
-function isAsync(fn: unknown, returns: unknown): boolean {
-  return !!(fn instanceof AsyncConstructor
-    || (typeof fn === 'function'
-      && !!(typeof returns === 'object'
-        && typeof (returns as Record<string, unknown>)['then']
-          === 'function')));
-}
-
 function stopwatch(): Stopwatch {
   let start: number;
   function inner(): Stopwatch {
@@ -62,7 +53,6 @@ function trace(error: Error): TraceReturns {
 
 export {
   extractCommands,
-  isAsync,
   stopwatch,
   time,
   trace,
