@@ -1,14 +1,16 @@
 declare type LoggerTypes = 'done' | 'error' | 'warn';
 
 interface Script {
-  <T extends unknown>(cmd: string, callback: ScriptCallback<T>): void;
-  run(cmd?: string): Promise<unknown>;
+  <T extends unknown>(
+    cmd: string,
+    callback: (() => T) | (() => Promise<T>),
+  ): void;
+  run(cmd?: string): Promise<void>;
 }
-declare type ScriptCallback<T> = (() => T) | (() => Promise<T>);
 interface ScriptContext {
   rejected: Set<string>;
   running: Set<string>;
-  scripts: Record<string, ScriptCallback<unknown>>;
+  scripts: Record<string, () => Promise<unknown>>;
 }
 
 interface Stopwatch {
@@ -23,7 +25,6 @@ declare type TraceReturns = {
 export {
   LoggerTypes,
   Script,
-  ScriptCallback,
   ScriptContext,
   Stopwatch,
   TraceReturns,
