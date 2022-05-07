@@ -5,6 +5,11 @@ interface Script {
   run(event?: string): Promise<unknown>;
 }
 declare type ScriptCallback<T> = (() => T) | (() => Promise<T>);
+interface ScriptContext {
+  rejected: Set<string>;
+  running: Set<string>;
+  scripts: Map<string, ScriptCallback<unknown>>;
+}
 
 interface Stopwatch {
   (): Stopwatch;
@@ -19,6 +24,7 @@ export {
   LoggerTypes,
   Script,
   ScriptCallback,
+  ScriptContext,
   Stopwatch,
   TraceReturns,
 };

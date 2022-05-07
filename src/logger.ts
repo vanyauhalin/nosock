@@ -28,9 +28,14 @@ const colored = (Object.entries(map) as [LoggerTypes, keyof kleur.Kleur][])
 
 const log = (() => {
   function inner(type: string, message?: string): void {
-    console.log(`${prefix()}${message
-      ? `${type} ${message}`
-      : `${pd(max)}${type}`}`);
+    function parse(): string {
+      if (typeof message === 'string') {
+        const trimmed = message.trim();
+        return trimmed.length ? `${type} ${trimmed}` : type;
+      }
+      return `${pd(max)}${type}`;
+    }
+    console.log(`${prefix()}${parse()}`);
   }
   inner.done = (message: string) => {
     inner(colored.done, message);
