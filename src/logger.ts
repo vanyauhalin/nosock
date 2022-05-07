@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import kleur from 'kleur';
 import type { LoggerTypes } from 'types';
 import { pd, time, trace } from './utils';
@@ -35,13 +34,13 @@ const log = (() => {
       }
       return `${pd(max)}${type}`;
     }
-    console.log(`${prefix()}${parse()}`);
+    process.stdout.write(`${prefix()}${parse()}\n`);
   }
   inner.done = (message: string) => {
     inner(colored.done, message);
   };
   inner.empty = () => {
-    console.log();
+    process.stdout.write('\n');
   };
   inner.error = (() => {
     function errorInner(message: string): void {
