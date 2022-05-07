@@ -17,10 +17,6 @@ function isAsync(fn: unknown, returns: unknown): boolean {
           === 'function')));
 }
 
-function pd(number: number): string {
-  return `${' '.repeat(number)} `;
-}
-
 function stopwatch(): Stopwatch {
   let start: number;
   function inner(): Stopwatch {
@@ -63,7 +59,6 @@ function trace(error: Error): TraceReturns {
 export {
   extractEvents,
   isAsync,
-  pd,
   stopwatch,
   time,
   trace,
