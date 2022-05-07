@@ -1,9 +1,17 @@
+import { env } from 'node:process';
 import kleur from 'kleur';
 import type { Script, ScriptContext } from 'types';
 import { log } from './logger';
-import { extractCommands, stopwatch } from './utils';
+import { stopwatch } from './utils';
 
-const commands = extractCommands();
+const cmds = [] as string[];
+for (const key in env) {
+  if (/^npm_package_scripts_.+/.test(key)) {
+    cmds.push(key
+      .replace(/^npm_package_scripts_/, '')
+      .replace(/_/g, '-'));
+  }
+}
 
 function init(ctx: ScriptContext): Script {
   return ((cmd, callback) => {
@@ -17,9 +25,7 @@ async function runner(ctx: ScriptContext, cmd: string): Promise<void> {
   const colored = kleur.blue(cmd);
 
   log(`Running ${colored} ...`);
-  if (!commands.includes(cmd)) {
-    log.warn(`${colored} not found in package.json`);
-  }
+  if (!cmds.includes(cmd)) log.warn(`${colored} not found in package.json`);
 
   const callback = ctx.scripts[cmd];
   if (!callback) {

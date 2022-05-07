@@ -1,3 +1,7 @@
+declare type LoggerTraceReturns = {
+  message: string;
+  path?: string;
+};
 declare type LoggerTypes = 'done' | 'error' | 'warn';
 
 interface Script {
@@ -16,15 +20,11 @@ interface Stopwatch {
   (): Stopwatch;
   lap(): string;
 }
-declare type TraceReturns = {
-  message: string;
-  path?: string;
-};
 
 export {
+  LoggerTraceReturns,
   LoggerTypes,
   Script,
   ScriptContext,
   Stopwatch,
-  TraceReturns,
 };

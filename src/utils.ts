@@ -1,17 +1,5 @@
-import { env, hrtime } from 'node:process';
-import type { Stopwatch, TraceReturns } from 'types';
-
-function extractCommands(): string[] {
-  const commands = [];
-  for (const key in env) {
-    if (/^npm_package_scripts_.+/.test(key)) {
-      commands.push(key
-        .replace(/^npm_package_scripts_/, '')
-        .replace(/_/g, '-'));
-    }
-  }
-  return commands;
-}
+import { hrtime } from 'node:process';
+import type { Stopwatch } from 'types';
 
 function stopwatch(): Stopwatch {
   let start: number;
@@ -23,37 +11,6 @@ function stopwatch(): Stopwatch {
   return inner();
 }
 
-const formatter = new Intl.DateTimeFormat('en-us', {
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  fractionalSecondDigits: 3,
-  hour12: false,
-});
-function time(): string {
-  return formatter.format(Date.now());
-}
-
-function trace(error: Error): TraceReturns {
-  function done(path?: string): TraceReturns {
-    return {
-      ...path ? { path } : {},
-      message: error.message,
-    };
-  }
-  if (!error.stack) return done();
-  const [,,,, file] = error.stack.split('\n');
-  if (!file) return done();
-  const matched = file.match(/file:\/\/(.+)/);
-  if (!matched) return done();
-  const [, path] = matched;
-  if (!path) return done();
-  return done(path);
-}
-
 export {
-  extractCommands,
   stopwatch,
-  time,
-  trace,
 };
