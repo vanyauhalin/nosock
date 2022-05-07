@@ -2,5 +2,10 @@
   "extends": "@vanyauhalin/eslint-config-typescript",
   "parserOptions": {
     "project": "./tsconfig.json"
+  },
+  "rules": {
+    // At this project we can disable the rules below for better performance.
+    "guard-for-in": "off",
+    "no-restricted-syntax": "off"
   }
 }

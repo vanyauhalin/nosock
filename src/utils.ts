@@ -1,11 +1,16 @@
+import { env, hrtime } from 'node:process';
 import type { Stopwatch, TraceReturns } from 'types';
 
 function extractEvents(): string[] {
-  return Object.keys(process.env)
-    .filter((env) => /^npm_package_scripts_.+/.test(env))
-    .map((env) => env
-      .replace(/^npm_package_scripts_/, '')
-      .replace(/_/g, '-'));
+  const events = [];
+  for (const key in env) {
+    if (/^npm_package_scripts_.+/.test(key)) {
+      events.push(key
+        .replace(/^npm_package_scripts_/, '')
+        .replace(/_/g, '-'));
+    }
+  }
+  return events;
 }
 
 const AsyncConstructor = (async () => {}).constructor;
@@ -20,10 +25,10 @@ function isAsync(fn: unknown, returns: unknown): boolean {
 function stopwatch(): Stopwatch {
   let start: number;
   function inner(): Stopwatch {
-    start = Date.now();
+    start = Number(hrtime.bigint());
     return inner;
   }
-  inner.lap = () => `${(Date.now() - start).toFixed(2)}ms`;
+  inner.lap = () => `${((Number(hrtime.bigint()) - start) / 1e6).toFixed(2)}ms`;
   return inner();
 }
 
@@ -33,7 +38,6 @@ const formatter = new Intl.DateTimeFormat('en-us', {
   second: 'numeric',
   fractionalSecondDigits: 3,
   hour12: false,
-  timeZone: 'UTC',
 });
 function time(): string {
   return formatter.format(Date.now());
