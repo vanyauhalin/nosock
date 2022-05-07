@@ -1,3 +1,4 @@
+import { hrtime } from 'node:process';
 import type { Stopwatch, TraceReturns } from 'types';
 
 function extractEvents(): string[] {
@@ -20,10 +21,10 @@ function isAsync(fn: unknown, returns: unknown): boolean {
 function stopwatch(): Stopwatch {
   let start: number;
   function inner(): Stopwatch {
-    start = Date.now();
+    start = Number(hrtime.bigint());
     return inner;
   }
-  inner.lap = () => `${(Date.now() - start).toFixed(2)}ms`;
+  inner.lap = () => `${((Number(hrtime.bigint()) - start) / 1e6).toFixed(2)}ms`;
   return inner();
 }
 
