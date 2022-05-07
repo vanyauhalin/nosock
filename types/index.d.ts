@@ -5,10 +5,12 @@ declare type LoggerTraceReturns = {
 declare type LoggerTypes = 'done' | 'error' | 'warn';
 
 interface Script {
-  <T extends unknown>(
+  <C extends (() => unknown)>(
     cmd: string,
-    callback: (() => T) | (() => Promise<T>),
-  ): void;
+    callback: C,
+  ): () => Promise<C extends (() => Promise<unknown>)
+    ? Awaited<ReturnType<C>>
+    : ReturnType<C>>;
   run(cmd?: string): Promise<void>;
 }
 interface ScriptContext {

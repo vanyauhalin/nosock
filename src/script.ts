@@ -15,7 +15,9 @@ for (const key in env) {
 
 function init(ctx: ScriptContext): Script {
   return ((cmd, callback) => {
-    ctx.scripts[cmd] = () => Promise.resolve(callback());
+    const promised = (): Promise<unknown> => Promise.resolve(callback());
+    ctx.scripts[cmd] = promised;
+    return promised;
   }) as Script;
 }
 
