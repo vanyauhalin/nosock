@@ -8,7 +8,7 @@ declare type ScriptCallback<T> = (() => T) | (() => Promise<T>);
 interface ScriptContext {
   rejected: Set<string>;
   running: Set<string>;
-  scripts: Map<string, ScriptCallback<unknown>>;
+  scripts: Record<string, ScriptCallback<unknown>>;
 }
 
 interface Stopwatch {
