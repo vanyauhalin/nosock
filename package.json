@@ -1,7 +1,7 @@
 {
   "name": "scrc",
   "version": "0.0.0",
-  "description": "Wrapper for npm scripts",
+  "description": "@npm scripts runner",
   "keywords": [
     "npm",
     "scripts"
