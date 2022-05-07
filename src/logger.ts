@@ -1,29 +1,42 @@
+/**
+ * In this file, we can disable the rules below for better performance.
+ * It's safe.
+ */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+
 import kleur from 'kleur';
 import type { LoggerTypes } from 'types';
-import { pd, time, trace } from './utils';
+import { time, trace } from './utils';
 
-const prefix = (() => {
-  function inner(): string {
-    return `[${time()}] `;
-  }
-  inner.len = inner().length;
-  return inner;
-})();
-const map = {
+const map: Record<LoggerTypes, keyof kleur.Kleur> = {
   done: 'green',
   error: 'red',
   warn: 'yellow',
 };
-const max = Math.max.apply(null, Object.keys(map).map((type) => type.length));
-const raw = Object.keys(map).reduce((acc, type) => ({
-  ...acc,
-  [type]: type.length === max ? type : type.padEnd(max, ' '),
-}), {} as Record<LoggerTypes, string>);
-const colored = (Object.entries(map) as [LoggerTypes, keyof kleur.Kleur][])
-  .reduce((acc, [type, color]) => ({
-    ...acc,
-    [type]: kleur[color](raw[type]),
-  }), {} as Record<LoggerTypes, string>);
+
+const max = (() => {
+  const lengths = [];
+  for (const key in map) lengths.push(key.length);
+  return Math.max.apply(null, lengths);
+})();
+
+const colored = {} as Record<LoggerTypes, string>;
+for (const key in map) {
+  const type = key as LoggerTypes;
+  colored[type] = kleur[map[type]](type.length === max
+    ? type
+    : type.padEnd(max, ' '));
+}
+
+function prefix(): string {
+  return `[${time()}] `;
+}
+
+const pd = {
+  default: `${' '.repeat(max)} `,
+  longer: `${' '.repeat(prefix().length + max)} `,
+};
 
 const log = (() => {
   function inner(type: string, message?: string): void {
@@ -32,7 +45,7 @@ const log = (() => {
         const trimmed = message.trim();
         return trimmed.length ? `${type} ${trimmed}` : type;
       }
-      return `${pd(max)}${type}`;
+      return `${pd.default}${type}`;
     }
     process.stdout.write(`${prefix()}${parse()}\n`);
   }
@@ -49,7 +62,7 @@ const log = (() => {
     errorInner.trace = (message: string) => {
       const traced = trace(new Error(message));
       inner(colored.error, `${traced.message}${traced.path
-        ? `\n${pd(prefix.len + max)}${kleur.gray(traced.path)}`
+        ? `\n${pd.longer}${kleur.gray(traced.path)}`
         : ''}`);
     };
     return errorInner;
