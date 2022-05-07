@@ -1,7 +1,9 @@
 import kleur from 'kleur';
 import type { Script, ScriptCallback, ScriptContext } from 'types';
 import { log } from './logger';
-import { isAsync, stopwatch } from './utils';
+import { extractEvents, isAsync, stopwatch } from './utils';
+
+const events = extractEvents();
 
 function init(ctx: ScriptContext): Script {
   return ((event, callback) => {
@@ -17,6 +19,9 @@ function runner(ctx: ScriptContext, event: string): Promise<unknown> {
 
     ctx.running.add(event);
     log(`Running ${colored} ...`);
+    if (!events.includes(event)) {
+      log.warn(`${colored} not found in package.json`);
+    }
 
     const reject = (message: string): void => {
       ctx.running.delete(event);

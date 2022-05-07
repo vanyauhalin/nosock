@@ -1,5 +1,13 @@
 import type { Stopwatch, TraceReturns } from 'types';
 
+function extractEvents(): string[] {
+  return Object.keys(process.env)
+    .filter((env) => /^npm_package_scripts_.+/.test(env))
+    .map((env) => env
+      .replace(/^npm_package_scripts_/, '')
+      .replace(/_/g, '-'));
+}
+
 const AsyncConstructor = (async () => {}).constructor;
 function isAsync(fn: unknown, returns: unknown): boolean {
   return !!(fn instanceof AsyncConstructor
@@ -53,6 +61,7 @@ function trace(error: Error): TraceReturns {
 }
 
 export {
+  extractEvents,
   isAsync,
   pd,
   stopwatch,
