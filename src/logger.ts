@@ -39,7 +39,7 @@ const pd = {
 };
 
 const log = (() => {
-  function inner(type: string, message?: string): void {
+  function inner(type: string, message?: string): typeof log {
     function parse(): string {
       if (typeof message === 'string') {
         const trimmed = message.trim();
@@ -48,27 +48,33 @@ const log = (() => {
       return `${pd.default}${type}`;
     }
     process.stdout.write(`${prefix()}${parse()}\n`);
+    return inner;
   }
   inner.done = (message: string) => {
     inner(colored.done, message);
+    return inner;
   };
   inner.empty = (message?: string) => {
     process.stdout.write(message ? `${message}\n` : '\n');
+    return inner;
   };
   inner.error = (() => {
-    function errorInner(message: string): void {
+    function errorInner(message: string): typeof log {
       inner(colored.error, message);
+      return inner;
     }
     errorInner.trace = (message: string) => {
       const traced = trace(new Error(message));
       inner(colored.error, `${traced.message}${traced.path
         ? `\n${pd.longer}${kleur.gray(traced.path)}`
         : ''}`);
+      return inner;
     };
     return errorInner;
   })();
   inner.warn = (message: string) => {
     inner(colored.warn, message);
+    return inner;
   };
   return inner;
 })();
