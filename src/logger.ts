@@ -1,10 +1,3 @@
-/**
- * In this file, we can disable the rules below for better performance.
- * It's safe.
- */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-
 import kleur from 'kleur';
 import type { LoggerTypes } from 'types';
 import { time, trace } from './utils';
