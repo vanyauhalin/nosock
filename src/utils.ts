@@ -33,7 +33,6 @@ const formatter = new Intl.DateTimeFormat('en-us', {
   second: 'numeric',
   fractionalSecondDigits: 3,
   hour12: false,
-  timeZone: 'UTC',
 });
 function time(): string {
   return formatter.format(Date.now());
