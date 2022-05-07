@@ -4,7 +4,8 @@
   "description": "@npm scripts runner",
   "keywords": [
     "npm",
-    "scripts"
+    "scripts",
+    "runner"
   ],
   "repository": "github:vanyauhalin/scrc",
   "license": "MIT",
