@@ -1,6 +1,33 @@
 import kleur from 'kleur';
-import type { LoggerTypes } from 'types';
-import { time, trace } from './utils';
+import type { LoggerTraceReturns, LoggerTypes } from 'types';
+
+const formatter = new Intl.DateTimeFormat('en-us', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  fractionalSecondDigits: 3,
+  hour12: false,
+});
+function prefix(): string {
+  return `[${formatter.format(Date.now())}] `;
+}
+
+function trace(error: Error): LoggerTraceReturns {
+  function done(path?: string): LoggerTraceReturns {
+    return {
+      ...path ? { path } : {},
+      message: error.message,
+    };
+  }
+  if (!error.stack) return done();
+  const [,,,, file] = error.stack.split('\n');
+  if (!file) return done();
+  const matched = file.match(/file:\/\/(.+)/);
+  if (!matched) return done();
+  const [, path] = matched;
+  if (!path) return done();
+  return done(path);
+}
 
 const map: Record<LoggerTypes, keyof kleur.Kleur> = {
   done: 'green',
@@ -20,10 +47,6 @@ for (const key in map) {
   colored[type] = kleur[map[type]](type.length === max
     ? type
     : type.padEnd(max, ' '));
-}
-
-function prefix(): string {
-  return `[${time()}] `;
 }
 
 const pd = {
