@@ -8,7 +8,7 @@ interface Script {
   run(cmd?: string): Promise<void>;
 }
 interface ScriptContext {
-  rejected: Set<string>;
+  rejected: string[];
   running: Set<string>;
   scripts: Record<string, () => Promise<unknown>>;
 }
