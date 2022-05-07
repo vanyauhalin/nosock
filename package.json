@@ -1,7 +1,7 @@
 {
   "name": "scer",
   "version": "0.0.0",
-  "description": "@npm scripts runner",
+  "description": "npm scripts runner",
   "keywords": [
     "npm",
     "scripts",
