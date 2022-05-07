@@ -7,14 +7,14 @@ function create(): Script {
   const rejected = new Set<string>();
   const running = new Set<string>();
   const scripts = new Map<string, ScriptCallback<unknown>>();
+  function empty(): void {
+    if (!running.size) log.empty();
+  }
   function inner<T extends unknown>(
     event: string,
     callback: ScriptCallback<T>,
   ): void {
     scripts.set(event, callback);
-  }
-  function empty(): void {
-    if (!running.size) log.empty();
   }
   inner.run = (
     event = process.env['npm_lifecycle_event'],
@@ -28,7 +28,6 @@ function create(): Script {
     if (rejected.size) return;
     const colored = kleur.blue(event);
 
-    empty();
     running.add(event);
     log(`Running ${colored} ...`);
 
