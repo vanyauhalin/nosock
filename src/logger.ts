@@ -1,3 +1,4 @@
+import { stdout } from 'node:process';
 import kleur from 'kleur';
 import type { LoggerTraceReturns } from 'types';
 
@@ -45,7 +46,7 @@ const log = (() => {
       }
       return `${DEFAULT_PADDING}${type}`;
     }
-    process.stdout.write(`${prefix()}${parse()}\n`);
+    stdout.write(`${prefix()}${parse()}\n`);
     return inner;
   }
   inner.done = (message: string) => {
@@ -53,7 +54,7 @@ const log = (() => {
     return inner;
   };
   inner.empty = (message?: string) => {
-    process.stdout.write(message ? `${message}\n` : '\n');
+    stdout.write(message ? `${message}\n` : '\n');
     return inner;
   };
   inner.error = (() => {
