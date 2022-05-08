@@ -1,5 +1,5 @@
 import kleur from 'kleur';
-import type { LoggerTraceReturns, LoggerTypes } from 'types';
+import type { LoggerTraceReturns } from 'types';
 
 const formatter = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
@@ -29,30 +29,12 @@ function trace(error: Error): LoggerTraceReturns {
   return done(path);
 }
 
-const map: Record<LoggerTypes, keyof kleur.Kleur> = {
-  done: 'green',
-  error: 'red',
-  warn: 'yellow',
-};
-
-const max = (() => {
-  const lengths = [];
-  for (const key in map) lengths.push(key.length);
-  return Math.max.apply(null, lengths);
-})();
-
-const colored = {} as Record<LoggerTypes, string>;
-for (const key in map) {
-  const type = key as LoggerTypes;
-  colored[type] = kleur[map[type]](type.length === max
-    ? type
-    : type.padEnd(max, ' '));
-}
-
-const pd = {
-  default: `${' '.repeat(max)} `,
-  longer: `${' '.repeat(prefix().length + max)} `,
-};
+const DONE = `${kleur.green('done')} `;
+const ERROR = kleur.red('error');
+const WARN = `${kleur.yellow('warn')} `;
+const TYPE_LENGTH = 5;
+const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
+const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
 
 const log = (() => {
   function inner(type: string, message?: string): typeof log {
@@ -61,13 +43,13 @@ const log = (() => {
         const trimmed = message.trim();
         return trimmed.length ? `${type} ${trimmed}` : type;
       }
-      return `${pd.default}${type}`;
+      return `${DEFAULT_PADDING}${type}`;
     }
     process.stdout.write(`${prefix()}${parse()}\n`);
     return inner;
   }
   inner.done = (message: string) => {
-    inner(colored.done, message);
+    inner(DONE, message);
     return inner;
   };
   inner.empty = (message?: string) => {
@@ -76,20 +58,20 @@ const log = (() => {
   };
   inner.error = (() => {
     function errorInner(message: string): typeof log {
-      inner(colored.error, message);
+      inner(ERROR, message);
       return inner;
     }
     errorInner.trace = (message: string) => {
       const traced = trace(new Error(message));
-      inner(colored.error, `${traced.message}${traced.path
-        ? `\n${pd.longer}${kleur.gray(traced.path)}`
+      inner(ERROR, `${traced.message}${traced.path
+        ? `\n${LONGER_PADDING}${kleur.gray(traced.path)}`
         : ''}`);
       return inner;
     };
     return errorInner;
   })();
   inner.warn = (message: string) => {
-    inner(colored.warn, message);
+    inner(WARN, message);
     return inner;
   };
   return inner;
