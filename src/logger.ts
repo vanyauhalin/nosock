@@ -1,9 +1,11 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
-import type { LoggerTraceReturns } from 'types';
 
-function trace(error: Error): LoggerTraceReturns {
-  function done(path?: string): LoggerTraceReturns {
+function trace(error: Error): {
+  message: string;
+  path?: string;
+} {
+  function done(path?: string): ReturnType<typeof trace> {
     return {
       ...path ? { path } : {},
       message: error.message,

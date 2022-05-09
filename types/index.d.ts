@@ -1,8 +1,3 @@
-declare type LoggerTraceReturns = {
-  message: string;
-  path?: string;
-};
-
 interface Script {
   <C extends (() => unknown)>(
     cmd: string,
@@ -23,7 +18,6 @@ interface Stopwatch {
 }
 
 export {
-  LoggerTraceReturns,
   Script,
   ScriptContext,
   Stopwatch,
