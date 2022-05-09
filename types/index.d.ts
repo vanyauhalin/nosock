@@ -1,7 +1,13 @@
-declare type LoggerTraceReturns = {
-  message: string;
-  path?: string;
-};
+interface Logger {
+  (type: string, message?: string): Logger;
+  error: {
+    (message: string): Logger;
+    trace(message: string): Logger;
+  };
+  done(message: string): Logger;
+  empty(message?: string): Logger;
+  warn(message: string): Logger;
+}
 
 interface Script {
   <C extends (() => unknown)>(
@@ -23,7 +29,7 @@ interface Stopwatch {
 }
 
 export {
-  LoggerTraceReturns,
+  Logger,
   Script,
   ScriptContext,
   Stopwatch,
