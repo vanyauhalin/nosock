@@ -1,3 +1,8 @@
+interface Context {
+  rejected: string[];
+  scripts: Record<string, () => Promise<unknown>>;
+}
+
 interface Logger {
   (type: string, message?: string): Logger;
   error: {
@@ -10,17 +15,18 @@ interface Logger {
 }
 
 interface Script {
-  <C extends (() => unknown)>(
+  <C extends (ctx: Context) => unknown>(
     cmd: string,
     callback: C,
-  ): () => Promise<C extends (() => Promise<unknown>)
-    ? Awaited<ReturnType<C>>
-    : ReturnType<C>>;
-  run(cmd?: string): Promise<void>;
-}
-interface ScriptContext {
-  rejected: string[];
-  scripts: Record<string, () => Promise<unknown>>;
+  ): () => (
+    Promise<C extends (ctx: Context) => Promise<unknown>
+      ? Awaited<ReturnType<C>>
+      : ReturnType<C>>
+  );
+  run(
+    cmd: string,
+    callback: (ctx: Context) => Promise<unknown>,
+  ): Promise<void>;
 }
 
 interface Stopwatch {
@@ -29,8 +35,8 @@ interface Stopwatch {
 }
 
 export {
+  Context,
   Logger,
   Script,
-  ScriptContext,
   Stopwatch,
 };
