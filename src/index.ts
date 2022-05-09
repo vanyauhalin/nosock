@@ -1,5 +1,5 @@
 import type { Context } from 'types';
-import { log } from './logger';
+import { log } from './log';
 import { create as createScan } from './scan';
 import { create as createScript } from './script';
 

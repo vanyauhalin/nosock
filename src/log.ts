@@ -40,7 +40,7 @@ const TYPE_LENGTH = 5;
 const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
 const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
 
-function create(): Logger {
+const log = (() => {
   function inner(type: string, message?: string): Logger {
     function parse(): string {
       if (typeof message === 'string') {
@@ -79,9 +79,7 @@ function create(): Logger {
     return inner;
   };
   return inner;
-}
-
-const log = create();
+})();
 
 export {
   log,
