@@ -1,6 +1,6 @@
 import kleur from 'kleur';
 import type { Context, Script } from 'types';
-import { log } from './logger';
+import { log } from './log';
 import { stopwatch } from './utils';
 
 function create(ctx: Context): Script {
