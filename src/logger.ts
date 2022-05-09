@@ -1,5 +1,6 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
+import type { Logger } from 'types';
 
 function trace(error: Error): {
   message: string;
@@ -39,8 +40,8 @@ const TYPE_LENGTH = 5;
 const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
 const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
 
-const log = (() => {
-  function inner(type: string, message?: string): typeof log {
+function create(): Logger {
+  function inner(type: string, message?: string): Logger {
     function parse(): string {
       if (typeof message === 'string') {
         const trimmed = message.trim();
@@ -51,16 +52,8 @@ const log = (() => {
     stdout.write(`${prefix()}${parse()}\n`);
     return inner;
   }
-  inner.done = (message: string) => {
-    inner(DONE, message);
-    return inner;
-  };
-  inner.empty = (message?: string) => {
-    stdout.write(message ? `${message}\n` : '\n');
-    return inner;
-  };
   inner.error = (() => {
-    function errorInner(message: string): typeof log {
+    function errorInner(message: string): Logger {
       inner(ERROR, message);
       return inner;
     }
@@ -73,12 +66,22 @@ const log = (() => {
     };
     return errorInner;
   })();
+  inner.done = (message: string) => {
+    inner(DONE, message);
+    return inner;
+  };
+  inner.empty = (message?: string) => {
+    stdout.write(message ? `${message}\n` : '\n');
+    return inner;
+  };
   inner.warn = (message: string) => {
     inner(WARN, message);
     return inner;
   };
   return inner;
-})();
+}
+
+const log = create();
 
 export {
   log,

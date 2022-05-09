@@ -1,3 +1,14 @@
+interface Logger {
+  (type: string, message?: string): Logger;
+  error: {
+    (message: string): Logger;
+    trace(message: string): Logger;
+  };
+  done(message: string): Logger;
+  empty(message?: string): Logger;
+  warn(message: string): Logger;
+}
+
 interface Script {
   <C extends (() => unknown)>(
     cmd: string,
@@ -18,6 +29,7 @@ interface Stopwatch {
 }
 
 export {
+  Logger,
   Script,
   ScriptContext,
   Stopwatch,
