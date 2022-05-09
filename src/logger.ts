@@ -1,16 +1,6 @@
+import { stdout } from 'node:process';
 import kleur from 'kleur';
 import type { LoggerTraceReturns } from 'types';
-
-const formatter = new Intl.DateTimeFormat('en-us', {
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  fractionalSecondDigits: 3,
-  hour12: false,
-});
-function prefix(): string {
-  return `[${formatter.format(Date.now())}] `;
-}
 
 function trace(error: Error): LoggerTraceReturns {
   function done(path?: string): LoggerTraceReturns {
@@ -29,6 +19,17 @@ function trace(error: Error): LoggerTraceReturns {
   return done(path);
 }
 
+const { format } = new Intl.DateTimeFormat('en-us', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  fractionalSecondDigits: 3,
+  hour12: false,
+});
+function prefix(): string {
+  return `[${format(Date.now())}] `;
+}
+
 const DONE = `${kleur.green('done')} `;
 const ERROR = kleur.red('error');
 const WARN = `${kleur.yellow('warn')} `;
@@ -45,7 +46,7 @@ const log = (() => {
       }
       return `${DEFAULT_PADDING}${type}`;
     }
-    process.stdout.write(`${prefix()}${parse()}\n`);
+    stdout.write(`${prefix()}${parse()}\n`);
     return inner;
   }
   inner.done = (message: string) => {
@@ -53,7 +54,7 @@ const log = (() => {
     return inner;
   };
   inner.empty = (message?: string) => {
-    process.stdout.write(message ? `${message}\n` : '\n');
+    stdout.write(message ? `${message}\n` : '\n');
     return inner;
   };
   inner.error = (() => {
