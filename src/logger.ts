@@ -2,17 +2,6 @@ import { stdout } from 'node:process';
 import kleur from 'kleur';
 import type { LoggerTraceReturns } from 'types';
 
-const formatter = new Intl.DateTimeFormat('en-us', {
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  fractionalSecondDigits: 3,
-  hour12: false,
-});
-function prefix(): string {
-  return `[${formatter.format(Date.now())}] `;
-}
-
 function trace(error: Error): LoggerTraceReturns {
   function done(path?: string): LoggerTraceReturns {
     return {
@@ -28,6 +17,17 @@ function trace(error: Error): LoggerTraceReturns {
   const [, path] = matched;
   if (!path) return done();
   return done(path);
+}
+
+const { format } = new Intl.DateTimeFormat('en-us', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  fractionalSecondDigits: 3,
+  hour12: false,
+});
+function prefix(): string {
+  return `[${format(Date.now())}] `;
 }
 
 const DONE = `${kleur.green('done')} `;
