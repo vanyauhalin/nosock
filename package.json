@@ -12,6 +12,7 @@
   "author": "Ivan Uhalin <vanyauhalin@gmail.com>",
   "type": "module",
   "main": "lib/index.js",
+  "bin": "bin/scer.cjs",
   "dependencies": {
     "kleur": "^4.1.4",
     "sade": "^1.8.1"
