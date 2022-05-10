@@ -14,6 +14,7 @@
   "main": "lib/index.js",
   "bin": "bin/scer.cjs",
   "scripts": {
+    "prebuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json",
     "build": "node .esbuildrc.js"
   },
   "dependencies": {
