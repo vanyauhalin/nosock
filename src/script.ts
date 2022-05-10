@@ -42,7 +42,8 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
 
   const callback = ctx.scripts[cmd];
   if (!callback) {
-    log.error.trace(`The ${kleur.blue(cmd)} is not described`)
+    log.error(`The ${kleur.blue(cmd)} is not described`)
+      .trace()
       .error(`${finished}${lap()}`);
     exit(0);
   }
@@ -65,7 +66,7 @@ async function run(
     result = await callback();
   } catch (err) {
     ctx.rejected = +1;
-    log.error.trace((err as Error).message);
+    log.error((err as Error).message).trace();
   }
   log[ctx.rejected ? 'error' : 'done'](`Finished ${colored} after ${lap()}`);
   return result;

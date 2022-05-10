@@ -5,12 +5,10 @@ interface Context {
 
 interface Logger {
   (type: string, message?: string): Logger;
-  error: {
-    (message: string): Logger;
-    trace(message: string): Logger;
-  };
   done(message: string): Logger;
   empty(message?: string): Logger;
+  error(message: string): Logger;
+  trace(): Logger;
   warn(message: string): Logger;
 }
 

@@ -2,26 +2,6 @@ import { stdout } from 'node:process';
 import kleur from 'kleur';
 import type { Logger } from 'types';
 
-function trace(error: Error): {
-  message: string;
-  path?: string;
-} {
-  function done(path?: string): ReturnType<typeof trace> {
-    return {
-      ...path ? { path } : {},
-      message: error.message,
-    };
-  }
-  if (!error.stack) return done();
-  const [,,, file] = error.stack.split('\n');
-  if (!file) return done();
-  const matched = file.match(/file:\/\/(.+)/);
-  if (!matched) return done();
-  const [, path] = matched;
-  if (!path) return done();
-  return done(path);
-}
-
 const { format } = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
   minute: 'numeric',
@@ -52,26 +32,28 @@ const log = (() => {
     stdout.write(`${prefix()}${parse()}\n`);
     return inner;
   }
-  inner.error = (() => {
-    function errorInner(message: string): Logger {
-      inner(ERROR, message);
-      return inner;
-    }
-    errorInner.trace = (message: string) => {
-      const traced = trace(new Error(message));
-      inner(ERROR, `${traced.message}${traced.path
-        ? `\n${LONGER_PADDING}${kleur.gray(traced.path)}`
-        : ''}`);
-      return inner;
-    };
-    return errorInner;
-  })();
   inner.done = (message: string) => {
     inner(DONE, message);
     return inner;
   };
   inner.empty = (message?: string) => {
     stdout.write(message ? `${message}\n` : '\n');
+    return inner;
+  };
+  inner.error = (message: string) => {
+    inner(ERROR, message);
+    return inner;
+  };
+  inner.trace = () => {
+    const err = new Error();
+    if (!err.stack) return inner;
+    const [,,, file] = err.stack.split('\n');
+    if (!file) return inner;
+    const matched = file.match(/file:\/\/(.+)/);
+    if (!matched) return inner;
+    const [, path] = matched;
+    if (!path) return inner;
+    inner.empty(`${LONGER_PADDING}${kleur.gray(path)}`);
     return inner;
   };
   inner.warn = (message: string) => {
