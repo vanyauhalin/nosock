@@ -37,7 +37,7 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
   const finished = 'Finished scanning after ';
   if (!cmd) {
     log.error('Missing a run command').error(`${finished}${lap()}`);
-    exit(0);
+    throw new Error();
   }
 
   const callback = ctx.scripts[cmd];
@@ -45,7 +45,7 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
     log.error(`The ${kleur.blue(cmd)} is not described`)
       .trace()
       .error(`${finished}${lap()}`);
-    exit(0);
+    throw new Error();
   }
 
   log.done(`${finished}${lap()}`);
@@ -79,16 +79,20 @@ const { script, exec } = (() => {
   };
   return {
     script: ((cmd, callback) => {
-      const promised = (): Promise<unknown> => Promise
-        .resolve(callback());
+      const promised = (): Promise<unknown> => Promise.resolve(callback());
       ctx.scripts[cmd] = promised;
       return run.bind(null, ctx, cmd, promised);
     }) as Script,
     async exec() {
       log.empty();
-      const [cmd, callback] = await scan(ctx);
-      await run(ctx, cmd, callback);
-      log.empty();
+      try {
+        const [cmd, callback] = await scan(ctx);
+        await run(ctx, cmd, callback);
+        log.empty();
+      } catch (err) {
+        log.empty();
+        exit(0);
+      }
     },
   };
 })();
