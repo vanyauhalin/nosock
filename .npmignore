@@ -1,0 +1,11 @@
+.github
+docs
+node_modules
+src
+test
+.commitlintrc.json
+.editorconfig
+.esbuildrc.js
+.eslintrc.json
+lefthook.yml
+tsconfig.json

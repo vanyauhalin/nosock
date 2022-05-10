@@ -15,7 +15,9 @@
   "bin": "bin/scer.cjs",
   "scripts": {
     "prebuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json",
-    "build": "node .esbuildrc.js"
+    "build": "node .esbuildrc.js",
+    "lint": "eslint .",
+    "test": "uvu -r tsm test"
   },
   "dependencies": {
     "kleur": "^4.1.4",
