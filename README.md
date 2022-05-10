@@ -62,9 +62,8 @@ Describe the script in one of the rc-file:
 ```js
 import { readFile, writeFile } from 'fs';
 import { promisify } from 'util';
+import { minify } from 'csso';
 import { build } from 'esbuild';
-import postcss from 'postcss';
-import postcssCsso from 'postcss-csso';
 import { script } from 'scer';
 
 async function buildScripts() {
@@ -77,11 +76,8 @@ async function buildScripts() {
 
 async function buildStyles() {
   const file = await promisify(readFile)('src/styles.css');
-  const result = await postcss()
-    .use(postcssCsso())
-    .use(postcssImport())
-    .process(file, { from: 'src/styles.css' });
-  await promisify(writeFile)('dist/styles.css', result.css);
+  const { css } = minify(file.toString());
+  await promisify(writeFile)('dist/styles.css', css);
 }
 
 script('build', async () => {
