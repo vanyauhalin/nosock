@@ -1,7 +1,11 @@
 interface Context {
   rejected: number;
-  scripts: Record<string, () => Promise<unknown>>;
+  scripts: Record<string, ContextScript>;
 }
+type ContextScript = {
+  cmd: string;
+  cb(): Promise<unknown>;
+};
 
 interface Logger {
   (type: string, message?: string): Logger;
@@ -22,6 +26,7 @@ interface Script {
 
 export {
   Context,
+  ContextScript,
   Logger,
   Script,
 };

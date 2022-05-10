@@ -1,6 +1,6 @@
 import { env, exit, hrtime } from 'node:process';
 import kleur from 'kleur';
-import type { Context, Script } from 'types';
+import type { Context, ContextScript, Script } from 'types';
 import { log } from './log';
 
 function stopwatch(): {
@@ -16,7 +16,7 @@ function stopwatch(): {
   return inner();
 }
 
-async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
+async function scan(ctx: Context): Promise<ContextScript> {
   const { lap } = stopwatch();
   log('Scanning scripts ...');
 
@@ -40,29 +40,28 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
     throw new Error();
   }
 
-  const cb = ctx.scripts[cmd];
-  if (!cb) {
+  const script = ctx.scripts[cmd];
+  if (!script) {
     log.error(`The ${kleur.blue(cmd)} is not described`)
       .error(`${finished}${lap()}`);
     throw new Error();
   }
 
   log.done(`${finished}${lap()}`);
-  return [cmd, cb];
+  return script;
 }
 
 async function run(
   ctx: Context,
-  cmd: string,
-  cb: () => Promise<unknown>,
+  script: ContextScript,
 ): Promise<unknown> {
   const { lap } = stopwatch();
   if (ctx.rejected) return undefined;
-  const colored = kleur.blue(cmd);
+  const colored = kleur.blue(script.cmd);
   log(`Running ${colored} ...`);
   let result;
   try {
-    result = await cb();
+    result = await script.cb();
   } catch (err) {
     ctx.rejected = +1;
     log.error((err as Error).message).trace(err as Error);
@@ -78,15 +77,18 @@ const { script, exec } = (() => {
   };
   return {
     script: ((cmd, cb) => {
-      const promised = (): Promise<unknown> => Promise.resolve(cb());
-      ctx.scripts[cmd] = promised;
-      return run.bind(null, ctx, cmd, promised);
+      const cur: ContextScript = {
+        cmd,
+        cb: () => Promise.resolve(cb()),
+      };
+      ctx.scripts[cmd] = cur;
+      return run.bind(null, ctx, cur);
     }) as Script,
     async exec() {
       log.empty();
       try {
-        const [cmd, cb] = await scan(ctx);
-        await run(ctx, cmd, cb);
+        const cur = await scan(ctx);
+        await run(ctx, cur);
         log.empty();
       } catch (err) {
         log.empty();
