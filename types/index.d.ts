@@ -1,5 +1,5 @@
 interface Context {
-  rejected: string[];
+  rejected: number;
   scripts: Record<string, () => Promise<unknown>>;
 }
 
@@ -15,28 +15,18 @@ interface Logger {
 }
 
 interface Script {
-  <C extends (ctx: Context) => unknown>(
+  <C extends () => unknown>(
     cmd: string,
     callback: C,
   ): () => (
-    Promise<C extends (ctx: Context) => Promise<unknown>
+    Promise<C extends () => Promise<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  run(
-    cmd: string,
-    callback: (ctx: Context) => Promise<unknown>,
-  ): Promise<void>;
-}
-
-interface Stopwatch {
-  (): Stopwatch;
-  lap(): string;
 }
 
 export {
   Context,
   Logger,
   Script,
-  Stopwatch,
 };
