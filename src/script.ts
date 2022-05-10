@@ -16,9 +16,9 @@ function stopwatch(): {
   return inner();
 }
 
-async function scan(ctx: Context): Promise<ContextScript> {
+async function scan(ctx: Context, file: string): Promise<ContextScript> {
   const { lap } = stopwatch();
-  log('Scanning scripts ...');
+  log('Scanning scripts ...').note(file);
 
   const cmds = [] as string[];
   for (const key in env) {
@@ -84,10 +84,10 @@ const { script, exec } = (() => {
       ctx.scripts[cmd] = cur;
       return run.bind(null, ctx, cur);
     }) as Script,
-    async exec() {
+    async exec(file: string) {
       log.empty();
       try {
-        const cur = await scan(ctx);
+        const cur = await scan(ctx, file);
         await run(ctx, cur);
         log.empty();
       } catch (err) {

@@ -8,8 +8,9 @@ async function load(): Promise<void> {
   const rc = (await promisify(readdir)(cwd))
     .find((el) => /^\.?((scripts|scer)(rc)?)\.([cm]js|[jt]s)/.test(el));
   if (!rc) throw new Error('Scripts file not found');
-  await import(`${cwd}/${rc}`);
-  await exec();
+  const file = `${cwd}/${rc}`;
+  await import(file);
+  await exec(file);
 }
 
 export {
