@@ -1,6 +1,6 @@
 import { env, exit, hrtime } from 'node:process';
 import kleur from 'kleur';
-import type { Context, Script } from 'types';
+import type { Context, ContextScript, Script } from 'types';
 import { log } from './log';
 
 function stopwatch(): {
@@ -16,9 +16,9 @@ function stopwatch(): {
   return inner();
 }
 
-async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
+async function scan(ctx: Context, file: string): Promise<ContextScript> {
   const { lap } = stopwatch();
-  log('Scanning scripts ...');
+  log('Scanning scripts ...').note(file);
 
   const cmds = [] as string[];
   for (const key in env) {
@@ -37,35 +37,34 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
   const finished = 'Finished scanning after ';
   if (!cmd) {
     log.error('Missing a run command').error(`${finished}${lap()}`);
-    exit(0);
+    throw new Error();
   }
 
-  const callback = ctx.scripts[cmd];
-  if (!callback) {
-    log.error.trace(`The ${kleur.blue(cmd)} is not described`)
+  const script = ctx.scripts[cmd];
+  if (!script) {
+    log.error(`The ${kleur.blue(cmd)} is not described`)
       .error(`${finished}${lap()}`);
-    exit(0);
+    throw new Error();
   }
 
   log.done(`${finished}${lap()}`);
-  return [cmd, callback];
+  return script;
 }
 
 async function run(
   ctx: Context,
-  cmd: string,
-  callback: () => Promise<unknown>,
+  script: ContextScript,
 ): Promise<unknown> {
   const { lap } = stopwatch();
   if (ctx.rejected) return undefined;
-  const colored = kleur.blue(cmd);
+  const colored = kleur.blue(script.cmd);
   log(`Running ${colored} ...`);
   let result;
   try {
-    result = await callback();
+    result = await script.cb();
   } catch (err) {
     ctx.rejected = +1;
-    log.error.trace((err as Error).message);
+    log.error((err as Error).message).trace(err as Error);
   }
   log[ctx.rejected ? 'error' : 'done'](`Finished ${colored} after ${lap()}`);
   return result;
@@ -77,17 +76,24 @@ const { script, exec } = (() => {
     scripts: {},
   };
   return {
-    script: ((cmd, callback) => {
-      const promised = (): Promise<unknown> => Promise
-        .resolve(callback());
-      ctx.scripts[cmd] = promised;
-      return run.bind(null, ctx, cmd, promised);
+    script: ((cmd, cb) => {
+      const cur: ContextScript = {
+        cmd,
+        cb: () => Promise.resolve(cb()),
+      };
+      ctx.scripts[cmd] = cur;
+      return run.bind(null, ctx, cur);
     }) as Script,
-    async exec() {
+    async exec(file: string) {
       log.empty();
-      const [cmd, callback] = await scan(ctx);
-      await run(ctx, cmd, callback);
-      log.empty();
+      try {
+        const cur = await scan(ctx, file);
+        await run(ctx, cur);
+        log.empty();
+      } catch (err) {
+        log.empty();
+        exit(0);
+      }
     },
   };
 })();
