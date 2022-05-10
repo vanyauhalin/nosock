@@ -1,6 +1,5 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
-import type { Logger } from 'types';
 
 const { format } = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
@@ -20,8 +19,16 @@ const TYPE_LENGTH = 5;
 const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
 const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
 
-const log = (() => {
-  function inner(type: string, message?: string): Logger {
+const log: {
+  (type: string, message?: string): typeof log;
+  done(message: string): typeof log;
+  empty(message?: string): typeof log;
+  error(message: string): typeof log;
+  note(message: string): typeof log;
+  trace(err: Error): typeof log;
+  warn(message: string): typeof log;
+} = (() => {
+  function inner(type: string, message?: string): typeof log {
     function parse(): string {
       if (typeof message === 'string') {
         const trimmed = message.trim();

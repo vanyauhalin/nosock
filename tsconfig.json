@@ -19,7 +19,7 @@
     "types": [
       "node"
     ],
-    "noEmit": true,
+    "outDir": "lib",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": false,
     "forceConsistentCasingInFileNames": true,
@@ -29,7 +29,6 @@
   },
   "include": [
     "src/*.ts",
-    "test/*.ts",
-    "types/*.ts"
+    "test/*.ts"
   ]
 }

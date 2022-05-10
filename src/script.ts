@@ -1,7 +1,15 @@
 import { env, exit, hrtime } from 'node:process';
 import kleur from 'kleur';
-import type { Context, ContextScript, Script } from 'types';
 import { log } from './log';
+
+interface Context {
+  rejected: number;
+  scripts: Record<string, ContextScript>;
+}
+type ContextScript = {
+  cmd: string;
+  cb(): Promise<unknown>;
+};
 
 function stopwatch(): {
   (): ReturnType<typeof stopwatch>;
@@ -83,7 +91,13 @@ const { script, exec } = (() => {
       };
       ctx.scripts[cmd] = cur;
       return run.bind(null, ctx, cur);
-    }) as Script,
+    }) as {
+      <C extends () => unknown>(cmd: string, cb: C): () => (
+        Promise<C extends () => Promise<unknown>
+          ? Awaited<ReturnType<C>>
+          : ReturnType<C>>
+      );
+    },
     async exec(file: string) {
       log.empty();
       try {
