@@ -40,21 +40,21 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
     throw new Error();
   }
 
-  const callback = ctx.scripts[cmd];
-  if (!callback) {
+  const cb = ctx.scripts[cmd];
+  if (!cb) {
     log.error(`The ${kleur.blue(cmd)} is not described`)
       .error(`${finished}${lap()}`);
     throw new Error();
   }
 
   log.done(`${finished}${lap()}`);
-  return [cmd, callback];
+  return [cmd, cb];
 }
 
 async function run(
   ctx: Context,
   cmd: string,
-  callback: () => Promise<unknown>,
+  cb: () => Promise<unknown>,
 ): Promise<unknown> {
   const { lap } = stopwatch();
   if (ctx.rejected) return undefined;
@@ -62,7 +62,7 @@ async function run(
   log(`Running ${colored} ...`);
   let result;
   try {
-    result = await callback();
+    result = await cb();
   } catch (err) {
     ctx.rejected = +1;
     log.error((err as Error).message).trace(err as Error);
@@ -77,16 +77,16 @@ const { script, exec } = (() => {
     scripts: {},
   };
   return {
-    script: ((cmd, callback) => {
-      const promised = (): Promise<unknown> => Promise.resolve(callback());
+    script: ((cmd, cb) => {
+      const promised = (): Promise<unknown> => Promise.resolve(cb());
       ctx.scripts[cmd] = promised;
       return run.bind(null, ctx, cmd, promised);
     }) as Script,
     async exec() {
       log.empty();
       try {
-        const [cmd, callback] = await scan(ctx);
-        await run(ctx, cmd, callback);
+        const [cmd, cb] = await scan(ctx);
+        await run(ctx, cmd, cb);
         log.empty();
       } catch (err) {
         log.empty();

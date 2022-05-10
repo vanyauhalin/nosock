@@ -13,10 +13,7 @@ interface Logger {
 }
 
 interface Script {
-  <C extends () => unknown>(
-    cmd: string,
-    callback: C,
-  ): () => (
+  <C extends () => unknown>(cmd: string, cb: C): () => (
     Promise<C extends () => Promise<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
