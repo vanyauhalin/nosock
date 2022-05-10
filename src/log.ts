@@ -44,6 +44,10 @@ const log = (() => {
     inner(ERROR, message);
     return inner;
   };
+  inner.note = (message: string) => {
+    inner.empty(`${LONGER_PADDING}${kleur.gray(message)}`);
+    return inner;
+  };
   inner.trace = (err: Error) => {
     if (!err.stack) return inner;
     const [,file] = err.stack.split('\n');
@@ -52,7 +56,7 @@ const log = (() => {
     if (!matched) return inner;
     const [, path] = matched;
     if (!path) return inner;
-    inner.empty(`${LONGER_PADDING}${kleur.gray(path)}`);
+    inner.note(path);
     return inner;
   };
   inner.warn = (message: string) => {

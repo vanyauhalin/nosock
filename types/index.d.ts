@@ -12,6 +12,7 @@ interface Logger {
   done(message: string): Logger;
   empty(message?: string): Logger;
   error(message: string): Logger;
+  note(message: string): Logger;
   trace(err: Error): Logger;
   warn(message: string): Logger;
 }
