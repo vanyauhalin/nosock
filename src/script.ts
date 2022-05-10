@@ -1,5 +1,5 @@
 import { env, exit, hrtime } from 'node:process';
-import { blue } from 'kleur';
+import kleur from 'kleur';
 import type { Context, Script } from 'types';
 import { log } from './log';
 
@@ -29,7 +29,7 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
 
   for (const cmd in ctx.scripts) {
     if (!cmds.includes(cmd)) {
-      log.warn(`The ${blue(cmd)} not found in package.json`);
+      log.warn(`The ${kleur.blue(cmd)} not found in package.json`);
     }
   }
 
@@ -42,7 +42,7 @@ async function scan(ctx: Context): Promise<[string, () => Promise<unknown>]> {
 
   const callback = ctx.scripts[cmd];
   if (!callback) {
-    log.error.trace(`The ${blue(cmd)} is not described`)
+    log.error.trace(`The ${kleur.blue(cmd)} is not described`)
       .error(`${finished}${lap()}`);
     exit(0);
   }
@@ -58,7 +58,7 @@ async function run(
 ): Promise<unknown> {
   const { lap } = stopwatch();
   if (ctx.rejected) return undefined;
-  const colored = blue(cmd);
+  const colored = kleur.blue(cmd);
   log(`Running ${colored} ...`);
   let result;
   try {

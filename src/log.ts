@@ -1,10 +1,5 @@
 import { stdout } from 'node:process';
-import {
-  gray,
-  green,
-  red,
-  yellow,
-} from 'kleur';
+import kleur from 'kleur';
 import type { Logger } from 'types';
 
 function trace(error: Error): {
@@ -38,9 +33,9 @@ function prefix(): string {
   return `[${format(Date.now())}] `;
 }
 
-const DONE = `${green('done')} `;
-const ERROR = red('error');
-const WARN = `${yellow('warn')} `;
+const DONE = `${kleur.green('done')} `;
+const ERROR = kleur.red('error');
+const WARN = `${kleur.yellow('warn')} `;
 const TYPE_LENGTH = 5;
 const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
 const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
@@ -65,7 +60,7 @@ const log = (() => {
     errorInner.trace = (message: string) => {
       const traced = trace(new Error(message));
       inner(ERROR, `${traced.message}${traced.path
-        ? `\n${LONGER_PADDING}${gray(traced.path)}`
+        ? `\n${LONGER_PADDING}${kleur.gray(traced.path)}`
         : ''}`);
       return inner;
     };
