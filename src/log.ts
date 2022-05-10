@@ -44,12 +44,11 @@ const log = (() => {
     inner(ERROR, message);
     return inner;
   };
-  inner.trace = () => {
-    const err = new Error();
+  inner.trace = (err: Error) => {
     if (!err.stack) return inner;
-    const [,,, file] = err.stack.split('\n');
+    const [,file] = err.stack.split('\n');
     if (!file) return inner;
-    const matched = file.match(/file:\/\/(.+)/);
+    const matched = file.match(/file:\/\/(.+:\d*:\d*)/);
     if (!matched) return inner;
     const [, path] = matched;
     if (!path) return inner;

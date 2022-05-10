@@ -8,7 +8,7 @@ interface Logger {
   done(message: string): Logger;
   empty(message?: string): Logger;
   error(message: string): Logger;
-  trace(): Logger;
+  trace(err: Error): Logger;
   warn(message: string): Logger;
 }
 
