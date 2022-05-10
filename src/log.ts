@@ -13,7 +13,7 @@ function trace(error: Error): {
     };
   }
   if (!error.stack) return done();
-  const [,,,, file] = error.stack.split('\n');
+  const [,,, file] = error.stack.split('\n');
   if (!file) return done();
   const matched = file.match(/file:\/\/(.+)/);
   if (!matched) return done();
