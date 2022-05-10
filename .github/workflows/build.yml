@@ -26,8 +26,8 @@ jobs:
           node-version: 16
       - run: npm i -g pnpm
       - run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
