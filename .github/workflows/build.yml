@@ -24,10 +24,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" \
+          >> .npmrc
       - run: npm i -g pnpm
       - run: pnpm i
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
