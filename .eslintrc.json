@@ -6,6 +6,9 @@
   "rules": {
     // At this project we can disable the rules below for better performance.
     "guard-for-in": "off",
-    "no-restricted-syntax": "off"
+    "no-restricted-syntax": "off",
+    // Mainly for the bin file.
+    "global-require": "off",
+    "no-new-func": "off"
   }
 }
