@@ -3,12 +3,21 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "rules": {
-    // At this project we can disable the rules below for better performance.
-    "guard-for-in": "off",
-    "no-restricted-syntax": "off",
-    // Mainly for the bin file.
-    "global-require": "off",
-    "no-new-func": "off"
-  }
+  "overrides": [{
+    "files": "bin/*.cjs",
+    "rules": {
+      "global-require": "off",
+      // Because the files are linted before building, importing from the lib
+      // directory throws an error.
+      "import/no-unresolved": "off",
+      "no-new-func": "off"
+    }
+  }, {
+    "files": "src/*.ts",
+    "rules": {
+      // At this project we can disable the rules below for better performance.
+      "guard-for-in": "off",
+      "no-restricted-syntax": "off"
+    }
+  }]
 }
