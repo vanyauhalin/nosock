@@ -1,7 +1,7 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
 
-const { format } = new Intl.DateTimeFormat('en-us', {
+const time = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
   minute: 'numeric',
   second: 'numeric',
@@ -9,7 +9,7 @@ const { format } = new Intl.DateTimeFormat('en-us', {
   hour12: false,
 });
 function prefix(): string {
-  return `[${format(Date.now())}] `;
+  return `[${time.format(Date.now())}] `;
 }
 
 const DONE = `${kleur.green('done')} `;
@@ -19,20 +19,22 @@ const TYPE_LENGTH = 5;
 const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
 const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
 
-const log: {
-  (type: string, message?: string): typeof log;
-  done(message: string): typeof log;
-  empty(message?: string): typeof log;
-  error(message: string): typeof log;
-  note(message: string): typeof log;
-  trace(err: Error): typeof log;
-  warn(message: string): typeof log;
-} = (() => {
-  function inner(type: string, message?: string): typeof log {
+interface Logger {
+  (type: string, message?: string): Logger;
+  done(message: string): Logger;
+  empty(message?: string): Logger;
+  error(message: string): Logger;
+  note(message: string): Logger;
+  trace(error: Error): Logger;
+  warn(message: string): Logger;
+}
+
+const log: Logger = (() => {
+  function inner(type: string, message?: string): Logger {
     function parse(): string {
       if (typeof message === 'string') {
         const trimmed = message.trim();
-        return trimmed.length ? `${type} ${trimmed}` : type;
+        return trimmed.length > 0 ? `${type} ${trimmed}` : type;
       }
       return `${DEFAULT_PADDING}${type}`;
     }
@@ -55,9 +57,9 @@ const log: {
     inner.empty(`${LONGER_PADDING}${kleur.gray(message)}`);
     return inner;
   };
-  inner.trace = (err: Error) => {
-    if (!err.stack) return inner;
-    const [,file] = err.stack.split('\n');
+  inner.trace = (error: Error) => {
+    if (!error.stack) return inner;
+    const [,file] = error.stack.split('\n');
     if (!file) return inner;
     const matched = file.match(/file:\/\/(.+:\d*:\d*)/);
     if (!matched) return inner;
