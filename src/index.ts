@@ -1,7 +1,2 @@
-import { log } from './log';
-import { script } from './script';
-
-export {
-  log,
-  script,
-};
+export { log } from './log';
+export { script } from './script';
