@@ -1,7 +1,6 @@
 import { env } from 'node:process';
-import kleur from 'kleur';
 import type { Context, ContextScript } from './context';
-import { log } from './log';
+import { ACCENT, log } from './log';
 
 function scan(context: Context, file: string): ContextScript {
   log('Scanning scripts ...').note(file);
@@ -16,7 +15,7 @@ function scan(context: Context, file: string): ContextScript {
 
   for (const command in scripts) {
     if (commands.includes(command)) break;
-    log.warn(`The ${kleur.blue(command)} not found in package.json`);
+    log.warn(`The ${ACCENT(command)} not found in package.json`);
   }
 
   const command = env['npm_lifecycle_event'];

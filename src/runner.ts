@@ -1,14 +1,13 @@
-import kleur from 'kleur';
 import type { Context, ContextScript } from './context';
-import { log } from './log';
+import { ACCENT, log } from './log';
 import { stopwatch } from './utils';
 
 async function run(context: Context, script: ContextScript): Promise<unknown> {
   const lap = stopwatch();
   if (context.rejected) return undefined;
   const { callback, command } = script;
-  const colored = kleur.blue(command);
-  log(`Running ${colored} ...`);
+  const accented = ACCENT(command);
+  log(`Running ${accented} ...`);
   let result;
   try {
     result = await callback();
@@ -19,7 +18,7 @@ async function run(context: Context, script: ContextScript): Promise<unknown> {
   }
   log[context.rejected
     ? 'error'
-    : 'done'](`Finished ${colored} after ${lap()}`);
+    : 'done'](`Finished ${accented} after ${lap()}`);
   return result;
 }
 

@@ -1,28 +1,29 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
 
-const time = new Intl.DateTimeFormat('en-us', {
+const DONE = `${kleur.green('done')}  `;
+const ERROR = `${kleur.red('error')} `;
+const WARN = `${kleur.yellow('warn')}  `;
+const SHADOW = kleur.gray;
+const ACCENT = kleur.blue;
+const SHORT = '     ';
+const LONG = '             ';
+const DATE = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
   minute: 'numeric',
   second: 'numeric',
   fractionalSecondDigits: 3,
   hour12: false,
 });
+
 function prefix(): string {
-  return `[${time.format(Date.now())}] `;
+  return `[${DATE.format(Date.now())}] `;
 }
 
-const DONE = `${kleur.green('done')} `;
-const ERROR = kleur.red('error');
-const WARN = `${kleur.yellow('warn')} `;
-const TYPE_LENGTH = 5;
-const DEFAULT_PADDING = `${' '.repeat(TYPE_LENGTH)} `;
-const LONGER_PADDING = `${' '.repeat(prefix().length + TYPE_LENGTH)} `;
-
 interface Logger {
-  (type: string, message?: string): Logger;
+  (message: string): Logger;
   done(message: string): Logger;
-  empty(message?: string): Logger;
+  empty(): Logger;
   error(message: string): Logger;
   note(message: string): Logger;
   trace(error: Error): Logger;
@@ -30,51 +31,44 @@ interface Logger {
 }
 
 const log: Logger = (() => {
-  function inner(type: string, message?: string): Logger {
-    function parse(): string {
-      if (typeof message === 'string') {
-        const trimmed = message.trim();
-        return trimmed.length > 0 ? `${type} ${trimmed}` : type;
-      }
-      return `${DEFAULT_PADDING}${type}`;
-    }
-    stdout.write(`${prefix()}${parse()}\n`);
+  function inner(message: string): Logger {
+    stdout.write(`${prefix()}${SHORT}${message}\n`);
     return inner;
   }
   inner.done = (message: string) => {
-    inner(DONE, message);
+    stdout.write(`${prefix()}${DONE}${message}\n`);
     return inner;
   };
-  inner.empty = (message?: string) => {
-    stdout.write(message ? `${message}\n` : '\n');
+  inner.empty = () => {
+    stdout.write('\n');
     return inner;
   };
   inner.error = (message: string) => {
-    inner(ERROR, message);
+    stdout.write(`${prefix()}${ERROR}${message}\n`);
     return inner;
   };
   inner.note = (message: string) => {
-    inner.empty(`${LONGER_PADDING}${kleur.gray(message)}`);
+    stdout.write(`${LONG}${SHADOW(message)}\n`);
     return inner;
   };
   inner.trace = (error: Error) => {
     if (!error.stack) return inner;
-    const [,file] = error.stack.split('\n');
+    const [, file] = error.stack.split('\n');
     if (!file) return inner;
     const matched = file.match(/file:\/\/(.+:\d*:\d*)/);
     if (!matched) return inner;
     const [, path] = matched;
     if (!path) return inner;
-    inner.note(path);
-    return inner;
+    return inner.note(path);
   };
   inner.warn = (message: string) => {
-    inner(WARN, message);
+    stdout.write(`${prefix()}${WARN}${message}\n`);
     return inner;
   };
   return inner;
 })();
 
 export {
+  ACCENT,
   log,
 };
