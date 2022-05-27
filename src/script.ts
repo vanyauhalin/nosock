@@ -1,6 +1,7 @@
-import { env, exit, hrtime } from 'node:process';
+import { env, exit } from 'node:process';
 import kleur from 'kleur';
 import { log } from './log';
+import { stopwatch } from './utils';
 
 interface Context {
   rejected: number;
@@ -11,21 +12,8 @@ type ContextScript = {
   cb(): Promise<unknown>;
 };
 
-function stopwatch(): {
-  (): ReturnType<typeof stopwatch>;
-  lap(): string;
-} {
-  let start: number;
-  function inner(): ReturnType<typeof stopwatch> {
-    start = Number(hrtime.bigint());
-    return inner;
-  }
-  inner.lap = () => `${((Number(hrtime.bigint()) - start) / 1e6).toFixed(2)}ms`;
-  return inner();
-}
-
 async function scan(ctx: Context, file: string): Promise<ContextScript> {
-  const { lap } = stopwatch();
+  const lap = stopwatch();
   log('Scanning scripts ...').note(file);
 
   const cmds = [] as string[];
@@ -63,7 +51,7 @@ async function run(
   ctx: Context,
   script: ContextScript,
 ): Promise<unknown> {
-  const { lap } = stopwatch();
+  const lap = stopwatch();
   if (ctx.rejected) return undefined;
   const colored = kleur.blue(script.cmd);
   log(`Running ${colored} ...`);
