@@ -1,12 +1,7 @@
-import { exit } from 'node:process';
 import type { ContextScript } from './context';
-import { define } from './context';
-import { log } from './log';
 import { run } from './runner';
-import { scan } from './scanner';
 
-const { script, exec } = (() => {
-  const ctx = define();
+const { script } = (() => {
   return {
     script: ((command, callback) => {
       const cur: ContextScript = {
@@ -22,21 +17,9 @@ const { script, exec } = (() => {
           : ReturnType<C>>
       );
     },
-    async exec(file: string) {
-      log.empty();
-      try {
-        const cur = await scan(ctx, file);
-        await run(ctx, cur);
-        log.empty();
-      } catch (err) {
-        log.empty();
-        exit(0);
-      }
-    },
   };
 })();
 
 export {
   script,
-  exec,
 };
