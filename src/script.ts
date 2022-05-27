@@ -1,22 +1,12 @@
 import { exit } from 'node:process';
+import type { ContextScript } from './context';
+import { define } from './context';
 import { log } from './log';
 import { run } from './runner';
 import { scan } from './scanner';
 
-interface Context {
-  rejected: number;
-  scripts: Record<string, ContextScript>;
-}
-type ContextScript = {
-  command: string;
-  callback(this: void): Promise<unknown>;
-};
-
 const { script, exec } = (() => {
-  const ctx: Context = {
-    rejected: 0,
-    scripts: {},
-  };
+  const ctx = define();
   return {
     script: ((command, callback) => {
       const cur: ContextScript = {
@@ -46,7 +36,6 @@ const { script, exec } = (() => {
   };
 })();
 
-export type { Context, ContextScript };
 export {
   script,
   exec,

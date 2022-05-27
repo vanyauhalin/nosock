@@ -1,7 +1,7 @@
 import { env } from 'node:process';
 import kleur from 'kleur';
+import type { Context, ContextScript } from './context';
 import { log } from './log';
-import type { Context, ContextScript } from './script';
 
 function scan(context: Context, file: string): ContextScript {
   log('Scanning scripts ...').note(file);

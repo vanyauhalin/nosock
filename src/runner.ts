@@ -1,6 +1,6 @@
 import kleur from 'kleur';
+import type { Context, ContextScript } from './context';
 import { log } from './log';
-import type { Context, ContextScript } from './script';
 import { stopwatch } from './utils';
 
 async function run(context: Context, script: ContextScript): Promise<unknown> {
