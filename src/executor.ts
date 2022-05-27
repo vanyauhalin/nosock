@@ -1,5 +1,5 @@
 import type { Context } from './context';
-import { log } from './log';
+import { log } from './logger';
 import { run } from './runner';
 import { scan } from './scanner';
 

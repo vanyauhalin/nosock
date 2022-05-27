@@ -1,5 +1,5 @@
 import type { Context, ContextScript } from './context';
-import { ACCENT, log } from './log';
+import { ACCENT, log } from './logger';
 import { stopwatch } from './utils';
 
 async function run(context: Context, script: ContextScript): Promise<unknown> {
