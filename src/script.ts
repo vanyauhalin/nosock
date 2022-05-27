@@ -1,6 +1,7 @@
-import { env, exit } from 'node:process';
+import { exit } from 'node:process';
 import kleur from 'kleur';
 import { log } from './log';
+import { scan } from './scanner';
 import { stopwatch } from './utils';
 
 interface Context {
@@ -11,41 +12,6 @@ type ContextScript = {
   cmd: string;
   cb(): Promise<unknown>;
 };
-
-async function scan(ctx: Context, file: string): Promise<ContextScript> {
-  const lap = stopwatch();
-  log('Scanning scripts ...').note(file);
-
-  const cmds = [] as string[];
-  for (const key in env) {
-    if (/^npm_package_scripts_.+/.test(key)) {
-      cmds.push(key.replace(/^npm_package_scripts_/, '').replace(/_/g, '-'));
-    }
-  }
-
-  for (const cmd in ctx.scripts) {
-    if (!cmds.includes(cmd)) {
-      log.warn(`The ${kleur.blue(cmd)} not found in package.json`);
-    }
-  }
-
-  const cmd = env['npm_lifecycle_event'];
-  const finished = 'Finished scanning after ';
-  if (!cmd) {
-    log.error('Missing a run command').error(`${finished}${lap()}`);
-    throw new Error();
-  }
-
-  const script = ctx.scripts[cmd];
-  if (!script) {
-    log.error(`The ${kleur.blue(cmd)} is not described`)
-      .error(`${finished}${lap()}`);
-    throw new Error();
-  }
-
-  log.done(`${finished}${lap()}`);
-  return script;
-}
 
 async function run(
   ctx: Context,
@@ -100,6 +66,7 @@ const { script, exec } = (() => {
   };
 })();
 
+export type { Context, ContextScript };
 export {
   script,
   exec,
