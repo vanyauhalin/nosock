@@ -14,8 +14,8 @@
   "main": "lib/index.js",
   "bin": "bin/scer.cjs",
   "scripts": {
-    "prebuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json",
-    "build": "node .esbuildrc.js",
+    "prebuild": "tsc --project tsconfig.json --declaration --emitDeclarationOnly && tsm .scripts.ts",
+    "build": "tsm .scripts.ts",
     "lint": "eslint .",
     "test": "uvu -r tsm test"
   },
