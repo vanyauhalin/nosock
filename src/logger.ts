@@ -6,8 +6,8 @@ const ERROR = `${kleur.red('error')} `;
 const WARN = `${kleur.yellow('warn')}  `;
 const SHADOW = kleur.gray;
 const ACCENT = kleur.blue;
-const SHORT = '     ';
-const LONG = '             ';
+const SHORT = '      ';
+const LONG = `               ${SHORT}`;
 const DATE = new Intl.DateTimeFormat('en-us', {
   hour: 'numeric',
   minute: 'numeric',
