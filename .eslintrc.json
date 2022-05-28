@@ -3,21 +3,28 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "overrides": [{
-    "files": "bin/*.cjs",
-    "rules": {
-      "global-require": "off",
-      // Because the files are linted before building, importing from the lib
-      // directory throws an error.
-      "import/no-unresolved": "off",
-      "no-new-func": "off"
+  "overrides": [
+    {
+      "files": "scripts.ts",
+      "rules": {
+        "import/no-extraneous-dependencies": "off"
+      }
+    },
+    {
+      "files": "bin/*.cjs",
+      "rules": {
+        "global-require": "off",
+        "import/no-unresolved": "off",
+        "no-new-func": "off"
+      }
+    },
+    {
+      "files": "src/*.ts",
+      "rules": {
+        "guard-for-in": "off",
+        "no-restricted-syntax": "off",
+        "promise/prefer-await-to-callbacks": "off"
+      }
     }
-  }, {
-    "files": "src/*.ts",
-    "rules": {
-      // At this project we can disable the rules below for better performance.
-      "guard-for-in": "off",
-      "no-restricted-syntax": "off"
-    }
-  }]
+  ]
 }
