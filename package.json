@@ -13,6 +13,10 @@
   "type": "module",
   "main": "lib/index.js",
   "bin": "bin/scer.cjs",
+  "files": [
+    "bin",
+    "lib"
+  ],
   "scripts": {
     "prebuild": "tsc --project tsconfig.json --declaration --emitDeclarationOnly && tsm .scripts.ts",
     "build": "tsm .scripts.ts",
