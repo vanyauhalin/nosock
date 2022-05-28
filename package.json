@@ -13,9 +13,13 @@
   "type": "module",
   "main": "lib/index.js",
   "bin": "bin/scer.cjs",
+  "files": [
+    "bin",
+    "lib"
+  ],
   "scripts": {
-    "prebuild": "tsc --emitDeclarationOnly --declaration --project tsconfig.json",
-    "build": "node .esbuildrc.js",
+    "prebuild": "tsc --project tsconfig.json --declaration --emitDeclarationOnly && tsm .scripts.ts",
+    "build": "tsm .scripts.ts",
     "lint": "eslint .",
     "test": "uvu -r tsm test"
   },
@@ -28,7 +32,7 @@
     "@commitlint/cli": "^16.2.4",
     "@commitlint/config-conventional": "^16.2.4",
     "@types/node": "^17.0.31",
-    "@vanyauhalin/eslint-config-typescript": "^0.6.0",
+    "@vanyauhalin/eslint-config-typescript": "^0.20.0",
     "esbuild": "^0.14.38",
     "eslint": "^8.14.0",
     "tsm": "^2.2.1",

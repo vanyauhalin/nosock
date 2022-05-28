@@ -3,28 +3,30 @@ const { argv, exit, stdout } = require('node:process');
 const sade = require('sade');
 const pack = require('../package.json');
 
-const imp = (path) => new Function(`return import(${JSON
-  .stringify(path)})`).call(0);
-
-const hasImport = (() => {
+const imp = (() => {
   try {
     new Function('import').call(0);
     return true;
-  } catch (err) {
-    return !/unexpected/i.test(err.message);
+  } catch (error) {
+    return !/unexpected/i.test(error.message);
   }
-})();
+})()
+  ? (path) => new Function(`return import(${JSON.stringify(path)})`).call(0)
+  : require;
+
+function cross(path) {
+  return (() => Promise.resolve(imp(path)))();
+}
 
 sade('scer [file]')
   .version(pack.version)
   .action(async () => {
     try {
-      const { load } = await (() => (hasImport
-        ? imp('../lib/load.js')
-        : require('../lib/load.cjs')))();
-      load();
-    } catch (err) {
-      stdout.write(`${err.message}\n`);
+      const { exec, load } = await cross('../lib');
+      const file = await load();
+      await exec(file);
+    } catch (error) {
+      stdout.write(`${error.message}\n`);
       exit(1);
     }
   })
