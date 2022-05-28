@@ -1,12 +1,12 @@
 import { define as defineContext } from './context';
 import { define as defineExecutor } from './executor';
-import { define as defineScript } from './scripter';
+import { define as defineScripter } from './scripter';
 
 const { exec, script } = (() => {
   const context = defineContext();
   return {
     exec: defineExecutor(context),
-    script: defineScript(context),
+    script: defineScripter(context),
   };
 })();
 
