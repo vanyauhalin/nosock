@@ -2,7 +2,7 @@ import { readdir } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 
-async function load(): Promise<void> {
+async function load(): Promise<string> {
   const cwd = resolve('.');
   const files = await promisify(readdir)(cwd);
   let file = files
@@ -10,6 +10,7 @@ async function load(): Promise<void> {
   if (!file) throw new Error('Scripts file not found');
   file = `${cwd}/${file}`;
   await import(file);
+  return file;
 }
 
 export { load };

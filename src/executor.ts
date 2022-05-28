@@ -4,13 +4,13 @@ import { run } from './runner';
 import { scan } from './scanner';
 
 interface Executor {
-  (config: string): Promise<void>;
+  (file: string): Promise<void>;
 }
 
 function define(context: Context): Executor {
-  async function inner(config: string): Promise<void> {
-    log.empty();
-    const script = scan(context, config);
+  async function inner(file: string): Promise<void> {
+    log.empty()('Running scripts ...').note(file);
+    const script = scan(context);
     await run(context, script);
     log.empty();
   }

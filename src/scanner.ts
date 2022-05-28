@@ -2,8 +2,7 @@ import { env } from 'node:process';
 import type { Context, ContextScript } from './context';
 import { ACCENT, log } from './logger';
 
-function scan(context: Context, file: string): ContextScript {
-  log('Scanning scripts ...').note(file);
+function scan(context: Context): ContextScript {
   const { scripts } = context;
 
   const commands = [];
