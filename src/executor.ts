@@ -8,13 +8,12 @@ interface Executor {
 }
 
 function define(context: Context): Executor {
-  async function inner(file: string): Promise<void> {
+  return async (file) => {
     log.empty()('Running scripts ...').note(file);
     const script = scan(context);
     await run(context, script);
     log.empty();
-  }
-  return inner;
+  };
 }
 
 export type { Executor };

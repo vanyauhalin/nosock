@@ -10,7 +10,7 @@ interface Scripter {
 }
 
 function define(context: Context): Scripter {
-  function inner(command: string, callback: () => unknown): () => unknown {
+  return ((command, callback) => {
     const script = {
       command,
       callback() {
@@ -19,8 +19,7 @@ function define(context: Context): Scripter {
     };
     context.scripts[command] = script;
     return run.bind(undefined, context, script);
-  }
-  return inner as Scripter;
+  }) as Scripter;
 }
 
 export type { Scripter };
