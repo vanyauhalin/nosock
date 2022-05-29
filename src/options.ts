@@ -1,4 +1,5 @@
 interface Options {
+  color: boolean;
   cwd: string;
   require: string[];
 }
