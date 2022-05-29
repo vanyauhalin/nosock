@@ -20,11 +20,12 @@ function cross(path) {
 
 sade('scer [file]')
   .version(pack.version)
-  .action(async () => {
+  .option('--cwd', 'The current directory to resolve from', '.')
+  .action(async (file, options) => {
     try {
       const { exec, load } = await cross('../lib');
-      const file = await load();
-      await exec(file);
+      const loaded = await load(file, options);
+      await exec(loaded);
     } catch (error) {
       stdout.write(`${error.message}\n`);
       exit(1);
