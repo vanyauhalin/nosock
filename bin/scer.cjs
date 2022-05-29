@@ -21,6 +21,7 @@ function cross(path) {
 sade('scer [file]')
   .version(pack.version)
   .option('--cwd', 'The current directory to resolve from', '.')
+  .option('--require', 'Additional module(s) to preload', [])
   .action(async (file, options) => {
     try {
       const { exec, load } = await cross('../lib');
