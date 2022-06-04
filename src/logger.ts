@@ -1,11 +1,11 @@
 import { stdout } from 'node:process';
 import kleur from 'kleur';
 
+const ACCENT = kleur.blue;
+const SHADOW = kleur.gray;
 const DONE = `${kleur.green('done')}  `;
 const ERROR = `${kleur.red('error')} `;
 const WARN = `${kleur.yellow('warn')}  `;
-const SHADOW = kleur.gray;
-const ACCENT = kleur.blue;
 const SHORT = '      ';
 const LONG = `               ${SHORT}`;
 const DATE = new Intl.DateTimeFormat('en-us', {
@@ -23,7 +23,6 @@ function prefix(): string {
 interface Logger {
   (message: string): Logger;
   done(message: string): Logger;
-  empty(): Logger;
   error(message: string): Logger;
   note(message: string): Logger;
   trace(error: Error): Logger;
@@ -37,10 +36,6 @@ const log: Logger = (() => {
   }
   inner.done = (message: string) => {
     stdout.write(`${prefix()}${DONE}${message}\n`);
-    return inner;
-  };
-  inner.empty = () => {
-    stdout.write('\n');
     return inner;
   };
   inner.error = (message: string) => {
@@ -68,7 +63,4 @@ const log: Logger = (() => {
   return inner;
 })();
 
-export {
-  ACCENT,
-  log,
-};
+export { ACCENT, log };
