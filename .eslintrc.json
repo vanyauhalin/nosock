@@ -3,22 +3,7 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "overrides": [
-    {
-      "files": "bin/*.cjs",
-      "rules": {
-        "global-require": "off",
-        "import/no-unresolved": "off",
-        "no-new-func": "off"
-      }
-    },
-    {
-      "files": "src/*.ts",
-      "rules": {
-        "guard-for-in": "off",
-        "no-restricted-syntax": "off",
-        "promise/prefer-await-to-callbacks": "off"
-      }
-    }
-  ]
+  "rules": {
+    "promise/prefer-await-to-callbacks": "off"
+  }
 }
