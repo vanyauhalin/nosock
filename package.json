@@ -1,18 +1,17 @@
 {
-  "name": "scer",
+  "name": "nosock",
   "version": "0.0.0",
-  "description": "npm scripts runner",
+  "description": "Little tool to describe npm scripts",
   "keywords": [
     "npm",
-    "scripts",
-    "runner"
+    "scripts"
   ],
-  "repository": "github:vanyauhalin/scer",
+  "repository": "github:vanyauhalin/nosock",
   "license": "MIT",
   "author": "Ivan Uhalin <vanyauhalin@gmail.com>",
   "main": "lib/index.js",
   "module": "lib/index.mjs",
-  "bin": "bin/scer.js",
+  "bin": "bin/nosock.js",
   "files": [
     "bin",
     "lib"
