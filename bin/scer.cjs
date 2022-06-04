@@ -20,11 +20,15 @@ function cross(path) {
 
 sade('scer [file]')
   .version(pack.version)
-  .action(async () => {
+  .option('--color', 'Print colorized output', true)
+  .option('--cwd', 'The current directory to resolve from', '.')
+  .option('--require', 'Additional module(s) to preload', [])
+  .action(async (file, options) => {
     try {
+      if (options.color) process.env.FORCE_COLOR = '1';
       const { exec, load } = await cross('../lib');
-      const file = await load();
-      await exec(file);
+      const loaded = await load(file, options);
+      await exec(loaded);
     } catch (error) {
       stdout.write(`${error.message}\n`);
       exit(1);
