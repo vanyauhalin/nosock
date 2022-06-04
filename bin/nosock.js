@@ -22,14 +22,14 @@ const cross = (() => {
   return (path) => Promise.resolve(requirer(path));
 })();
 
-sade('scer [file]')
+sade('nosock [file]')
   .version(pack.version)
   .option('-c, --cwd', 'The current directory to resolve from', '.')
   .option('-r, --require', 'Additional module(s) to preload', [])
   .option('--color', 'Print colorized output', true)
   .action(async (file, options) => {
     try {
-      const { exec, load } = await cross('scer');
+      const { exec, load } = await cross('nosock');
       // Follow the rules for redefining env in TS.
       // eslint-disable-next-line dot-notation
       if (options.color) env['FORCE_COLOR'] = '1';
