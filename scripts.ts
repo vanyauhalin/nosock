@@ -1,4 +1,9 @@
-import { readdirSync, renameSync, rmSync } from 'node:fs';
+import {
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { BuildOptions } from 'esbuild';
@@ -30,18 +35,35 @@ function build(options: BuildOptions): void {
 }
 
 script('build', () => {
-  for (const file of readdirSync(SOURCES)) {
+  /**
+   * @see https://github.com/evanw/esbuild/issues/1492
+   */
+  writeFileSync(
+    'import-meta-url.js',
+    'export var import_meta_url = require("url").pathToFileURL(__filename);',
+  );
+  const sources = readdirSync(SOURCES);
+  for (const file of sources) {
     const entryPoints = [`${SOURCES}/${file}`];
     build({
       entryPoints,
-      outdir: OUTPUT,
+      outfile: `${OUTPUT}/${basename(file).replace('.ts', '.mjs')}`,
     });
     build({
       entryPoints,
+      outdir: OUTPUT,
       format: 'cjs',
-      outfile: `${OUTPUT}/${basename(file).replace('.ts', '.cjs')}`,
+      ...file.includes('loader')
+        ? {
+          inject: ['./import-meta-url.js'],
+          define: {
+            'import.meta.url': 'import_meta_url',
+          },
+        }
+        : {},
     });
   }
+  rmSync('import-meta-url.js');
 });
 
 await exec(fileURLToPath(import.meta.url));
