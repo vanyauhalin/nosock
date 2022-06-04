@@ -5,12 +5,6 @@
   },
   "overrides": [
     {
-      "files": "scripts.ts",
-      "rules": {
-        "import/no-extraneous-dependencies": "off"
-      }
-    },
-    {
       "files": "bin/*.cjs",
       "rules": {
         "global-require": "off",

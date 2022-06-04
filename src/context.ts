@@ -2,10 +2,10 @@ interface Context {
   rejected: number;
   scripts: Record<string, ContextScript>;
 }
-type ContextScript = {
+interface ContextScript {
   command: string;
   callback(this: void): Promise<unknown>;
-};
+}
 
 function define(): Context {
   return {
