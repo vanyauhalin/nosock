@@ -27,7 +27,11 @@ sade('scer [file]')
     try {
       if (options.color) process.env.FORCE_COLOR = '1';
       const { exec, load } = await cross('../lib');
-      const loaded = await load(file, options);
+      const loaded = await load({
+        file,
+        cwd: options.cwd,
+        require: options.require,
+      });
       await exec(loaded);
     } catch (error) {
       stdout.write(`${error.message}\n`);
