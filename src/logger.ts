@@ -1,4 +1,4 @@
-import { stdout } from 'node:process';
+import { stderr, stdout } from 'node:process';
 import kleur from 'kleur';
 
 const ACCENT = kleur.blue;
@@ -48,7 +48,7 @@ const log: Logger = (() => {
     return inner;
   };
   inner.error = (message: string) => {
-    stdout.write(align(`${prefix()}${ERROR}`, message));
+    stderr.write(align(`${prefix()}${ERROR}`, message));
     return inner;
   };
   inner.note = (message: string) => {
