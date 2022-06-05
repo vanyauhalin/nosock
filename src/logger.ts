@@ -57,13 +57,15 @@ const log: Logger = (() => {
   };
   inner.trace = (error: Error) => {
     if (!error.stack) return inner;
-    const [, file] = error.stack.split('\n');
-    if (!file) return inner;
-    const matched = file.match(/file:\/\/(.+:\d*:\d*)/);
-    if (!matched) return inner;
-    const [, path] = matched;
-    if (!path) return inner;
-    return inner.note(path);
+    const [, ...positions] = error.stack.split('\n');
+    for (const position of positions) {
+      const matched = position.match(/\/[^/]\S+:\d*:\d*/);
+      if (matched) {
+        const [path] = matched;
+        if (path) return inner.note(path);
+      }
+    }
+    return inner;
   };
   inner.warn = (message: string) => {
     stdout.write(`${prefix()}${WARN}${message}\n`);
