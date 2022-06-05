@@ -20,6 +20,15 @@ function prefix(): string {
   return `[${DATE.format(Date.now())}] `;
 }
 
+function align(head: string, body: string): string {
+  if (!body.includes('\n')) return `${head}${body}\n`;
+  const [first, ...other] = body.split('\n');
+  if (!first) return `${head}${body}\n`;
+  let aligned = `${head}${first}\n`;
+  for (const line of other) aligned += `${LONG}${line}\n`;
+  return aligned;
+}
+
 interface Logger {
   (message: string): Logger;
   done(message: string): Logger;
@@ -39,7 +48,7 @@ const log: Logger = (() => {
     return inner;
   };
   inner.error = (message: string) => {
-    stdout.write(`${prefix()}${ERROR}${message}\n`);
+    stdout.write(align(`${prefix()}${ERROR}`, message));
     return inner;
   };
   inner.note = (message: string) => {
