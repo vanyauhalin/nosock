@@ -1,6 +1,6 @@
 import type { Context, ContextScript } from './context';
 import { log } from './logger';
-import { stopwatch } from './utils';
+import { delay, stopwatch } from './utils';
 
 async function run(context: Context, script: ContextScript): Promise<unknown> {
   const lap = stopwatch();
@@ -11,6 +11,7 @@ async function run(context: Context, script: ContextScript): Promise<unknown> {
   try {
     result = await callback();
   } catch (error) {
+    await delay();
     context.rejected = +1;
     const errored = error as Error;
     log.error(errored.message).trace(errored);
