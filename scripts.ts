@@ -7,23 +7,10 @@ import { build } from 'esbuild';
 import { exec, script } from './src/index';
 
 const readdir = promisify(fs.readdir);
-const rename = promisify(fs.rename);
 const rm = promisify(fs.rm);
 const writeFile = promisify(fs.writeFile);
 const LIBRARY = resolve('lib');
 const SOURCES = resolve('src');
-
-script('prebuild', async () => {
-  const library = await readdir(`${LIBRARY}/src`);
-  await Promise.all(library.map((file) => (
-    rename(`${LIBRARY}/src/${file}`, `${LIBRARY}/${file}`)
-  )));
-  const temporary = ['src', 'test', 'scripts.d.ts'];
-  await Promise.all(temporary.map((file) => rm(`${LIBRARY}/${file}`, {
-    recursive: true,
-    force: true,
-  })));
-});
 
 script('build', async () => {
   const sources = await readdir(SOURCES);

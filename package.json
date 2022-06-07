@@ -17,7 +17,7 @@
     "lib"
   ],
   "scripts": {
-    "prebuild": "tsc -p tsconfig.json --emitDeclarationOnly -d && tsm scripts.ts",
+    "prebuild": "tsc -p tsconfig.prebuild.json",
     "build": "tsm scripts.ts",
     "lint": "eslint .",
     "test": "uvu -r tsm test"
