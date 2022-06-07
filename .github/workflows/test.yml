@@ -26,5 +26,5 @@ jobs:
       - run: pnpm i
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: pnpm test
       - run: pnpm lint
+      - run: pnpm test
