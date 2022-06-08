@@ -4,6 +4,10 @@ import { log } from './logger';
 import { run } from './runner';
 import { stopwatch } from './utils';
 
+function merge(values: string[]): string {
+  return `${'%p, '.repeat(values.length).slice(0, -2)}\n`;
+}
+
 function define(context: Context) {
   return async (file?: string): Promise<void> => {
     const lap = stopwatch();
@@ -21,7 +25,11 @@ function define(context: Context) {
       log.error(message, command || 'run command');
       throw new Error(message);
     } finally {
-      stdout.write(`\n  Duration: ${lap()}\n\n`);
+      let report = '';
+      const { rejected, resolved } = context;
+      if (resolved.length > 0) report += `  Resolved: ${merge(resolved)}`;
+      if (rejected.length > 0) report += `  Rejected: ${merge(rejected)}`;
+      log.empty(`\n${report}  Duration: ${lap()}\n`, ...resolved, ...rejected);
     }
   };
 }
