@@ -61,7 +61,6 @@ interface Logger {
   done(this: void, message: string, ...values: string[]): Logger;
   error(this: void, message: string, ...values: string[]): Logger;
   note(this: void, message: string): Logger;
-  trace(this: void, error: Error): Logger;
   warn(this: void, message: string, ...values: string[]): Logger;
 }
 
@@ -80,18 +79,6 @@ const log: Logger = (() => {
   };
   inner.note = (message: string) => {
     stdout.write(`${LONG}${NEUTRAL(message)}\n`);
-    return inner;
-  };
-  inner.trace = (error: Error) => {
-    if (!error.stack) return inner;
-    const [, ...positions] = error.stack.split('\n');
-    for (const position of positions) {
-      const matched = position.match(/\/[^/]\S+:\d*:\d*/);
-      if (matched) {
-        const [path] = matched;
-        if (path) return inner.note(path);
-      }
-    }
     return inner;
   };
   inner.warn = (message: string, ...values: string[]) => {

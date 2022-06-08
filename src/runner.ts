@@ -13,8 +13,7 @@ async function run(context: Context, script: ContextScript): Promise<unknown> {
   } catch (error) {
     await delay();
     context.rejected = +1;
-    const errored = error as Error;
-    log.error(errored.message).trace(errored);
+    log.error((error as Error).message);
   }
   log[context.rejected
     ? 'error'
