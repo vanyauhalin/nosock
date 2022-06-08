@@ -1,7 +1,9 @@
 interface Context {
-  rejected: number;
+  rejected: string[];
+  resolved: string[];
   scripts: Record<string, ContextScript>;
 }
+
 interface ContextScript {
   command: string;
   callback(this: void): unknown;
@@ -9,7 +11,8 @@ interface ContextScript {
 
 function define(): Context {
   return {
-    rejected: 0,
+    rejected: [],
+    resolved: [],
     scripts: {},
   };
 }
