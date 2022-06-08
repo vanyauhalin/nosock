@@ -8,16 +8,14 @@ import * as logger from '../lib/logger';
 const log = suite('log');
 const done = suite('log.done');
 const error = suite('log.error');
-const note = suite('log.note');
 const warn = suite('log.warn');
-const all = [log, done, error, note, warn];
+const all = [log, done, error, warn];
 
 (() => {
   const methods: [Test, unknown][] = [
     [log, logger.log],
     [done, logger.log.done],
     [error, logger.log.error],
-    [note, logger.log.note],
     [warn, logger.log.warn],
   ];
   for (const [test, instance] of methods) {
@@ -77,23 +75,11 @@ for (const [test, part, isError] of patterns) {
   });
 }
 
-function lengthen(pattern: string): RegExp {
-  return new RegExp(`^ {21}${pattern}\\\\n$`);
-}
-
-note('matches the pattern containing a long padding', (context) => {
-  const output = spawnOutput(`${context.__suite__}("b")`);
-  const colored = colorize('gray', 'b');
-  const pattern = lengthen(colored);
-  is(pattern.test(output), true);
-});
-
 const injections: [string, keyof kleur.Kleur][] = [
   ['a', 'magenta'],
   ['aa', 'yellow'],
   ['an', 'red'],
   ['ap', 'green'],
-  ['n', 'gray'],
   ['p', 'blue'],
 ];
 
