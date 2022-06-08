@@ -9,9 +9,8 @@ const log = suite('log');
 const done = suite('log.done');
 const error = suite('log.error');
 const note = suite('log.note');
-const trace = suite('log.trace');
 const warn = suite('log.warn');
-const all = [log, done, error, note, trace, warn];
+const all = [log, done, error, note, warn];
 
 (() => {
   const methods: [Test, unknown][] = [
@@ -19,7 +18,6 @@ const all = [log, done, error, note, trace, warn];
     [done, logger.log.done],
     [error, logger.log.error],
     [note, logger.log.note],
-    [trace, logger.log.trace],
     [warn, logger.log.warn],
   ];
   for (const [test, instance] of methods) {
@@ -42,9 +40,7 @@ function spawnIsEqual(code: string): boolean {
 
 for (const test of all) {
   test('returns log instance', (context) => {
-    const isEqual = spawnIsEqual(`${context.__suite__}(${context.__suite__
-      .includes('trace') ? 'new Error("b")' : '"b"'})`);
-    is(isEqual, true);
+    is(spawnIsEqual(`${context.__suite__}("b")`), true);
   });
 }
 
@@ -91,30 +87,6 @@ note('matches the pattern containing a long padding', (context) => {
   const pattern = lengthen(colored);
   is(pattern.test(output), true);
 });
-
-(() => {
-  const colored = colorize('gray', '%').replace('%', '\\/[^/]\\S+:\\d*:\\d*');
-  const pattern = lengthen(colored);
-  const errors: [string, string][] = [
-    ['new', 'new Error("b")'],
-    ['try-catch', `(() => {
-      try {
-        throw new Error('b');
-      } catch (error) {
-        return error;
-      }
-    })()`],
-  ];
-  for (const [name, body] of errors) {
-    trace(
-      `matches the pattern containing path to file from ${name} error`,
-      (context) => {
-        const output = spawnOutput(`${context.__suite__}(${body})`);
-        is(pattern.test(output), true);
-      },
-    );
-  }
-})();
 
 const injections: [string, keyof kleur.Kleur][] = [
   ['a', 'magenta'],
