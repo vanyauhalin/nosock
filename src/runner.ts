@@ -9,7 +9,7 @@ async function run(context: Context, script: ContextScript): Promise<unknown> {
   log('Running %p ...', command);
   let result;
   try {
-    result = await callback();
+    result = await Promise.resolve(callback());
   } catch (error) {
     await delay();
     context.rejected = +1;
