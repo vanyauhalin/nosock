@@ -4,7 +4,7 @@ interface Context {
 }
 interface ContextScript {
   command: string;
-  callback(this: void): Promise<unknown>;
+  callback(this: void): unknown;
 }
 
 function define(): Context {
