@@ -5,7 +5,6 @@ const ACCENT = kleur.magenta;
 const ACCENT_ATTENTION = kleur.yellow;
 const ACCENT_NEGATIVE = kleur.red;
 const ACCENT_POSITIVE = kleur.green;
-const NEUTRAL = kleur.gray;
 const PRIMARY = kleur.blue;
 const DONE = `${ACCENT_POSITIVE('done')}  `;
 const ERROR = `${ACCENT_NEGATIVE('error')} `;
@@ -47,7 +46,6 @@ function inject(body: string, values: string[]): string {
       case '%aa': modifier = ACCENT_ATTENTION; break;
       case '%an': modifier = ACCENT_NEGATIVE; break;
       case '%ap': modifier = ACCENT_POSITIVE; break;
-      case '%n': modifier = NEUTRAL; break;
       case '%p': modifier = PRIMARY; break;
       default: break;
     }
@@ -60,7 +58,6 @@ interface Logger {
   (this: void, message: string, ...values: string[]): Logger;
   done(this: void, message: string, ...values: string[]): Logger;
   error(this: void, message: string, ...values: string[]): Logger;
-  note(this: void, message: string): Logger;
   warn(this: void, message: string, ...values: string[]): Logger;
 }
 
@@ -75,10 +72,6 @@ const log: Logger = (() => {
   };
   inner.error = (message: string, ...values: string[]) => {
     stderr.write(align(`${prefix()}${ERROR}`, inject(message, values)));
-    return inner;
-  };
-  inner.note = (message: string) => {
-    stdout.write(`${LONG}${NEUTRAL(message)}\n`);
     return inner;
   };
   inner.warn = (message: string, ...values: string[]) => {

@@ -8,7 +8,7 @@ function define(context: Context) {
   return async (file?: string): Promise<void> => {
     const lap = stopwatch();
     stdout.write('\n');
-    if (file) log('Runnings scripts...').note(file);
+    if (file) log(`Runnings scripts ${file}`);
     let command;
     try {
       command = env['npm_lifecycle_event'];
