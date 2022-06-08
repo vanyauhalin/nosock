@@ -4,8 +4,8 @@ import { log } from './logger';
 import { run } from './runner';
 import { stopwatch } from './utils';
 
-function merge(values: string[]): string {
-  return `${'%p, '.repeat(values.length).slice(0, -2)}\n`;
+function merge(values: string[], flag = 'p'): string {
+  return `${`%${flag}, `.repeat(values.length).slice(0, -2)}\n`;
 }
 
 function define(context: Context) {
@@ -29,9 +29,9 @@ function define(context: Context) {
     } finally {
       let report = '';
       const { rejected, resolved } = context;
-      if (resolved.length > 0) report += `  Resolved: ${merge(resolved)}`;
-      if (rejected.length > 0) report += `  Rejected: ${merge(rejected)}`;
-      log.empty(`\n${report}  Duration: ${lap()}\n`, ...resolved, ...rejected);
+      if (rejected.length > 0) report += `  Rejected: ${merge(rejected, 'an')}`;
+      if (resolved.length > 0) report += `  Resolved: ${merge(resolved, 'ap')}`;
+      log.empty(`\n${report}  Duration: ${lap()}\n`, ...rejected, ...resolved);
     }
   };
 }
