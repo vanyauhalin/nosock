@@ -13,7 +13,13 @@ function define(context: Context) {
     const lap = stopwatch();
     log.empty(file ? `\n  File:     ${file}` : '');
     const command = env['npm_lifecycle_event'];
+    const commands = Object.keys(context.scripts);
     try {
+      if (commands.length === 0) {
+        log.empty();
+        throw new Error('Missing scripts');
+      }
+      log.empty(`  Scripts:  ${merge(commands)}`, ...commands);
       if (!command) throw new Error('Missing a run command');
       const script = context.scripts[command];
       if (!script) throw new Error('The %p is not described');
