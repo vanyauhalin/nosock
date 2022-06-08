@@ -47,6 +47,7 @@ function inject(body: string, values: string[]): string {
 interface Logger {
   (this: void, message: string, ...values: string[]): Logger;
   done(this: void, message: string, ...values: string[]): Logger;
+  empty(this: void, message?: string, ...values: string[]): Logger;
   error(this: void, message: string, ...values: string[]): Logger;
   warn(this: void, message: string, ...values: string[]): Logger;
 }
@@ -58,6 +59,10 @@ const log: Logger = (() => {
   }
   inner.done = (message: string, ...values: string[]) => {
     stdout.write(`${prefix()}${DONE}${inject(message, values)}\n`);
+    return inner;
+  };
+  inner.empty = (message?: string, ...values: string[]) => {
+    stdout.write(`${message ? inject(message, values) : ''}\n`);
     return inner;
   };
   inner.error = (message: string, ...values: string[]) => {
