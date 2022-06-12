@@ -1,5 +1,5 @@
 import console from 'node:console';
-import type { Context, ContextScript } from './context';
+import type { Context, ContextScript } from './contexter';
 import { log } from './logger';
 import { delay, stopwatch } from './utils';
 
