@@ -10,7 +10,6 @@ const { exec, script } = (() => {
   };
 })();
 
-export * from './utils';
 export { exec, script };
 export { load } from './loader';
 export { log } from './logger';
