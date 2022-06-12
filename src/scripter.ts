@@ -1,4 +1,4 @@
-import type { Context } from './contexter';
+import type { Context } from './context';
 import { run } from './runner';
 
 interface Scripter {

@@ -1,4 +1,4 @@
-import { define as defineContext } from './contexter';
+import { define as defineContext } from './context';
 import { define as defineExecutor } from './executor';
 import { define as defineScripter } from './scripter';
 
