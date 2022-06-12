@@ -22,7 +22,7 @@ test('founds a scripts file', async () => {
     unreachable();
   } catch (error) {
     instance(error, Error);
-    match((error as Error).message, new RegExp(`${cwd()}/scripts.ts`));
+    match((error as Error).message, `${cwd()}/scripts.ts`);
   }
 });
 
@@ -78,7 +78,7 @@ test('throws an error if a module is not found', async () => {
     unreachable();
   } catch (error) {
     instance(error, Error);
-    match((error as Error).message, /Cannot fine module 'not-a-module'/);
+    match((error as Error).message, 'Cannot fine module \'not-a-module\'');
   }
 });
 
