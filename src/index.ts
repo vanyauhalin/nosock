@@ -1,4 +1,4 @@
-import { define as defineContext } from './context';
+import { define as defineContext } from './contexter';
 import { define as defineExecutor } from './executor';
 import { define as defineScripter } from './scripter';
 
@@ -10,7 +10,5 @@ const { exec, script } = (() => {
   };
 })();
 
-export * from './utils';
 export { exec, script };
-export { load } from './loader';
 export { log } from './logger';

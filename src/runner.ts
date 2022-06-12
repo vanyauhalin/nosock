@@ -1,33 +1,31 @@
 import console from 'node:console';
-import type { Context, ContextScript } from './context';
+import type { Context, ContextScript } from './contexter';
 import { log } from './logger';
 import { delay, stopwatch } from './utils';
 
 async function run(context: Context, script: ContextScript): Promise<unknown> {
   const lap = stopwatch();
   const { callback, command } = script;
+  let result;
   if (context.rejected.length > 0) {
     context.rejected.push(command);
-    return undefined;
+    return result;
   }
   log('Running %p ...', command);
   try {
-    const result = await Promise.resolve(callback());
-    if (context.rejected.length === 0) {
-      context.resolved.push(command);
-      return result;
-    }
-    context.rejected.push(command);
+    result = await Promise.resolve(callback());
+    context[context.rejected.length > 0
+      ? 'rejected'
+      : 'resolved'].push(command);
   } catch (error) {
     await delay();
     console.log(error);
     context.rejected.push(command);
-  } finally {
-    log[context.rejected.length > 0
-      ? 'error'
-      : 'done']('Finished %p after %a', command, lap());
   }
-  return undefined;
+  log[context.rejected.length > 0
+    ? 'error'
+    : 'done']('Finished %p after %a', command, lap());
+  return result;
 }
 
 export { run };

@@ -2,7 +2,7 @@
 const console = require('node:console');
 const { argv, env, exit } = require('node:process');
 const sade = require('sade');
-const pack = require('../package.json');
+const { version } = require('../package.json');
 
 const cross = (() => {
   const requirer = (() => {
@@ -23,13 +23,14 @@ const cross = (() => {
 })();
 
 sade('nosock [file]')
-  .version(pack.version)
+  .version(version)
   .option('-c, --cwd', 'The current directory to resolve from', '.')
   .option('-r, --require', 'Additional module(s) to preload', [])
   .option('--color', 'Print colorized output', true)
   .action(async (file, options) => {
     try {
-      const { exec, load } = await cross('nosock');
+      const { exec } = await cross('nosock');
+      const { load } = await cross('nosock/loader');
       // Follow the rules for redefining env in TS.
       // eslint-disable-next-line dot-notation
       if (options.color) env['FORCE_COLOR'] = '1';
