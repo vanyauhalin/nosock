@@ -1,5 +1,5 @@
 import { env } from 'node:process';
-import type { Context } from './contexter';
+import type { Context } from './context';
 import { log } from './logger';
 import { run } from './runner';
 import { stopwatch } from './utils';
