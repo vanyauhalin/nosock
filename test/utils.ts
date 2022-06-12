@@ -1,6 +1,20 @@
 import { suite } from 'uvu';
-import { is, type } from 'uvu/assert';
+import { is, match, type } from 'uvu/assert';
 import * as utils from '../lib/utils';
+
+const delay = suite('delay');
+
+delay('is a function', () => {
+  type(utils.delay, 'function');
+});
+
+delay('returns a promise', () => {
+  type(utils.delay(), 'object');
+});
+
+delay.run();
+
+// ---
 
 const stopwatch = suite('stopwatch');
 
@@ -13,7 +27,7 @@ stopwatch('returns a function', () => {
 });
 
 stopwatch('lap matches the pattern', () => {
-  is(/\d*\.\d*ms/.test(utils.stopwatch()()), true);
+  match(utils.stopwatch()(), /\d*\.\d*ms/);
 });
 
 stopwatch('the next lap is higher than the previous', async () => {

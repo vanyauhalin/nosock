@@ -20,7 +20,7 @@
     "prebuild": "tsc -p tsconfig.prebuild.json",
     "build": "tsm scripts.ts",
     "lint": "eslint .",
-    "test": "uvu -r tsm test"
+    "test": "tsm scripts.ts"
   },
   "dependencies": {
     "kleur": "^4.1.4",

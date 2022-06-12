@@ -4,15 +4,6 @@
     "project": "./tsconfig.json"
   },
   "rules": {
-    "promise/prefer-await-to-callbacks": "off",
-    "no-underscore-dangle": [
-      "error",
-      {
-        "allow": [
-          "__suite__",
-          "__test__"
-        ]
-      }
-    ]
+    "promise/prefer-await-to-callbacks": "off"
   }
 }
