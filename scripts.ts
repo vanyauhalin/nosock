@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,10 +10,10 @@ import { exec, script } from './src/index';
 const readdir = promisify(fs.readdir);
 const rm = promisify(fs.rm);
 const writeFile = promisify(fs.writeFile);
-const LIBRARY = resolve('lib');
-const SOURCES = resolve('src');
 
 script('build', async () => {
+  const LIBRARY = resolve('lib');
+  const SOURCES = resolve('src');
   const sources = await readdir(SOURCES);
   await Promise.all(sources.map(async (file) => {
     const options: BuildOptions = {
@@ -48,6 +49,24 @@ script('build', async () => {
       return;
     }
     await build(cjs);
+  }));
+});
+
+script('test', async () => {
+  const TEST = resolve('test');
+  const files = await readdir(TEST, { withFileTypes: true });
+  await Promise.all(files.map(async (file) => {
+    if (!file.isFile()) return;
+    const test = script(`test/${file.name}`, () => {
+      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
+      if (process.status === 0) return;
+      const trimmed = process.stdout.toString()
+        .replace(/.*[•✘].*/g, '')
+        .replace(/.*(Total|Passed|Skipped|Duration).*/g, '')
+        .trim();
+      throw new Error(trimmed);
+    });
+    await test();
   }));
 });
 
