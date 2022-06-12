@@ -22,10 +22,16 @@ function define(context: Context) {
       log.empty(`  Scripts:  ${merge(commands)}`, ...commands);
       if (!command) throw new Error('Missing a run command');
       const script = context.scripts[command];
-      if (!script) throw new Error('The %p is not described');
+      if (!script) throw new Error(`The ${command} is not described`);
       await run(context, script);
     } catch (error) {
-      log.error((error as Error).message);
+      const errored = error as Error;
+      if (command) {
+        log.error(errored.message.replace(command, '%p'), command);
+      } else {
+        log.error(errored.message);
+      }
+      throw new Error(errored.message);
     } finally {
       let report = '';
       const { rejected, resolved } = context;
