@@ -56,8 +56,7 @@ script('test', async () => {
   const TEST = resolve('test');
   const files = await readdir(TEST, { withFileTypes: true });
   await Promise.all(files.map(async (file) => {
-    if (!file.isFile()) return;
-    const test = script(`test/${file.name}`, () => {
+    await script(`test/${file.name}`, () => {
       const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
       if (process.status === 0) return;
       const trimmed = process.stdout.toString()
@@ -65,8 +64,7 @@ script('test', async () => {
         .replace(/.*(Total|Passed|Skipped|Duration).*/g, '')
         .trim();
       throw new Error(trimmed);
-    });
-    await test();
+    })();
   }));
 });
 
