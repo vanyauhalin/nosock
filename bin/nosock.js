@@ -29,7 +29,8 @@ sade('nosock [file]')
   .option('--color', 'Print colorized output', true)
   .action(async (file, options) => {
     try {
-      const { exec, load } = await cross('nosock');
+      const { exec } = await cross('nosock');
+      const { load } = await cross('nosock/loader');
       // Follow the rules for redefining env in TS.
       // eslint-disable-next-line dot-notation
       if (options.color) env['FORCE_COLOR'] = '1';

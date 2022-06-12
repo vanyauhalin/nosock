@@ -11,5 +11,4 @@ const { exec, script } = (() => {
 })();
 
 export { exec, script };
-export { load } from './loader';
 export { log } from './logger';
