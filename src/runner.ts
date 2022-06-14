@@ -1,7 +1,7 @@
 import console from 'node:console';
 import type { Context, StoreScript } from './context';
 import { log } from './logger';
-import { delay, stopwatch } from './utils';
+import { stopwatch } from './utils';
 
 async function run(context: Context, script: StoreScript): Promise<unknown> {
   const lap = stopwatch();
@@ -18,7 +18,6 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
       ? 'rejected'
       : 'resolved'].push(command);
   } catch (error) {
-    await delay();
     console.log(error);
     context.rejected.push(command);
   }
