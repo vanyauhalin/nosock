@@ -2,10 +2,10 @@ import { env } from 'node:process';
 import type { Context } from './context';
 import { log } from './logger';
 import { run } from './runner';
-import { stopwatch } from './utils';
+import { deepener, stopwatch } from './utils';
 
-function merge(values: string[], flag = 'p'): string {
-  return `${`%${flag}, `.repeat(values.length).slice(0, -2)}\n`;
+function repeat(flag: string, length: number): string {
+  return `%${flag}, `.repeat(length).slice(0, -2);
 }
 
 function define(context: Context) {
@@ -19,7 +19,7 @@ function define(context: Context) {
         log.empty();
         throw new Error('Missing scripts');
       }
-      log.empty(`  Scripts:  ${merge(commands)}`, ...commands);
+      log.empty(`  Scripts:  ${repeat('p', commands.length)}\n`, ...commands);
       if (!command) throw new Error('Missing a run command');
       const script = context.store[command];
       if (!script) throw new Error(`The ${command} is not described`);
@@ -33,11 +33,24 @@ function define(context: Context) {
       }
       throw new Error(errored.message);
     } finally {
+      const { history } = context;
+      const events = deepener.float(history);
+      const sections: [string, string, string][] = [
+        ['done', 'Resolved', 'ap'],
+        ['error', 'Rejected', 'an'],
+        ['cancel', 'Canceled', 'aa'],
+      ];
+      const values: string[] = [];
       let report = '';
-      const { rejected, resolved } = context;
-      if (rejected.length > 0) report += `  Rejected: ${merge(rejected, 'an')}`;
-      if (resolved.length > 0) report += `  Resolved: ${merge(resolved, 'ap')}`;
-      log.empty(`\n${report}  Duration: ${lap()}\n`, ...rejected, ...resolved);
+      for (const [type, message, flag] of sections) {
+        const filtered = events.filter((event) => event.type === type);
+        if (filtered.length > 0) {
+          const list = filtered.map((event) => event.command);
+          report += `  ${message}: ${repeat(flag, list.length)}\n`;
+          values.push(...list);
+        }
+      }
+      log.empty(`\n${report}  Duration: ${lap()}\n`, ...values);
     }
   };
 }

@@ -1,7 +1,20 @@
+import type { DeepArray } from './utils';
+
 interface Context {
-  rejected: string[];
-  resolved: string[];
+  history: History;
+  state: {
+    depth: number;
+    hasError: boolean;
+  };
   store: Record<string, StoreScript>;
+}
+
+type History = DeepArray<HistoryEvent>;
+interface HistoryEvent {
+  command: string;
+  duration: string;
+  error?: Error;
+  type: 'done' | 'error' | 'cancel';
 }
 
 interface StoreScript {
@@ -11,11 +24,19 @@ interface StoreScript {
 
 function define(): Context {
   return {
-    rejected: [],
-    resolved: [],
+    history: [],
+    state: {
+      depth: -1,
+      hasError: false,
+    },
     store: {},
   };
 }
 
-export type { Context, StoreScript };
+export type {
+  Context,
+  History,
+  HistoryEvent,
+  StoreScript,
+};
 export { define };
