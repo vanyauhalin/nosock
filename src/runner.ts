@@ -1,9 +1,9 @@
 import console from 'node:console';
-import type { Context, ContextScript } from './context';
+import type { Context, StoreScript } from './context';
 import { log } from './logger';
 import { delay, stopwatch } from './utils';
 
-async function run(context: Context, script: ContextScript): Promise<unknown> {
+async function run(context: Context, script: StoreScript): Promise<unknown> {
   const lap = stopwatch();
   const { callback, command } = script;
   let result;

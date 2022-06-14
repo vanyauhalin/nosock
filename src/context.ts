@@ -1,10 +1,10 @@
 interface Context {
   rejected: string[];
   resolved: string[];
-  scripts: Record<string, ContextScript>;
+  store: Record<string, StoreScript>;
 }
 
-interface ContextScript {
+interface StoreScript {
   command: string;
   callback(this: void): unknown;
 }
@@ -13,9 +13,9 @@ function define(): Context {
   return {
     rejected: [],
     resolved: [],
-    scripts: {},
+    store: {},
   };
 }
 
-export type { Context, ContextScript };
+export type { Context, StoreScript };
 export { define };

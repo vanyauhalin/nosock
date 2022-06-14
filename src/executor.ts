@@ -13,7 +13,7 @@ function define(context: Context) {
     const lap = stopwatch();
     log.empty(file ? `\n  File:     ${file}` : '');
     const command = env['npm_lifecycle_event'];
-    const commands = Object.keys(context.scripts);
+    const commands = Object.keys(context.store);
     try {
       if (commands.length === 0) {
         log.empty();
@@ -21,7 +21,7 @@ function define(context: Context) {
       }
       log.empty(`  Scripts:  ${merge(commands)}`, ...commands);
       if (!command) throw new Error('Missing a run command');
-      const script = context.scripts[command];
+      const script = context.store[command];
       if (!script) throw new Error(`The ${command} is not described`);
       await run(context, script);
     } catch (error) {

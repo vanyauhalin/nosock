@@ -15,7 +15,7 @@ interface Scripter {
 function define(context: Context): Scripter {
   return ((command, callback) => {
     const script = { command, callback };
-    context.scripts[command] = script;
+    context.store[command] = script;
     return run.bind(undefined, context, script);
   }) as Scripter;
 }
