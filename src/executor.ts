@@ -22,27 +22,37 @@ function define(context: Context) {
     context.options = { ...context.options, ...options };
     const { history, store } = context;
     const { file, noCancel } = context.options;
-    const command = env['npm_lifecycle_event'];
+    const command = env['npm_lifecycle_event'] || '';
 
     log.empty(file ? `\n  File:     ${file}` : '');
     try {
       const commands = Object.keys(store);
-      if (commands.length === 0) throw new Error('Missing scripts');
+      if (commands.length === 0) throw new Error('1');
       log.empty(`  Scripts:  ${repeat('p', commands.length)}`, ...commands);
 
-      if (!command) throw new Error('Missing a run command');
+      if (!command) throw new Error('2');
       const script = store[command];
-      if (!script) throw new Error(`The ${command} is not described`);
+      if (!script) throw new Error('3');
 
       log.empty();
       await run(context, script);
     } catch (error) {
-      const { message } = error as Error;
-      log.empty();
-      if (command) {
-        log.error(`${message.replace(command, '%p')}`, command);
-      } else {
-        log.error(message);
+      let message;
+      switch (Number.parseInt((error as Error).message, 10)) {
+        case 1:
+          message = 'Missing scripts';
+          log.empty().error(message);
+          break;
+        case 2:
+          message = 'Missing a run command';
+          log.empty().error(message);
+          break;
+        case 3:
+          message = `The "${command}" is not described`;
+          log.empty().error('The %p is not described', command);
+          break;
+        default:
+          break;
       }
       throw new Error(message);
     } finally {
