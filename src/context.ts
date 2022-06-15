@@ -2,6 +2,13 @@ import type { DeepArray } from './utils';
 
 interface Context {
   history: History;
+  options: {
+    cwd: string;
+    file?: string;
+    noCancel: boolean;
+    noColor: boolean;
+    require: string | string[];
+  };
   state: {
     depth: number;
     hasError: boolean;
@@ -25,6 +32,12 @@ interface StoreScript {
 function define(): Context {
   return {
     history: [],
+    options: {
+      cwd: '.',
+      noCancel: false,
+      noColor: false,
+      require: [],
+    },
     state: {
       depth: -1,
       hasError: false,

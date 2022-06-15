@@ -10,6 +10,12 @@ test('defines with default values', () => {
   const context = define();
   equal(context, {
     history: [],
+    options: {
+      cwd: '.',
+      noCancel: false,
+      noColor: false,
+      require: [],
+    },
     state: {
       depth: -1,
       hasError: false,

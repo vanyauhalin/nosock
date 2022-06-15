@@ -1,8 +1,8 @@
 import { cwd } from 'node:process';
 import { test } from 'uvu';
 import {
+  equal,
   instance,
-  is,
   match,
   type,
   unreachable,
@@ -82,13 +82,17 @@ test('throws an error if a module is not found', async () => {
   }
 });
 
-test('returns a scripts file', async () => {
-  const file = await load({
+test('returns a loaded options', async () => {
+  const loaded = await load({
     cwd: 'lib',
     file: 'index.js',
     require: [],
   });
-  is(file, `${cwd()}/lib/index.js`);
+  equal(loaded, {
+    cwd: `${cwd()}/lib`,
+    file: `${cwd()}/lib/index.js`,
+    require: [],
+  });
 });
 
 test.run();

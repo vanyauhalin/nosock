@@ -26,20 +26,24 @@ sade('nosock [file]')
   .version(version)
   .option('-c, --cwd', 'The current directory to resolve from', '.')
   .option('-r, --require', 'Additional module(s) to preload', [])
-  .option('--color', 'Print colorized output', true)
+  .option('--no-cancel', 'Disable scripts cancelation', false)
+  .option('--no-color', 'Print colorized output', false)
   .action(async (file, options) => {
     try {
-      const { exec } = await cross('nosock');
-      const { load } = await cross('nosock/loader');
       // Follow the rules for redefining env in TS.
       // eslint-disable-next-line dot-notation
-      if (options.color) env['FORCE_COLOR'] = '1';
+      env['FORCE_COLOR'] = options.noColor ? '0' : '1';
+      const { exec } = await cross('nosock');
+      const { load } = await cross('nosock/loader');
       const loaded = await load({
         file,
         cwd: options.cwd,
         require: options.require,
       });
-      await exec(loaded);
+      await exec({
+        ...loaded,
+        noColor: options.noColor,
+      });
     } catch (error) {
       console.error(error.stack || error.message);
       exit(1);

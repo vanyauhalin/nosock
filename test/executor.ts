@@ -1,6 +1,7 @@
 import { env } from 'node:process';
 import { test } from 'uvu';
 import {
+  equal,
   instance,
   match,
   type,
@@ -27,6 +28,30 @@ test('executes a run command', async () => {
   };
   const executor = defineExecutor(context);
   await executor();
+});
+
+test('merges the passed options with context options', async () => {
+  env['npm_lifecycle_event'] = 'some';
+  const context = defineContext();
+  context.store['some'] = {
+    command: 'some',
+    callback: () => 'some',
+  };
+  const executor = defineExecutor(context);
+  await executor({
+    cwd: '/lib',
+    file: '/lib/index.js',
+    noCancel: true,
+    noColor: true,
+    require: ['tsm'],
+  });
+  equal(context.options, {
+    cwd: '/lib',
+    file: '/lib/index.js',
+    noCancel: true,
+    noColor: true,
+    require: ['tsm'],
+  });
 });
 
 test('throws an error if scripts is missing', async () => {
