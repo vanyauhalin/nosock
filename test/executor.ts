@@ -95,7 +95,7 @@ test('throws an error if a script is not described', async () => {
     await executor();
   } catch (error) {
     instance(error, Error);
-    match((error as Error).message, 'The first is not described');
+    match((error as Error).message, 'The "first" is not described');
   }
 });
 
