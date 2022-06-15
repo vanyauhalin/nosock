@@ -26,17 +26,17 @@ const deepener = (() => {
    *
    * ```js
    * const array = [1, [[[2]], [3]]];
-   * const result = deepener.float(array);
+   * const result = deepener.raise(array);
    * // result is [1, 2, 3]
    * ```
    */
-  function float<T>(array: DeepArray<T>): T[] {
+  function raise<T>(array: DeepArray<T>): T[] {
     const result = array.flat();
     return result.some((item) => Array.isArray(item))
-      ? float(result as DeepArray<T>)
+      ? raise(result as DeepArray<T>)
       : result as T[];
   }
-  return { dive, float };
+  return { dive, raise };
 })();
 
 /**

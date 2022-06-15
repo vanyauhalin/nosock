@@ -34,7 +34,7 @@ function define(context: Context) {
       throw new Error(errored.message);
     } finally {
       const { history } = context;
-      const events = deepener.float(history);
+      const events = deepener.raise(history);
       const sections: [string, string, string][] = [
         ['done', 'Resolved', 'ap'],
         ['error', 'Rejected', 'an'],

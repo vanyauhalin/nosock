@@ -9,7 +9,7 @@ import { log } from './logger';
 import { deepener, stopwatch } from './utils';
 
 function report(history: History): void {
-  for (const event of deepener.float(history)) {
+  for (const event of deepener.raise(history)) {
     switch (event.type) {
       case 'done':
         log.done('Finished %p after %a', event.command, event.duration);
