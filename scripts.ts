@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { basename, resolve } from 'node:path';
+import { env } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import type { BuildOptions } from 'esbuild';
@@ -68,4 +69,7 @@ script('test', async () => {
   }));
 });
 
-await exec(fileURLToPath(import.meta.url));
+await exec({
+  file: fileURLToPath(import.meta.url),
+  noCancel: !!(env['npm_lifecycle_event'] === 'test'),
+});
