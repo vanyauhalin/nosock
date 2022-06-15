@@ -11,6 +11,7 @@ function repeat(flag: string, length: number): string {
 interface ExecutorOptions {
   cwd?: string;
   file?: string;
+  noCancel?: boolean;
   noColor?: boolean;
   require?: string | string[];
 }
@@ -20,7 +21,7 @@ function define(context: Context) {
     const lap = stopwatch();
     context.options = { ...context.options, ...options };
     const { history, store } = context;
-    const { file } = context.options;
+    const { file, noCancel } = context.options;
     const command = env['npm_lifecycle_event'];
 
     log.empty(file ? `\n  File:     ${file}` : '');
@@ -49,8 +50,8 @@ function define(context: Context) {
       const sections: [string, string, string][] = [
         ['done', 'Resolved', 'ap'],
         ['error', 'Rejected', 'an'],
-        ['cancel', 'Canceled', 'aa'],
       ];
+      if (!noCancel) sections.push(['cancel', 'Canceled', 'aa']);
       const values = [];
       let message = '';
 

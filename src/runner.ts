@@ -29,7 +29,7 @@ function report(history: History): void {
 
 async function run(context: Context, script: StoreScript): Promise<unknown> {
   const lap = stopwatch();
-  const { history, state } = context;
+  const { history, options, state } = context;
   const { callback, command } = script;
   const event = { command } as HistoryEvent;
   let result;
@@ -40,7 +40,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
   const depth = floor.length - 1;
   state.depth += 1;
 
-  if (state.hasError) {
+  if (!options.noCancel && state.hasError) {
     event.type = 'cancel';
   } else {
     log('Running %p ...', event.command);

@@ -5,6 +5,7 @@ interface Context {
   options: {
     cwd: string;
     file?: string;
+    noCancel: boolean;
     noColor: boolean;
     require: string | string[];
   };
@@ -33,6 +34,7 @@ function define(): Context {
     history: [],
     options: {
       cwd: '.',
+      noCancel: false,
       noColor: false,
       require: [],
     },

@@ -26,6 +26,7 @@ sade('nosock [file]')
   .version(version)
   .option('-c, --cwd', 'The current directory to resolve from', '.')
   .option('-r, --require', 'Additional module(s) to preload', [])
+  .option('--no-cancel', 'Disable scripts cancelation', false)
   .option('--no-color', 'Print colorized output', false)
   .action(async (file, options) => {
     try {
@@ -39,7 +40,10 @@ sade('nosock [file]')
         cwd: options.cwd,
         require: options.require,
       });
-      await exec(loaded);
+      await exec({
+        ...loaded,
+        noColor: options.noColor,
+      });
     } catch (error) {
       console.error(error.stack || error.message);
       exit(1);
