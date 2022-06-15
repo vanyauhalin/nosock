@@ -21,7 +21,7 @@ test('defines as a function', () => {
 test('executes a run command', async () => {
   env['npm_lifecycle_event'] = 'some';
   const context = defineContext();
-  context.scripts['some'] = {
+  context.store['some'] = {
     command: 'some',
     callback: () => 'some',
   };
@@ -44,7 +44,7 @@ test('throws an error if scripts is missing', async () => {
 test('throws an error if a run command is missing', async () => {
   delete env['npm_lifecycle_event'];
   const context = defineContext();
-  context.scripts['some'] = {
+  context.store['some'] = {
     command: 'some',
     callback: () => 'some',
   };
@@ -61,7 +61,7 @@ test('throws an error if a run command is missing', async () => {
 test('throws an error if a script is not described', async () => {
   env['npm_lifecycle_event'] = 'first';
   const context = defineContext();
-  context.scripts['second'] = {
+  context.store['second'] = {
     command: 'second',
     callback: () => 'second',
   };
