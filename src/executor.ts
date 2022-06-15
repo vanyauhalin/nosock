@@ -19,48 +19,51 @@ function define(context: Context) {
   return async (options?: ExecutorOptions): Promise<void> => {
     const lap = stopwatch();
     context.options = { ...context.options, ...options };
-    log.empty(context.options.file
-      ? `\n  File:     ${context.options.file}`
-      : '');
+    const { history, store } = context;
+    const { file } = context.options;
     const command = env['npm_lifecycle_event'];
-    const commands = Object.keys(context.store);
+
+    log.empty(file ? `\n  File:     ${file}` : '');
     try {
-      if (commands.length === 0) {
-        log.empty();
-        throw new Error('Missing scripts');
-      }
-      log.empty(`  Scripts:  ${repeat('p', commands.length)}\n`, ...commands);
+      const commands = Object.keys(store);
+      if (commands.length === 0) throw new Error('Missing scripts');
+      log.empty(`  Scripts:  ${repeat('p', commands.length)}`, ...commands);
+
       if (!command) throw new Error('Missing a run command');
-      const script = context.store[command];
+      const script = store[command];
       if (!script) throw new Error(`The ${command} is not described`);
+
+      log.empty();
       await run(context, script);
     } catch (error) {
-      const errored = error as Error;
+      const { message } = error as Error;
+      log.empty();
       if (command) {
-        log.error(errored.message.replace(command, '%p'), command);
+        log.error(`${message.replace(command, '%p')}`, command);
       } else {
-        log.error(errored.message);
+        log.error(message);
       }
-      throw new Error(errored.message);
+      throw new Error(message);
     } finally {
-      const { history } = context;
       const events = deepener.raise(history);
       const sections: [string, string, string][] = [
         ['done', 'Resolved', 'ap'],
         ['error', 'Rejected', 'an'],
         ['cancel', 'Canceled', 'aa'],
       ];
-      const values: string[] = [];
-      let report = '';
-      for (const [type, message, flag] of sections) {
+      const values = [];
+      let message = '';
+
+      for (const [type, section, flag] of sections) {
         const filtered = events.filter((event) => event.type === type);
         if (filtered.length > 0) {
-          const list = filtered.map((event) => event.command);
-          report += `  ${message}: ${repeat(flag, list.length)}\n`;
-          values.push(...list);
+          const commands = filtered.map((event) => event.command);
+          message += `  ${section}: ${repeat(flag, commands.length)}\n`;
+          values.push(...commands);
         }
       }
-      log.empty(`\n${report}  Duration: ${lap()}\n`, ...values);
+
+      log.empty(`\n${message}  Duration: ${lap()}\n`, ...values);
     }
   };
 }
