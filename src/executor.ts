@@ -8,10 +8,20 @@ function repeat(flag: string, length: number): string {
   return `%${flag}, `.repeat(length).slice(0, -2);
 }
 
+interface ExecutorOptions {
+  cwd?: string;
+  file?: string;
+  noColor?: boolean;
+  require?: string | string[];
+}
+
 function define(context: Context) {
-  return async (file?: string): Promise<void> => {
+  return async (options?: ExecutorOptions): Promise<void> => {
     const lap = stopwatch();
-    log.empty(file ? `\n  File:     ${file}` : '');
+    context.options = { ...context.options, ...options };
+    log.empty(context.options.file
+      ? `\n  File:     ${context.options.file}`
+      : '');
     const command = env['npm_lifecycle_event'];
     const commands = Object.keys(context.store);
     try {
@@ -55,4 +65,5 @@ function define(context: Context) {
   };
 }
 
+export type { ExecutorOptions };
 export { define };

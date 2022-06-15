@@ -20,7 +20,13 @@ interface LoaderOptions {
   require: string | string[];
 }
 
-async function load(options: LoaderOptions): Promise<string> {
+interface LoadedOptions {
+  cwd: string;
+  file: string;
+  require: string | string[];
+}
+
+async function load(options: LoaderOptions): Promise<LoadedOptions> {
   const cwd = resolve(options.cwd);
   let file;
   if (options.file) {
@@ -56,7 +62,11 @@ async function load(options: LoaderOptions): Promise<string> {
     await import(`file://${file}`);
   }
 
-  return file;
+  return {
+    cwd,
+    file,
+    require: modules,
+  };
 }
 
 export { load };
