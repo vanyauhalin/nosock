@@ -18,7 +18,7 @@ test('finishes the script', async () => {
     callback: () => 'some',
   };
   await run(context, script);
-  is(context.state.depth, -1);
+  is(context.state.depth, 0);
 });
 
 test('resolves the script', async () => {
@@ -119,7 +119,7 @@ test('finishes nested scripts', async () => {
     callback: run.bind(undefined, context, second),
   };
   await run(context, first);
-  is(context.state.depth, -1);
+  is(context.state.depth, 0);
 });
 
 test('resolves nested scripts', async () => {

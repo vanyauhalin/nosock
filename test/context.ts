@@ -17,7 +17,7 @@ test('defines with default values', () => {
       require: [],
     },
     state: {
-      depth: -1,
+      depth: 0,
       hasError: false,
     },
     store: {},
