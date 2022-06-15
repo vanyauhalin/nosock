@@ -48,7 +48,7 @@ async function load(options: LoaderOptions): Promise<LoadedOptions> {
     } else {
       path = resolve(module);
       if (!isModuleExists(path)) {
-        throw new Error(`Cannot fine module '${module}'`);
+        throw new Error(`Cannot fine module "${module}"`);
       }
     }
     // eslint-disable-next-line import/no-dynamic-require

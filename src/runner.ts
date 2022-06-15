@@ -19,7 +19,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
     event.type = 'cancel';
   } else {
     const lap = stopwatch();
-    log('Running %p ...', event.command);
+    log('Running "%p" ...', event.command);
     try {
       result = await Promise.resolve(callback());
       event.type = 'done';
@@ -41,14 +41,14 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
 
   switch (event.type) {
     case 'done':
-      log.done('Finished %p after %a', event.command, event.duration);
+      log.done('Finished "%p" after %a', event.command, event.duration);
       break;
     case 'error':
       if (event.error) console.error(event.error);
-      log.error('Finished %p after %a', event.command, event.duration);
+      log.error('Finished "%p" after %a', event.command, event.duration);
       break;
     case 'cancel':
-      log.warn('Canceled %p', event.command);
+      log.warn('Canceled "%p"', event.command);
       break;
     default:
       break;
