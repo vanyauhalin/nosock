@@ -1,7 +1,7 @@
 import type { DeepArray } from './utils';
 
 interface Context {
-  history: History;
+  history: DeepArray<HistoryEvent>;
   options: {
     cwd: string;
     file?: string;
@@ -16,7 +16,6 @@ interface Context {
   store: Record<string, StoreScript>;
 }
 
-type History = DeepArray<HistoryEvent>;
 interface HistoryEvent {
   command: string;
   duration: string;
@@ -39,17 +38,12 @@ function define(): Context {
       require: [],
     },
     state: {
-      depth: -1,
+      depth: 0,
       hasError: false,
     },
     store: {},
   };
 }
 
-export type {
-  Context,
-  History,
-  HistoryEvent,
-  StoreScript,
-};
+export type { Context, HistoryEvent, StoreScript };
 export { define };
