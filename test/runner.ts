@@ -220,6 +220,51 @@ test('rejects nested event', async () => {
   is(firstEvent.error, undefined);
 });
 
+test('cancels nested event', async () => {
+  const context = define();
+  const third = {
+    command: 'third',
+    callback: () => 'third',
+  };
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    async callback() {
+      await run(context, second);
+      await run(context, third);
+    },
+  };
+  await run(context, first);
+  const thirdEvent = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
+  is(thirdEvent.type, 'cancel');
+});
+
+test('disables the cancellation of nested event', async () => {
+  const context = define();
+  context.options.noCancel = true;
+  const third = {
+    command: 'third',
+    callback: () => 'third',
+  };
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    async callback() {
+      await run(context, second);
+      await run(context, third);
+    },
+  };
+  await run(context, first);
+  const thirdEvent = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
+  is(thirdEvent.type, 'done');
+});
+
 test('returns the value from the resolved nested script', async () => {
   const context = define();
   const second = {
