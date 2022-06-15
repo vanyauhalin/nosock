@@ -1,6 +1,44 @@
 import { suite } from 'uvu';
-import { is, match, type } from 'uvu/assert';
+import {
+  equal,
+  is,
+  match,
+  type,
+} from 'uvu/assert';
 import * as utils from '../lib/utils';
+
+const deepener = suite('deepener');
+
+deepener('dive is a method', () => {
+  type(utils.deepener.dive, 'function');
+});
+
+deepener('dives into a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.dive(array);
+  equal(result, [3]);
+});
+
+deepener('updates a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.dive(array);
+  result.push(4);
+  equal(array, [1, [[[2]], [3, 4]]]);
+});
+
+deepener('raise is a method', () => {
+  type(utils.deepener.raise, 'function');
+});
+
+deepener('raises all elements of a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.raise(array);
+  equal(result, [1, 2, 3]);
+});
+
+deepener.run();
+
+// ---
 
 function delay(ms = 0): Promise<unknown> {
   return new Promise((resolve) => {
