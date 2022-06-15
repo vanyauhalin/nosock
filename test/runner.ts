@@ -1,5 +1,6 @@
 import { test } from 'uvu';
-import { is } from 'uvu/assert';
+import { is, match } from 'uvu/assert';
+import type { HistoryEvent } from '../lib/context';
 import { define } from '../lib/context';
 import { run } from '../lib/runner';
 
@@ -8,108 +9,243 @@ test('is a asynchronous function', () => {
   is(run instanceof AsyncFunction, true);
 });
 
-test('adds a resolved script to the context', async () => {
-  const script = {
-    command: 'script',
-    callback: () => 'script',
-  };
+// ---
+
+test('finishes the script', async () => {
   const context = define();
+  const script = {
+    command: 'some',
+    callback: () => 'some',
+  };
   await run(context, script);
-  is(context.resolved[0], 'script');
+  is(context.state.depth, -1);
 });
 
-test('adds nested resolved scripts to the context', async () => {
-  const first = {
-    command: 'first',
-    callback: () => 'first',
-  };
-  const second = {
-    command: 'second',
-    callback: () => 'second',
-  };
+test('resolves the script', async () => {
   const context = define();
-  await run(context, first);
-  await run(context, second);
-  is(context.resolved[0], 'first');
-  is(context.resolved[1], 'second');
-});
-
-test('adds a rejected script to the context', async () => {
   const script = {
-    command: 'script',
-    callback() { throw new Error('script'); },
+    command: 'some',
+    callback: () => 'some',
   };
-  const context = define();
   await run(context, script);
-  is(context.rejected[0], 'script');
+  is(context.state.hasError, false);
 });
 
-test('adds nested rejected scripts to the context', async () => {
-  const first = {
-    command: 'first',
-    callback() { throw new Error('first'); },
-  };
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
+test('rejects the script', async () => {
   const context = define();
-  await run(context, first);
-  await run(context, second);
-  is(context.rejected[0], 'first');
-  is(context.rejected[1], 'second');
+  const script = {
+    command: 'some',
+    callback() { throw new Error('some'); },
+  };
+  await run(context, script);
+  is(context.state.hasError, true);
 });
 
-test('returns a value from the resolved script', async () => {
+test('saves the script as an event', async () => {
+  const context = define();
   const script = {
-    command: 'script',
-    callback: () => 'script',
+    command: 'some',
+    callback: () => 'some',
+  };
+  await run(context, script);
+  const event = context.history[0] as HistoryEvent;
+  is(event.command, 'some');
+});
+
+test('finishes the event', async () => {
+  const context = define();
+  const script = {
+    command: 'some',
+    callback: () => 'some',
+  };
+  await run(context, script);
+  const event = context.history[0] as HistoryEvent;
+  match(event.duration, 'ms');
+});
+
+test('resolves the event', async () => {
+  const context = define();
+  const script = {
+    command: 'some',
+    callback: () => 'some',
+  };
+  await run(context, script);
+  const event = context.history[0] as HistoryEvent;
+  is(event.type, 'done');
+});
+
+test('rejects the event', async () => {
+  const context = define();
+  const script = {
+    command: 'some',
+    callback() { throw new Error('some'); },
+  };
+  await run(context, script);
+  const event = context.history[0] as HistoryEvent;
+  is(event.type, 'error');
+  is(event.error?.message, 'some');
+});
+
+test('returns the value from the resolved script', async () => {
+  const script = {
+    command: 'some',
+    callback: () => 'some',
   };
   const context = define();
   const result = await run(context, script);
-  is(result, 'script');
-});
-
-test('returns a values from the nested resolved scripts', async () => {
-  const first = {
-    command: 'first',
-    callback: () => 'first',
-  };
-  const second = {
-    command: 'second',
-    callback: () => 'second',
-  };
-  const context = define();
-  const firstValue = await run(context, first);
-  const secondValue = await run(context, second);
-  is(firstValue, 'first');
-  is(secondValue, 'second');
+  is(result, 'some');
 });
 
 test('returns undefined from the rejected script', async () => {
   const script = {
-    command: 'script',
-    callback() { throw new Error('script'); },
+    command: 'some',
+    callback() { throw new Error('some'); },
   };
   const context = define();
   const result = await run(context, script);
   is(result, undefined);
 });
 
-test('returns undefined from nested rejected scripts', async () => {
+// ---
+
+test('finishes nested scripts', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
   const first = {
     command: 'first',
-    callback() { throw new Error('first'); },
+    callback: run.bind(undefined, context, second),
   };
+  await run(context, first);
+  is(context.state.depth, -1);
+});
+
+test('resolves nested scripts', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  is(context.state.hasError, false);
+});
+
+test('rejects nested scripts', async () => {
+  const context = define();
   const second = {
     command: 'second',
     callback() { throw new Error('second'); },
   };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  is(context.state.hasError, true);
+});
+
+test('saves nested scripts as an events', async () => {
   const context = define();
-  const firstValue = await run(context, first);
-  const secondValue = await run(context, second);
-  is(firstValue, undefined);
-  is(secondValue, undefined);
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  const firstEvent = context.history[1] as HistoryEvent;
+  is(secondEvent.command, 'second');
+  is(firstEvent.command, 'first');
+});
+
+test('finishes nested events', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  const firstEvent = context.history[1] as HistoryEvent;
+  match(secondEvent.duration, 'ms');
+  match(firstEvent.duration, 'ms');
+});
+
+test('resolves nested events', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  const firstEvent = context.history[1] as HistoryEvent;
+  is(secondEvent.type, 'done');
+  is(firstEvent.type, 'done');
+});
+
+test('rejects nested event', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  const firstEvent = context.history[1] as HistoryEvent;
+  is(secondEvent.type, 'error');
+  is(secondEvent.error?.message, 'second');
+  is(firstEvent.type, 'error');
+  is(firstEvent.error, undefined);
+});
+
+test('returns the value from the resolved nested script', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  const result = await run(context, first);
+  is(result, 'second');
+});
+
+test('returns undefined from the resolved nested script', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  const result = await run(context, first);
+  is(result, undefined);
 });
 
 test.run();

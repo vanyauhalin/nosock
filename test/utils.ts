@@ -1,20 +1,50 @@
 import { suite } from 'uvu';
-import { is, match, type } from 'uvu/assert';
+import {
+  equal,
+  is,
+  match,
+  type,
+} from 'uvu/assert';
 import * as utils from '../lib/utils';
 
-const delay = suite('delay');
+const deepener = suite('deepener');
 
-delay('is a function', () => {
-  type(utils.delay, 'function');
+deepener('dive is a method', () => {
+  type(utils.deepener.dive, 'function');
 });
 
-delay('returns a promise', () => {
-  type(utils.delay(), 'object');
+deepener('dives into a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.dive(array);
+  equal(result, [3]);
 });
 
-delay.run();
+deepener('updates a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.dive(array);
+  result.push(4);
+  equal(array, [1, [[[2]], [3, 4]]]);
+});
+
+deepener('raise is a method', () => {
+  type(utils.deepener.raise, 'function');
+});
+
+deepener('raises all elements of a deep array', () => {
+  const array = [1, [[[2]], [3]]];
+  const result = utils.deepener.raise(array);
+  equal(result, [1, 2, 3]);
+});
+
+deepener.run();
 
 // ---
+
+function delay(ms = 0): Promise<unknown> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 const stopwatch = suite('stopwatch');
 
@@ -33,14 +63,14 @@ stopwatch('lap matches the pattern', () => {
 stopwatch('the next lap is higher than the previous', async () => {
   const lap = utils.stopwatch();
   const first = Number.parseFloat(lap());
-  await utils.delay(1);
+  await delay(1);
   const second = Number.parseFloat(lap());
   is(second > first, true);
 });
 
 stopwatch('there is no cascade of laps', async () => {
   const firstLap = utils.stopwatch();
-  await utils.delay(1);
+  await delay(1);
   const secondLap = utils.stopwatch();
   const second = Number.parseFloat(secondLap());
   const first = Number.parseFloat(firstLap());
