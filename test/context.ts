@@ -8,9 +8,14 @@ test('defines via function', () => {
 
 test('defines with default values', () => {
   const context = define();
-  equal(context.rejected, []);
-  equal(context.resolved, []);
-  equal(context.scripts, {});
+  equal(context, {
+    history: [],
+    state: {
+      depth: -1,
+      hasError: false,
+    },
+    store: {},
+  });
 });
 
 test.run();
