@@ -18,7 +18,7 @@ interface Context {
 
 interface HistoryEvent {
   command: string;
-  duration: string;
+  duration?: string;
   error?: Error;
   type: 'done' | 'error' | 'cancel';
 }
