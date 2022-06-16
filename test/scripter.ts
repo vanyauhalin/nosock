@@ -26,7 +26,6 @@ test('saves the synchronous script to store', () => {
 test('saves the asynchronous script to store', async () => {
   const context = contexter.define();
   const script = scripter.define(context);
-  // eslint-disable-next-line @typescript-eslint/require-await
   script('some', async () => 'some');
   const command = context.store['some']?.command;
   const value = await context.store['some']?.callback();
