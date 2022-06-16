@@ -51,12 +51,10 @@ async function load(options: LoaderOptions): Promise<LoadedOptions> {
         throw new Error(`Cannot fine module "${module}"`);
       }
     }
-    // eslint-disable-next-line import/no-dynamic-require
     require(path);
   }
 
   if (modules.length > 0) {
-    // eslint-disable-next-line import/no-dynamic-require
     require(file);
   } else {
     await import(`file://${file}`);

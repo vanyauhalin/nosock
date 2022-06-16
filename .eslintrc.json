@@ -3,7 +3,31 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "rules": {
-    "promise/prefer-await-to-callbacks": "off"
-  }
+  "overrides": [
+    {
+      "files": "bin/nosock.js",
+      "rules": {
+        "dot-notation": "off",
+        "no-new-func": "off"
+      }
+    },
+    {
+      "files": "src/{runner,scripter}.ts",
+      "rules": {
+        "promise/prefer-await-to-callbacks": "off"
+      }
+    },
+    {
+      "files": "src/loader.ts",
+      "rules": {
+        "import/no-dynamic-require": "off"
+      }
+    },
+    {
+      "files": "test/scripter.ts",
+      "rules": {
+        "@typescript-eslint/require-await": "off"
+      }
+    }
+  ]
 }
