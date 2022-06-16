@@ -1,8 +1,10 @@
+import { env } from 'node:process';
 import type { DeepArray } from './utils';
 
 interface Context {
   history: DeepArray<HistoryEvent>;
   options: {
+    command: string;
     cwd: string;
     file?: string;
     noCancel: boolean;
@@ -32,6 +34,7 @@ function define(): Context {
   return {
     history: [],
     options: {
+      command: env['npm_lifecycle_event'] || '',
       cwd: '.',
       noCancel: false,
       noColor: false,

@@ -1,4 +1,4 @@
-import { env, exit } from 'node:process';
+import { exit } from 'node:process';
 import type { Context } from './context';
 import { log } from './logger';
 import { run } from './runner';
@@ -21,8 +21,7 @@ function define(context: Context) {
     const lap = stopwatch();
     context.options = { ...context.options, ...options };
     const { history, state, store } = context;
-    const { file, noCancel } = context.options;
-    const command = env['npm_lifecycle_event'] || '';
+    const { command, file, noCancel } = context.options;
 
     log.empty(file ? `\n  File:     ${file}` : '');
     try {

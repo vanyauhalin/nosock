@@ -11,6 +11,7 @@ test('defines with default values', () => {
   equal(context, {
     history: [],
     options: {
+      command: 'test',
       cwd: '.',
       noCancel: false,
       noColor: false,
