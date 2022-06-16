@@ -11,11 +11,21 @@ test('is a asynchronous function', () => {
 
 // ---
 
-test('finishes the script', async () => {
+test('finishes resolved script', async () => {
   const context = define();
   const script = {
     command: 'some',
     callback: () => 'some',
+  };
+  await run(context, script);
+  is(context.state.depth, 0);
+});
+
+test('finishes rejected script', async () => {
+  const context = define();
+  const script = {
+    command: 'some',
+    callback() { throw new Error('some'); },
   };
   await run(context, script);
   is(context.state.depth, 0);
@@ -41,6 +51,8 @@ test('rejects the script', async () => {
   is(context.state.hasError, true);
 });
 
+// ---
+
 test('saves the script as an event', async () => {
   const context = define();
   const script = {
@@ -52,7 +64,7 @@ test('saves the script as an event', async () => {
   is(event.command, 'some');
 });
 
-test('finishes the event', async () => {
+test('finishes resolved event', async () => {
   const context = define();
   const script = {
     command: 'some',
@@ -60,7 +72,18 @@ test('finishes the event', async () => {
   };
   await run(context, script);
   const event = context.history[0] as HistoryEvent;
-  match(event.duration, 'ms');
+  match(event.duration || '', 'ms');
+});
+
+test('finishes rejected event', async () => {
+  const context = define();
+  const script = {
+    command: 'some',
+    callback() { throw new Error('some'); },
+  };
+  await run(context, script);
+  const event = context.history[0] as HistoryEvent;
+  match(event.duration || '', 'ms');
 });
 
 test('resolves the event', async () => {
@@ -108,11 +131,25 @@ test('returns undefined from the rejected script', async () => {
 
 // ---
 
-test('finishes nested scripts', async () => {
+test('finishes resolved nested scripts', async () => {
   const context = define();
   const second = {
     command: 'second',
     callback: () => 'second',
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  is(context.state.depth, 0);
+});
+
+test('finishes rejected nested scripts', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
   };
   const first = {
     command: 'first',
@@ -150,7 +187,9 @@ test('rejects nested scripts', async () => {
   is(context.state.hasError, true);
 });
 
-test('saves nested scripts as an events', async () => {
+// ---
+
+test('saves nested scripts as an event', async () => {
   const context = define();
   const second = {
     command: 'second',
@@ -161,13 +200,11 @@ test('saves nested scripts as an events', async () => {
     callback: run.bind(undefined, context, second),
   };
   await run(context, first);
-  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  const firstEvent = context.history[1] as HistoryEvent;
-  is(secondEvent.command, 'second');
-  is(firstEvent.command, 'first');
+  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.command, 'second');
 });
 
-test('finishes nested events', async () => {
+test('finishes resolved nested event', async () => {
   const context = define();
   const second = {
     command: 'second',
@@ -178,13 +215,48 @@ test('finishes nested events', async () => {
     callback: run.bind(undefined, context, second),
   };
   await run(context, first);
-  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  const firstEvent = context.history[1] as HistoryEvent;
-  match(secondEvent.duration, 'ms');
-  match(firstEvent.duration, 'ms');
+  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  match(event.duration || '', 'ms');
 });
 
-test('resolves nested events', async () => {
+test('finishes rejected nested event', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  match(event.duration || '', 'ms');
+});
+
+test('finishes canceled nested event', async () => {
+  const context = define();
+  const third = {
+    command: 'third',
+    callback: () => 'third',
+  };
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    async callback() {
+      await run(context, second);
+      await run(context, third);
+    },
+  };
+  await run(context, first);
+  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.duration, undefined);
+});
+
+test('resolves nested event', async () => {
   const context = define();
   const second = {
     command: 'second',
@@ -195,10 +267,8 @@ test('resolves nested events', async () => {
     callback: run.bind(undefined, context, second),
   };
   await run(context, first);
-  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  const firstEvent = context.history[1] as HistoryEvent;
-  is(secondEvent.type, 'done');
-  is(firstEvent.type, 'done');
+  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.type, 'done');
 });
 
 test('rejects nested event', async () => {
@@ -212,12 +282,25 @@ test('rejects nested event', async () => {
     callback: run.bind(undefined, context, second),
   };
   await run(context, first);
-  const secondEvent = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  const firstEvent = context.history[1] as HistoryEvent;
-  is(secondEvent.type, 'error');
-  is(secondEvent.error?.message, 'second');
-  is(firstEvent.type, 'error');
-  is(firstEvent.error, undefined);
+  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.type, 'error');
+  is(event.error?.message, 'second');
+});
+
+test('rejects event with rejected nested event', async () => {
+  const context = define();
+  const second = {
+    command: 'second',
+    callback() { throw new Error('second'); },
+  };
+  const first = {
+    command: 'first',
+    callback: run.bind(undefined, context, second),
+  };
+  await run(context, first);
+  const event = context.history[1] as HistoryEvent;
+  is(event.type, 'error');
+  is(event.error, undefined);
 });
 
 test('cancels nested event', async () => {
@@ -238,8 +321,8 @@ test('cancels nested event', async () => {
     },
   };
   await run(context, first);
-  const thirdEvent = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
-  is(thirdEvent.type, 'cancel');
+  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.type, 'cancel');
 });
 
 test('disables the cancellation of nested event', async () => {
@@ -261,8 +344,8 @@ test('disables the cancellation of nested event', async () => {
     },
   };
   await run(context, first);
-  const thirdEvent = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
-  is(thirdEvent.type, 'done');
+  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
+  is(event.type, 'done');
 });
 
 test('returns the value from the resolved nested script', async () => {
