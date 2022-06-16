@@ -46,6 +46,7 @@ test('merges the passed options with context options', async () => {
     require: ['tsm'],
   });
   equal(context.options, {
+    command: 'some',
     cwd: '/lib',
     file: '/lib/index.js',
     noCancel: true,
