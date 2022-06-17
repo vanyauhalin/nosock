@@ -5,6 +5,9 @@ interface Scripter {
   <C extends (this: void) => unknown>(
     command: string,
     callback: C,
+    options?: {
+      noCancel: boolean;
+    },
   ): (this: void) => (
     Promise<C extends (this: void) => Promise<unknown>
       ? Awaited<ReturnType<C>>
@@ -13,8 +16,12 @@ interface Scripter {
 }
 
 function define(context: Context): Scripter {
-  return ((command, callback) => {
-    const script = { command, callback };
+  return ((command, callback, options) => {
+    const script = {
+      ...options ? { options } : {},
+      command,
+      callback,
+    };
     context.store[command] = script;
     return run.bind(undefined, context, script);
   }) as Scripter;

@@ -4,8 +4,8 @@ import { log } from './logger';
 import { deepener, stopwatch } from './utils';
 
 async function run(context: Context, script: StoreScript): Promise<unknown> {
-  const { history, options, state } = context;
-  const { callback, command } = script;
+  const { history, options: contextOptions, state } = context;
+  const { callback, command, options: scriptOptions } = script;
   const event = { command } as HistoryEvent;
   let result;
 
@@ -15,7 +15,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
   const index = floor.length - 1;
 
   state.depth += 1;
-  if (state.hasError && !options.noCancel) {
+  if (state.hasError && !(scriptOptions?.noCancel || contextOptions.noCancel)) {
     event.type = 'cancel';
   } else {
     const lap = stopwatch();
