@@ -1,8 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { basename, resolve } from 'node:path';
-import { env } from 'node:process';
-import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import type { BuildOptions } from 'esbuild';
 import { build } from 'esbuild';
@@ -55,21 +53,18 @@ script('build', async () => {
 
 script('test', async () => {
   const TEST = resolve('test');
-  const files = await readdir(TEST, { withFileTypes: true });
+  const files = await readdir(TEST);
   await Promise.all(files.map(async (file) => {
-    await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
+    await script(`test/${file}`, () => {
+      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file}`]);
       if (process.status === 0) return;
       const trimmed = process.stdout.toString()
         .replace(/.*[•✘].*/g, '')
         .replace(/.*(Total|Passed|Skipped|Duration).*/g, '')
         .trim();
       throw new Error(trimmed);
-    })();
+    }, { noCancel: true })();
   }));
 });
 
-await exec({
-  file: fileURLToPath(import.meta.url),
-  noCancel: !!(env['npm_lifecycle_event'] === 'test'),
-});
+await exec();
