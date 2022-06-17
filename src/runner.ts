@@ -15,7 +15,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
   const index = floor.length - 1;
 
   state.depth += 1;
-  if (state.hasError && !(scriptOptions?.noCancel || contextOptions.noCancel)) {
+  if (state.hasError && !(scriptOptions?.noCancel ?? contextOptions.noCancel)) {
     event.type = 'cancel';
   } else {
     const lap = stopwatch();
