@@ -55,10 +55,10 @@ script('build', async () => {
 
 script('test', async () => {
   const TEST = resolve('test');
-  const files = await readdir(TEST, { withFileTypes: true });
+  const files = await readdir(TEST);
   await Promise.all(files.map(async (file) => {
-    await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
+    await script(`test/${file}`, () => {
+      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file}`]);
       if (process.status === 0) return;
       const trimmed = process.stdout.toString()
         .replace(/.*[•✘].*/g, '')
