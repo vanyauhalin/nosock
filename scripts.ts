@@ -65,7 +65,7 @@ script('test', async () => {
         .replace(/.*(Total|Passed|Skipped|Duration).*/g, '')
         .trim();
       throw new Error(trimmed);
-    })();
+    }, { noCancel: true })();
   }));
 });
 
