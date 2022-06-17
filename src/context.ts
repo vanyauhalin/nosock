@@ -27,6 +27,9 @@ interface HistoryEvent {
 
 interface StoreScript {
   command: string;
+  options?: {
+    noCancel: boolean;
+  };
   callback(this: void): unknown;
 }
 
