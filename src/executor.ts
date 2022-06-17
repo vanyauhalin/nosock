@@ -8,20 +8,15 @@ function repeat(flag: string, length: number): string {
   return `%${flag}, `.repeat(length).slice(0, -2);
 }
 
-interface ExecutorOptions {
-  cwd?: string;
-  file?: string;
-  noCancel?: boolean;
-  noColor?: boolean;
-  require?: string | string[];
-}
-
 function define(context: Context) {
-  return async (options?: ExecutorOptions): Promise<void> => {
+  return async (): Promise<void> => {
     const lap = stopwatch();
-    context.options = { ...context.options, ...options };
-    const { history, state, store } = context;
-    const { command, file, noCancel } = context.options;
+    const {
+      history,
+      options: { command, file, noCancel },
+      state,
+      store,
+    } = context;
 
     log.empty(file ? `\n  File:     ${file}` : '');
     try {
@@ -79,5 +74,4 @@ function define(context: Context) {
   };
 }
 
-export type { ExecutorOptions };
 export { define };
