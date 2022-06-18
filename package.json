@@ -1,9 +1,10 @@
 {
   "name": "nosock",
   "version": "0.0.0",
-  "description": "Little tool to describe scripts",
+  "description": "Tiny scripts runner",
   "keywords": [
-    "scripts"
+    "scripts",
+    "runner"
   ],
   "repository": "github:vanyauhalin/nosock",
   "license": "MIT",
