@@ -1,9 +1,8 @@
 {
   "name": "nosock",
   "version": "0.0.0",
-  "description": "Little tool to describe npm scripts",
+  "description": "Little tool to describe scripts",
   "keywords": [
-    "npm",
     "scripts"
   ],
   "repository": "github:vanyauhalin/nosock",
