@@ -76,4 +76,5 @@ const log: Logger = (() => {
   return inner;
 })();
 
+export type { Logger };
 export { log };
