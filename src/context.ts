@@ -23,6 +23,7 @@ interface HistoryEvent {
   duration?: string;
   error?: Error;
   type: 'done' | 'error' | 'cancel';
+  cancel?(): void;
 }
 
 interface StoreScript {

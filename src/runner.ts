@@ -1,54 +1,81 @@
 import console from 'node:console';
 import type { Context, HistoryEvent, StoreScript } from './context';
 import { log } from './logger';
-import { deepener, stopwatch } from './utils';
+import { cancellable, deepener, stopwatch } from './utils';
 
 async function run(context: Context, script: StoreScript): Promise<unknown> {
-  const { history, options: contextOptions, state } = context;
-  const { callback, command, options: scriptOptions } = script;
-  const event = { command } as HistoryEvent;
+  const { history, options, state } = context;
+  const { allowCancellation } = script.options || options;
+  const current = { command: script.command } as HistoryEvent;
+  let callback;
   let result;
+
+  if (allowCancellation) {
+    callback = cancellable(script.callback);
+    current.cancel = callback.cancel;
+  } else {
+    callback = script.callback;
+  }
 
   if (state.depth === 1) history.push([]);
   const floor = deepener.dive(history);
-  if (state.depth >= 1) floor.length += 1;
+  if (state.depth > 0) floor.push(current);
   const index = floor.length - 1;
 
   state.depth += 1;
-  if (state.hasError && !(scriptOptions?.noCancel ?? contextOptions.noCancel)) {
-    event.type = 'cancel';
+  if (state.hasError && allowCancellation) {
+    current.type = 'cancel';
+    delete current.cancel;
   } else {
     const lap = stopwatch();
-    log('Running "%p" ...', event.command);
+    log('Running "%p" ...', current.command);
     try {
-      result = await Promise.resolve(callback());
-      event.type = 'done';
+      result = await callback();
+      if (!current.type) {
+        current.type = 'done';
+        delete current.cancel;
+      }
     } catch (error) {
-      event.error = error as Error;
-      event.type = 'error';
+      for (const event of floor) {
+        if (event.cancel) {
+          event.type = 'cancel';
+          event.cancel();
+          delete event.cancel;
+        }
+      }
+      current.type = 'error';
+      current.error = error as Error;
       state.hasError = true;
     }
-    event.duration = lap();
+    current.duration = lap();
   }
   state.depth -= 1;
 
-  if (state.depth === 0) {
-    event.type = event.type === 'error' || state.hasError ? 'error' : 'done';
-    floor.push(event);
+  if (state.depth > 0) {
+    floor[index] = current;
   } else {
-    floor[index] = event;
+    current.type = current.type === 'error' || state.hasError
+      ? 'error'
+      : 'done';
+    floor.push(current);
   }
 
-  switch (event.type) {
+  const {
+    command,
+    duration,
+    error,
+    type,
+  } = current;
+  switch (type) {
     case 'done':
-      log.done('Finished "%p" after %a', event.command, event.duration || '');
+      log.done('Finished "%p" after %a', command, duration || '');
       break;
     case 'error':
-      if (event.error) console.error(event.error);
-      log.error('Finished "%p" after %a', event.command, event.duration || '');
+      if (error) console.error(error);
+      log.error('Finished "%p" after %a', command, duration || '');
       break;
     case 'cancel':
-      log.warn('Canceled "%p"', event.command);
+      log.warn('Canceled "%p"', command);
       break;
     default:
       break;
