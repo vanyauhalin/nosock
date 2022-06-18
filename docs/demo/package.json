@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.45",
+    "postcss": "^8.4.14",
+    "postcss-csso": "^6.0.0"
+  }
+}
