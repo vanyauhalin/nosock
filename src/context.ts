@@ -4,10 +4,10 @@ import type { DeepArray } from './utils';
 interface Context {
   history: DeepArray<HistoryEvent>;
   options: {
+    allowCancellation: boolean;
     command: string;
     cwd: string;
     file?: string;
-    noCancel: boolean;
     noColor: boolean;
     require: string | string[];
   };
@@ -23,12 +23,13 @@ interface HistoryEvent {
   duration?: string;
   error?: Error;
   type: 'done' | 'error' | 'cancel';
+  cancel?(): void;
 }
 
 interface StoreScript {
   command: string;
   options?: {
-    noCancel: boolean;
+    allowCancellation: boolean;
   };
   callback(this: void): unknown;
 }
@@ -37,9 +38,9 @@ function define(): Context {
   return {
     history: [],
     options: {
+      allowCancellation: false,
       command: env['npm_lifecycle_event'] || '',
       cwd: '.',
-      noCancel: false,
       noColor: false,
       require: [],
     },
