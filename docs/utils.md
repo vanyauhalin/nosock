@@ -5,7 +5,7 @@ A few functions that are primarily used inside the library and are not meant to 
 ## API
 
 ```js
-import { deepener, stopwatch } from 'nosock/utils';
+import { deepener, stopwatch } from '@vanyauhalin/nosock/utils';
 ```
 
 ### `cancellable`

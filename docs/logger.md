@@ -5,7 +5,7 @@ Wrapper for `process.stdout` that adds a time prefix, types and [color injection
 ## API
 
 ```js
-import { log } from 'nosock';
+import { log } from '@vanyauhalin/nosock';
 ```
 
 ### `log()`

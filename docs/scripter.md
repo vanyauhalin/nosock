@@ -5,7 +5,7 @@ The main module used to describe scripts.
 ## API
 
 ```js
-import { script } from 'nosock';
+import { script } from '@vanyauhalin/nosock';
 ```
 
 ### `script()`
