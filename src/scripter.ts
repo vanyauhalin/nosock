@@ -6,7 +6,7 @@ interface Scripter {
     command: string,
     callback: C,
     options?: {
-      noCancel: boolean;
+      allowCancellation: boolean;
     },
   ): (this: void) => (
     Promise<C extends (this: void) => Promise<unknown>

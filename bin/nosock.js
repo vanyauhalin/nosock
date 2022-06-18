@@ -23,7 +23,7 @@ sade('nosock [command]')
   .option('-c, --cwd', 'The current directory to resolve from', '.')
   .option('-f, --file', 'The file containing scripts')
   .option('-r, --require', 'Additional module(s) to preload', [])
-  .option('--no-cancel', 'Disable scripts cancelation', false)
+  .option('--allow-cancellation', 'Allow scripts cancelation', false)
   .option('--no-color', 'Print colorized output', false)
   .action(async (command, options) => {
     try {
