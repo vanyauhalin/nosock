@@ -67,4 +67,5 @@ async function load(options: LoaderOptions): Promise<LoadedOptions> {
   };
 }
 
+export type { LoadedOptions, LoaderOptions };
 export { load };

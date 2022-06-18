@@ -31,7 +31,7 @@ interface StoreScript {
   options?: {
     allowCancellation: boolean;
   };
-  callback(this: void): unknown;
+  callback(this: void): unknown | PromiseLike<unknown>;
 }
 
 function define(): Context {

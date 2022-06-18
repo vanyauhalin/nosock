@@ -46,9 +46,9 @@ const deepener = (() => {
    * // array is now [1, [[[2]], [3, 4]]]
    * ```
    */
-  function dive<T>(array: DeepArray<T>): DeepArray<T> {
+  function dive<T>(array: DeepArray<T>): T[] {
     const result = array[array.length - 1];
-    if (!Array.isArray(result)) return array;
+    if (!Array.isArray(result)) return array as T[];
     return dive(result);
   }
   /**
