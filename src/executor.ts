@@ -13,19 +13,19 @@ function define(context: Context) {
     const lap = stopwatch();
     const {
       history,
-      options: { command, file, noCancel },
+      options,
       state,
       store,
     } = context;
 
-    log.empty(file ? `\n  File:     ${file}` : '');
+    log.empty(options.file ? `\n  File:     ${options.file}` : '');
     try {
       const commands = Object.keys(store);
       if (commands.length === 0) throw new Error('1');
       log.empty(`  Scripts:  ${repeat('p', commands.length)}`, ...commands);
 
-      if (!command) throw new Error('2');
-      const script = store[command];
+      if (!options.command) throw new Error('2');
+      const script = store[options.command];
       if (!script) throw new Error('3');
 
       log.empty();
@@ -42,8 +42,8 @@ function define(context: Context) {
           log.empty().error(message);
           break;
         case 3:
-          message = `The "${command}" is not described`;
-          log.empty().error('The %p is not described', command);
+          message = `The "${options.command}" is not described`;
+          log.empty().error('The %p is not described', options.command);
           break;
         default:
           break;
@@ -55,7 +55,10 @@ function define(context: Context) {
         ['done', 'Resolved', 'ap'],
         ['error', 'Rejected', 'an'],
       ];
-      if (!noCancel) sections.push(['cancel', 'Canceled', 'aa']);
+      const allowCancellation = options.allowCancellation
+        || Object.values(store)
+          .some((script) => script.options?.allowCancellation);
+      if (allowCancellation) sections.push(['cancel', 'Canceled', 'aa']);
 
       const values = [];
       let message = '';
