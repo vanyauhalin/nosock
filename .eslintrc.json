@@ -5,26 +5,21 @@
   },
   "overrides": [
     {
-      "files": "bin/nosock.js",
+      "files": "bin/*",
       "rules": {
         "dot-notation": "off",
         "no-new-func": "off"
       }
     },
     {
-      "files": "src/{runner,scripter}.ts",
+      "files": "src/*",
       "rules": {
+        "import/no-dynamic-require": "off",
         "promise/prefer-await-to-callbacks": "off"
       }
     },
     {
-      "files": "src/loader.ts",
-      "rules": {
-        "import/no-dynamic-require": "off"
-      }
-    },
-    {
-      "files": "test/scripter.ts",
+      "files": "test/*",
       "rules": {
         "@typescript-eslint/require-await": "off"
       }

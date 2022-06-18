@@ -24,7 +24,7 @@ sade('nosock [command]')
   .option('-f, --file', 'The file containing scripts')
   .option('-r, --require', 'Additional module(s) to preload', [])
   .option('--allow-cancellation', 'Allow scripts cancelation', false)
-  .option('--no-color', 'Print colorized output', false)
+  .option('--no-color', 'Disable colorized output', false)
   .action(async (command, options) => {
     try {
       env['FORCE_COLOR'] = options.noColor ? '0' : '1';

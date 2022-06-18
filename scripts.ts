@@ -58,12 +58,13 @@ script('test', async () => {
     await script(`test/${file}`, () => {
       const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file}`]);
       if (process.status === 0) return;
-      const trimmed = process.stdout.toString()
-        .replace(/.*[•✘].*/g, '')
-        .replace(/.*(Total|Passed|Skipped|Duration).*/g, '')
+      const cleared = process.stdout.toString()
+        .replace(/^ {4}at .*$/gm, '')
+        .replace(/[\S\s]*?FAIL/, 'FAIL')
+        .replace(/\n{2,}/g, '\n\n')
         .trim();
-      throw new Error(trimmed);
-    }, { noCancel: true })();
+      throw new Error(`\n\n   ${cleared}\n`);
+    })();
   }));
 });
 
