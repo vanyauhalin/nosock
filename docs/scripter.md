@@ -28,7 +28,7 @@ script<C extends (this: void) => unknown | PromiseLike<unknown>>(
 
 #### `callback`
 
-The `callback` can be only an asynchronous function. If pass a synchronous, the TypeScript language server will not notify of the error, because `callback` will be resolved via `Promise.resolve`. But don't use synchronous functions such as `fs.readFile`, `fs.writeFile`, etc., because this is not be resolved and can lead to unexpected results.
+The `callback` can be only an asynchronous function. Don't use synchronous functions such as `fs.readFile`, `fs.writeFile`, etc., because this is not be resolved and can lead to unexpected results.
 
 #### `options.allowCancellation`
 
@@ -44,7 +44,7 @@ script('house', async () => {
 });
 ```
 
-In this case, `tom` script will throw an error, but `jerry` script will still be executed. Pretty safely, can disable this behavior and cancel `jerry` script execution.
+In this case, `tom` script will throw an error, but `jerry` script will still be executed. Pretty safely, you can disable this behavior and cancel `jerry` script execution.
 
 ```js
 const jerry = script('jerry', () => 'he-he', { allowCancellation: true });
