@@ -453,6 +453,7 @@ packages:
 
   /@vanyauhalin/eslint-config-base/0.20.1_as7czvxgrvaa35lzxztolpnp5a:
     resolution: {integrity: sha512-vtmO4LSU8IQq90rMuhAuF2cd0yXo3ZCX69MeTl1s83ztwS7SxzvTmVzoS6YVd640+jZC2KOQFp+5q7YfdqPvXg==, tarball: download/@vanyauhalin/eslint-config-base/0.20.1/377e3d4f7e0a0fc572b86be282a26a0c35e94522e02d830b199bf15dec5043ad}
+    engines: {node: '>=12', pnpm: '>=4'}
     peerDependencies:
       eslint: ^7.32.0 || ^8.0.0
     dependencies:
@@ -478,6 +479,7 @@ packages:
 
   /@vanyauhalin/eslint-config-typescript/0.20.1_t725usgvqspm5woeqpaxbfp2qu:
     resolution: {integrity: sha512-iy4M98DdJXnTZOmB6Ra2zHVLEBp6vr84CblZ2Z2fHx00lCEO3p3sZZNXrLFmmp5SR/yTCnIVrFnP0/Kt9izirg==, tarball: download/@vanyauhalin/eslint-config-typescript/0.20.1/16f7883648b5c673e81d934b6e96fc538fbed5154fd705ea1324585a1c9ffd51}
+    engines: {node: '>=12', pnpm: '>=4'}
     peerDependencies:
       eslint: ^7.32.0 || ^8.0.0
       typescript: ^4.0.0

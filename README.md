@@ -1,39 +1,48 @@
 <p align="center">
-  <sub>
-    logo in development...
-  </sub>
-</p>
-
-<p align="center">
-  Easy-to-use, lightweight runner based on npm scripts
-</p>
-
-<p align="center">
-  <a href="https://github.com/vanyauhalin/scer/actions">
+  <img
+    width="80"
+    height="80"
+    alt="nosock logo"
+    src="docs/assets/nosock.svg"
+  />
+  <br>
+  <a href="https://github.com/vanyauhalin/nosock/actions">
     <img
-      alt="build status"
-      src="https://github.com/vanyauhalin/scer/workflows/build/badge.svg"
+      alt="test status"
+      src="https://github.com/vanyauhalin/nosock/workflows/test/badge.svg"
     />
   </a>
-  <a href="https://packagephobia.com/badge?p=scer">
-    <img
-      alt="install size"
-      src="https://packagephobia.com/result?p=scer"
-    />
-  </a>
+  <img
+    alt="install size"
+    src="https://badgen.net/badge/install%20size/≈%20100%20kB/green"
+  />
+  <br>
+  nosock is a tiny scripts runner
 </p>
 
 ## Motivation
 
-scer was born from the reluctance to once again install, configure gulp and remember its api in order to merge two css, js files. Do we really need to download [5.5 mb](https://packagephobia.com/result?p=gulp@4.0.2) of dependencies in order to run scripts? Why limit ourselves to an external api when all the power of node is available to us? After asking myself these questions, I decided to write a simple runner that just... will run my scripts.
+Do we really need to download [5.5 mb](https://packagephobia.com/result?p=gulp@4.0.2) of dependencies in order to run scripts? Why limit ourselves to an external API when all the power of NodeJS is available to us? After asking myself these questions, I decided to write a tool that just... will run my scripts `¯\_(ツ)_/¯`.
 
-## Install
+## Features
 
-Install package via your favorite manager from github registry.
+- Tiny size.
+- Supports `async` / `await`.
+- Supports cancellation.
+- 0.1% new API.
+
+## Installation
+
+Include a line specifying the package [registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry) in `.npmrc` file.
+
+```properties
+@vanyauhalin:registry=https://npm.pkg.github.com
+```
+
+Install package via your favorite manager.
 
 ```sh
-echo "scer:registry = https://npm.pkg.github.com" > .npmrc
-npm install --save-dev scer
+npm install --save-dev @vanyauhalin/nosock
 ```
 
 ## Usage
@@ -43,60 +52,57 @@ Add a script to `package.json`.
 ```json
 {
   "scripts": {
-    "build": "scer"
+    "build": "nosock"
   }
 }
 ```
 
-Describe the script in one of the rc-file: 
-
-- `scripts.{cjs,js,mjs,ts}`
-- `.scripts.{cjs,js,mjs,ts}`
-- `scriptsrc.{cjs,js,mjs,ts}`
-- `.scriptsrc.{cjs,js,mjs,ts}`
-- `scer.{cjs,js,mjs,ts}`
-- `.scer.{cjs,js,mjs,ts}`
-- `scerrc.{cjs,js,mjs,ts}`
-- `.scerrc.{cjs,js,mjs,ts}`
+Describe the script in `{scripts|nosock}.{cjs,js,mjs,ts}`.
 
 ```js
-import { readFile, writeFile } from 'fs';
-import { promisify } from 'util';
-import { minify } from 'csso';
+import { existsSync, promises } from 'node:fs';
+import { script } from '@vanyauhalin/nosock';
 import { build } from 'esbuild';
-import { script } from 'scer';
+import postcss from 'postcss';
+import postcssCsso from 'postcss-csso';
 
-async function buildScripts() {
+const { mkdir, readFile, writeFile } = promises;
+
+const styles = script('build-styles', async () => {
+  const file = await readFile('src/main.css');
+  const result = await postcss()
+    .use(postcssCsso())
+    .process(file, { from: 'src/main.css' });
+  if (!existsSync('dist')) await mkdir('dist');
+  await writeFile('dist/main.css', result.css, { flag: 'w' });
+});
+
+const scripts = script('build-scripts', async () => {
   await build({
     entryPoints: ['src/main.js'],
     minify: true,
-    outdir: 'dist',
+    platform: 'browser',
+    outfile: 'dist/main.js',
   });
-}
-
-async function buildStyles() {
-  const file = await promisify(readFile)('src/styles.css');
-  const { css } = minify(file.toString());
-  await promisify(writeFile)('dist/styles.css', css);
-}
+});
 
 script('build', async () => {
-  await Promise.all([buildScripts, buildStyles]);
+  await Promise.all([styles(), scripts()]);
 });
 ```
 
-Then run the script.
+Then execute the script.
 
 ```sh
 npm run build
 ```
 
-See the [docs](docs/README.md) for more examples and alternative gulp utilities.
+This demo is available in the [docs](docs/demo/scripts.js) directory.
 
 ## API
 
-- [`script()`]('docs/script.md) — the main entry for describing scripts.
-- [`log()`](docs/log.md) — improved `stdout` for logging.
+- [`script()`]('docs/scripter.md) — the main module used to describe scripts.
+- [`log()`](docs/logger.md) — wrapper for `process.stdout` that adds a time prefix, types and [color injection](docs/logger.md#color-injection).
 
 ## Benchmarks
 
@@ -104,12 +110,11 @@ In progress...
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE) License © 2022 [@vanyauhalin](https://github.com/vanyauhalin).
 
 <p align="center">
   <sub>
-    Inspired by the lightness of
-    <a href="https://github.com/lukeed/uvu">uvu</a>.
+    Inspired by <a href="https://github.com/lukeed">@lukeed</a>'s projects.
     <br>
     #youmightnotneedgulpjs
   </sub>
