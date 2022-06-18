@@ -8,6 +8,34 @@ A few functions that are primarily used inside the library and are not meant to 
 import { deepener, stopwatch } from 'nosock/utils';
 ```
 
+### `cancellable`
+
+A wrapper that adds a `cancel` method to the passed `callback`.
+
+```ts
+cancellable<C extends (this: void) => unknown | PromiseLike<unknown>>(
+  callback: C,
+): {
+  (this: void): (
+    Promise<undefined | C extends (this: void) => PromiseLike<unknown>
+      ? Awaited<ReturnType<C>>
+      : ReturnType<C>>
+  );
+  cancel(this: void): void;
+}
+```
+
+```js
+let result = false;
+const callback = cancellable(async () => {
+  await delay(1500);
+  result = true;
+});
+callback();
+callback.cancel();
+// result is false
+```
+
 ### `deepener`
 
 A group of functions for working with a deep array.
