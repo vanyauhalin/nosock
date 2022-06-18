@@ -1,5 +1,35 @@
 import { hrtime } from 'node:process';
 
+interface Canceller<C extends (this: void) => unknown | PromiseLike<unknown>> {
+  (this: void): (
+    Promise<undefined | C extends (this: void) => PromiseLike<unknown>
+      ? Awaited<ReturnType<C>>
+      : ReturnType<C>>
+  );
+  cancel(this: void): void;
+}
+
+function cancellable<
+  C extends (this: void) => unknown | PromiseLike<unknown>,
+>(callback: C): Canceller<C> {
+  const flag = Symbol('cancel');
+  let cancel: (value: symbol) => void;
+  async function inner(): Promise<unknown> {
+    const result = await Promise.race([
+      new Promise((resolve) => {
+        cancel = resolve;
+      }),
+      Promise.resolve(callback()),
+    ]);
+    cancel(flag);
+    return result === flag ? undefined : result;
+  }
+  inner.cancel = () => {
+    cancel(flag);
+  };
+  return inner as Canceller<C>;
+}
+
 type DeepArray<T> = (T | DeepArray<T>)[];
 
 /**
@@ -52,5 +82,5 @@ function stopwatch(): () => string {
   return () => `${((Number(hrtime.bigint()) - start) / 1e6).toFixed(2)}ms`;
 }
 
-export type { DeepArray };
-export { deepener, stopwatch };
+export type { Canceller, DeepArray };
+export { cancellable, deepener, stopwatch };
