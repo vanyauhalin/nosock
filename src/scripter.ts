@@ -2,14 +2,14 @@ import type { Context } from './context';
 import { run } from './runner';
 
 interface Scripter {
-  <C extends (this: void) => unknown>(
+  <C extends (this: void) => unknown | PromiseLike<unknown>>(
     command: string,
     callback: C,
     options?: {
       allowCancellation: boolean;
     },
   ): (this: void) => (
-    Promise<C extends (this: void) => Promise<unknown>
+    Promise<C extends (this: void) => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
