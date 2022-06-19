@@ -8,6 +8,16 @@ Wrapper for `process.stdout` that adds a time prefix, types and [color injection
 import { log } from '@vanyauhalin/nosock';
 ```
 
+```ts
+interface Logger {
+  (message: string, ...values: string[]): Logger;
+  done(message: string, ...values: string[]): Logger;
+  empty(message?: string, ...values: string[]): Logger;
+  error(message: string, ...values: string[]): Logger;
+  warn(message: string, ...values: string[]): Logger;
+}
+```
+
 ### `log()`
 
 Writes a message with a time prefix and [color injection](#color-injection).

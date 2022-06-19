@@ -5,7 +5,7 @@ A few functions that are primarily used inside the library and are not meant to 
 ## API
 
 ```js
-import { deepener, stopwatch } from '@vanyauhalin/nosock/utils';
+import { cancellable, deepener, stopwatch } from '@vanyauhalin/nosock/utils';
 ```
 
 ### `cancellable`
@@ -13,16 +13,20 @@ import { deepener, stopwatch } from '@vanyauhalin/nosock/utils';
 A wrapper that adds a `cancel` method to the passed `callback`.
 
 ```ts
-cancellable<C extends (this: void) => unknown | PromiseLike<unknown>>(
-  callback: C,
-): {
-  (this: void): (
-    Promise<undefined | C extends (this: void) => PromiseLike<unknown>
+interface Canceller<C extends () => unknown | PromiseLike<unknown>> {
+  (): (
+    Promise<undefined | C extends () => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  cancel(this: void): void;
+  cancel(): void;
 }
+```
+
+```ts
+cancellable<
+  C extends () => unknown | PromiseLike<unknown>,
+>(callback: C): Canceller<C>
 ```
 
 ```js
@@ -33,7 +37,10 @@ const callback = cancellable(async () => {
 });
 callback();
 callback.cancel();
-// result is false
+```
+
+```txt
+result is false
 ```
 
 ### `deepener`
@@ -56,7 +63,10 @@ deepener.dive<T>(array: DeepArray<T>): T[]
 const array = [1, [[[2]], [3]]];
 const result = deepener.dive(array);
 result.push(4);
-// array is [1, [[[2]], [3, 4]]]
+```
+
+```txt
+array is [1, [[[2]], [3, 4]]]
 ```
 
 #### `deepener.raise()`
@@ -70,7 +80,10 @@ deepener.raise<T>(array: DeepArray<T>): T[]
 ```js
 const array = [1, [[[2]], [3]]];
 const result = deepener.raise(array);
-// result is [1, 2, 3]
+```
+
+```txt
+result is [1, 2, 3]
 ```
 
 ### `stopwatch()`
@@ -84,5 +97,8 @@ stopwatch(): () => string
 ```js
 const lap = stopwatch();
 const time = lap();
-// time is 0.01ms
+```
+
+```txt
+time is 0.01ms
 ```
