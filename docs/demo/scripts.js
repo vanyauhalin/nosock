@@ -2,7 +2,7 @@ import { existsSync, promises } from 'node:fs';
 import { build } from 'esbuild';
 import postcss from 'postcss';
 import postcssCsso from 'postcss-csso';
-import { exec, script } from '../../lib/index.js';
+import { script } from '../../lib/index.js';
 
 const { mkdir, readFile, writeFile } = promises;
 
@@ -28,4 +28,4 @@ script('build', async () => {
   await Promise.all([styles(), scripts()]);
 });
 
-await exec();
+script.exec();

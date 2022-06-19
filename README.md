@@ -89,6 +89,8 @@ const scripts = script('build-scripts', async () => {
 script('build', async () => {
   await Promise.all([styles(), scripts()]);
 });
+
+script.exec();
 ```
 
 Then execute the script.

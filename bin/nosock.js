@@ -33,13 +33,12 @@ sade('nosock [command]')
         cwd,
         require: modules,
       });
-      const { actual, exec } = await cross('nosock');
+      const { actual } = await cross('nosock/context');
       actual().options = {
-        noColor,
         ...loaded,
         ...command ? { command } : {},
+        noColor,
       };
-      await exec();
     } catch (error) {
       console.error(error.stack || error.message);
       exit(1);

@@ -1,4 +1,5 @@
-import type { Context } from './context';
+import { actual } from './context';
+import { exec } from './executor';
 import { run } from './runner';
 
 interface Scripter {
@@ -13,19 +14,31 @@ interface Scripter {
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
+  exec(): void;
 }
 
-function define(context: Context): Scripter {
-  return ((command, callback, options) => {
-    const script = {
+const script = (() => {
+  const context = actual();
+  function inner(
+    command: string,
+    callback: () => unknown | PromiseLike<unknown>,
+    options?: {
+      allowCancellation: boolean;
+    },
+  ): () => Promise<unknown> {
+    const saved = {
       ...options ? { options } : {},
       command,
       callback,
     };
-    context.store[command] = script;
-    return run.bind(undefined, context, script);
-  }) as Scripter;
-}
+    context.store[command] = saved;
+    return run.bind(undefined, context, saved);
+  }
+  inner.exec = () => {
+    setTimeout.call(undefined, exec.bind(undefined, context));
+  };
+  return inner as Scripter;
+})();
 
 export type { Scripter };
-export { define };
+export { script };
