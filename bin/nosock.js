@@ -21,25 +21,23 @@ const cross = (() => {
 sade('nosock [command]')
   .version(version)
   .option('-c, --cwd', 'The current directory to resolve from', '.')
-  .option('-f, --file', 'The file containing scripts')
-  .option('-r, --require', 'Additional module(s) to preload', [])
-  .option('--allow-cancellation', 'Allow scripts cancelation', false)
+  .option('-r, --require', 'Additional module(s) to preload')
+  .option('--allow-cancellation', 'Allow scripts cancellation', false)
   .option('--no-color', 'Disable colorized output', false)
   .action(async (command, options) => {
     try {
-      env['FORCE_COLOR'] = options.noColor ? '0' : '1';
+      const { cwd, noColor, require: modules = '' } = options;
+      env['FORCE_COLOR'] = noColor ? '0' : '1';
       const { load } = await cross('nosock/loader');
       const loaded = await load({
-        file: options.file,
-        cwd: options.cwd,
-        require: options.require,
+        cwd,
+        require: modules,
       });
       const { actual, exec } = await cross('nosock');
-      const context = actual();
-      context.options = {
+      actual().options = {
+        noColor,
         ...loaded,
         ...command ? { command } : {},
-        noColor: options.noColor,
       };
       await exec();
     } catch (error) {
