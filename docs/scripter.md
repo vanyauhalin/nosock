@@ -35,7 +35,7 @@ The `callback` can be only an asynchronous function. Don't use synchronous funct
 By default, callbacks are not cancelled, but this can be changed.
 
 ```js
-const jerry = script('jerry', () => 'he-he');
+const jerry = script('jerry', () => 'cheese');
 const tom = script('tom', () => { throw new Error('anvil'); });
 
 script('house', async () => {
@@ -47,7 +47,7 @@ script('house', async () => {
 In this case, `tom` script will throw an error, but `jerry` script will still be executed. Pretty safely, you can disable this behavior and cancel `jerry` script execution.
 
 ```js
-const jerry = script('jerry', () => 'he-he', { allowCancellation: true });
+const jerry = script('jerry', () => 'cheese', { allowCancellation: true });
 const tom = script('tom', () => { throw new Error('anvil'); });
 
 script('house', async () => {
@@ -70,3 +70,17 @@ script('house', async () => {
 ```
 
 In this case, `jerry` script will also be cancelled. But in more complex systems, `tom` script with more complex logic will take much longer to execute, and `jerry` script will have time to be executed. Take note of this when using `allowCancellation`.
+
+### `script.exec()`
+
+Executes scripts and nothing more.
+
+```ts
+script.exec(): void
+```
+
+```js
+script('jerry', () => 'cheese');
+script('tom', () => { throw new Error('anvil'); });
+script.exec();
+```
