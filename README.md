@@ -57,7 +57,7 @@ Add a script to `package.json`.
 }
 ```
 
-Describe the script in `{scripts|nosock}.{cjs,js,mjs,ts}`.
+Describe the script in `scripts.{cjs,js,mjs,ts}`.
 
 ```js
 import { existsSync, promises } from 'node:fs';
