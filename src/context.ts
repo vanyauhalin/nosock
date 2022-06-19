@@ -35,12 +35,11 @@ interface StoreScript {
 }
 
 const actual = (() => {
-  const isCli = argv.some((argument) => /bin[/\\]nosock\.js/.test(argument));
   const context: Context = {
     history: [],
     options: {
       allowCancellation: false,
-      command: (isCli ? env['npm_lifecycle_event'] : [...argv].pop()) || '',
+      command: env['npm_lifecycle_event'] || [...argv].pop() || '',
       cwd: '.',
       noColor: false,
       require: [],

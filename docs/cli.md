@@ -23,7 +23,9 @@ Options
 
 ### `command`
 
-By default, nosock match command from the NodeJS environment is used, so it is recommended to use the CLI from `package.json` without this argument. But you can specify which command that need to execute.
+By default, `nosock` tries match a command from the NodeJS environment, so it's recommended to use the CLI from `package.json`. If it fails, then the last argument from the executed command will be taken. This behavior persists even when `node` is used. See [below](#isolation) for how to use `node`.
+
+But you can specify which command that need to execute, and that will override whatever was matched by `nosock`.
 
 ### `-r`, `--require`
 
