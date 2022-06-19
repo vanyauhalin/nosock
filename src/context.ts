@@ -1,4 +1,4 @@
-import { env } from 'node:process';
+import { argv, env } from 'node:process';
 import type { DeepArray } from './utils';
 
 interface Context {
@@ -34,12 +34,13 @@ interface StoreScript {
   callback(this: void): unknown | PromiseLike<unknown>;
 }
 
-function define(): Context {
-  return {
+const actual = (() => {
+  const isCli = argv.some((argument) => /bin[/\\]nosock\.js/.test(argument));
+  const context: Context = {
     history: [],
     options: {
       allowCancellation: false,
-      command: env['npm_lifecycle_event'] || '',
+      command: (isCli ? env['npm_lifecycle_event'] : [...argv].pop()) || '',
       cwd: '.',
       noColor: false,
       require: [],
@@ -50,7 +51,8 @@ function define(): Context {
     },
     store: {},
   };
-}
+  return () => context;
+})();
 
 export type { Context, HistoryEvent, StoreScript };
-export { define };
+export { actual };
