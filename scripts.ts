@@ -1,14 +1,11 @@
 import { spawnSync } from 'node:child_process';
-import fs from 'node:fs';
+import { promises } from 'node:fs';
 import { basename, resolve } from 'node:path';
-import { promisify } from 'node:util';
 import type { BuildOptions } from 'esbuild';
 import { build } from 'esbuild';
-import { exec, script } from './src/index';
+import { script } from './src/index';
 
-const readdir = promisify(fs.readdir);
-const rm = promisify(fs.rm);
-const writeFile = promisify(fs.writeFile);
+const { readdir, rm, writeFile } = promises;
 
 script('build', async () => {
   const LIBRARY = resolve('lib');
@@ -68,4 +65,4 @@ script('test', async () => {
   }));
 });
 
-await exec();
+script.exec();
