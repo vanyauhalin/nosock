@@ -28,8 +28,7 @@ interface LoadedOptions {
 async function load(options: LoaderOptions): Promise<LoadedOptions> {
   const cwd = resolve(options.cwd);
   const files = await promisify(readdir)(cwd);
-  let file = files
-    .find((name) => /^(scripts|nosock)\.([cm]js|[jt]s)/.test(name));
+  let file = files.find((name) => /^scripts\.([cm]js|[jt]s)/.test(name));
   if (!file) throw new Error('Scripts file not found');
   file = resolve(cwd, file);
   if (!existsSync(file)) throw new Error('Scripts file not exists');
