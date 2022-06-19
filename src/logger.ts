@@ -45,11 +45,11 @@ function inject(body: string, values: string[]): string {
 }
 
 interface Logger {
-  (this: void, message: string, ...values: string[]): Logger;
-  done(this: void, message: string, ...values: string[]): Logger;
-  empty(this: void, message?: string, ...values: string[]): Logger;
-  error(this: void, message: string, ...values: string[]): Logger;
-  warn(this: void, message: string, ...values: string[]): Logger;
+  (message: string, ...values: string[]): Logger;
+  done(message: string, ...values: string[]): Logger;
+  empty(message?: string, ...values: string[]): Logger;
+  error(message: string, ...values: string[]): Logger;
+  warn(message: string, ...values: string[]): Logger;
 }
 
 const log: Logger = (() => {
