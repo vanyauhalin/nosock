@@ -8,19 +8,36 @@ The main module used to describe scripts.
 import { script } from '@vanyauhalin/nosock';
 ```
 
+```ts
+interface Scripter {
+  <C extends () => unknown | PromiseLike<unknown>>(
+    command: string,
+    callback: C,
+    options?: {
+      allowCancellation: boolean;
+    },
+  ): () => (
+    Promise<C extends () => PromiseLike<unknown>
+      ? Awaited<ReturnType<C>>
+      : ReturnType<C>>
+  );
+  exec(): void;
+}
+```
+
 ### `script()`
 
 Describes what needs to be call for a specific command.
 
 ```ts
-script<C extends (this: void) => unknown | PromiseLike<unknown>>(
+script<C extends () => unknown | PromiseLike<unknown>>(
   command: string,
   callback: C,
   options?: {
     allowCancellation: boolean;
   },
-): (this: void) => (
-  Promise<C extends (this: void) => PromiseLike<unknown>
+): () => (
+  Promise<C extends () => PromiseLike<unknown>
     ? Awaited<ReturnType<C>>
     : ReturnType<C>>
 )

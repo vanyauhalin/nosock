@@ -1,20 +1,20 @@
 import { hrtime } from 'node:process';
 
-interface Canceller<C extends (this: void) => unknown | PromiseLike<unknown>> {
-  (this: void): (
-    Promise<undefined | C extends (this: void) => PromiseLike<unknown>
+interface Canceller<C extends () => unknown | PromiseLike<unknown>> {
+  (): (
+    Promise<undefined | C extends () => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  cancel(this: void): void;
+  cancel(): void;
 }
 
 function cancellable<
-  C extends (this: void) => unknown | PromiseLike<unknown>,
+  C extends () => unknown | PromiseLike<unknown>,
 >(callback: C): Canceller<C> {
   const flag = Symbol('cancel');
   let cancel: (value: symbol) => void;
-  async function inner(): Promise<unknown> {
+  async function inner(this: unknown): Promise<unknown> {
     const result = await Promise.race([
       new Promise((resolve) => {
         cancel = resolve;

@@ -11,10 +11,10 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
   let result;
 
   if (allowCancellation) {
-    callback = cancellable(script.callback);
-    current.cancel = callback.cancel;
+    callback = cancellable(script.callback.bind({}));
+    current.cancel = callback.cancel.bind({});
   } else {
-    callback = script.callback;
+    callback = script.callback.bind({});
   }
 
   if (state.depth === 1) history.push([]);

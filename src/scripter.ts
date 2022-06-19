@@ -3,14 +3,14 @@ import { exec } from './executor';
 import { run } from './runner';
 
 interface Scripter {
-  <C extends (this: void) => unknown | PromiseLike<unknown>>(
+  <C extends () => unknown | PromiseLike<unknown>>(
     command: string,
     callback: C,
     options?: {
       allowCancellation: boolean;
     },
-  ): (this: void) => (
-    Promise<C extends (this: void) => PromiseLike<unknown>
+  ): () => (
+    Promise<C extends () => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
