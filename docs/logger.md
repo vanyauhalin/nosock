@@ -18,7 +18,10 @@ log(message: string, ...values: string[]): Logger
 
 ```js
 log('Hello World!');
-// [15:49:17.245]       Hello World!
+```
+
+```txt
+[15:49:17.245]       Hello World!
 ```
 
 ### `log.done()`
@@ -31,7 +34,10 @@ log.done(message: string, ...values: string[]): Logger
 
 ```js
 log.done('Everything went well');
-// [15:49:17.245] done  Everything went well
+```
+
+```txt
+[15:49:17.245] done  Everything went well
 ```
 
 ### `log.empty()`
@@ -44,8 +50,11 @@ log.empty(message?: string, ...values: string[]): Logger
 
 ```js
 log.empty().empty('Something here is somehow empty');
-//
-// Something here is somehow empty
+```
+
+```txt
+
+Something here is somehow empty
 ```
 
 ### `log.error()`
@@ -58,7 +67,10 @@ log.error(message: string, ...values: string[]): Logger
 
 ```js
 log.error('We screwed up somewhere');
-// [15:49:17.245] error We screwed up somewhere
+```
+
+```txt
+[15:49:17.245] error We screwed up somewhere
 ```
 
 ### `log.warn()`
@@ -71,14 +83,17 @@ log.warn(message: string, ...values: string[]): Logger
 
 ```js
 log.warn('Are you sure?');
-// [15:49:17.245] warn  Are you sure?
+```
+
+```txt
+[15:49:17.245] warn  Are you sure?
 ```
 
 ## Color injection
 
 Color injection works similar to NodeJS [`utils.format`](https://nodejs.org/api/util.html#utilformatformat-args) by replacing the flags on the message with the passed values. Visit [kleur](https://github.com/lukeed/kleur) for more information about colors.
 
-```sh
+```txt
 %a   accent            magenta
 %aa  accent attention  yellow
 %an  accent negative   red
@@ -86,9 +101,14 @@ Color injection works similar to NodeJS [`utils.format`](https://nodejs.org/api/
 %p   primary           blue
 ```
 
+Single color injection.
+
 ```js
-// Single color injection
 log('%a', 'hello');
-// Multiply color injection
+```
+
+Multiply color injection.
+
+```js
 log('%a %p', 'hello', 'world');
 ```

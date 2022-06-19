@@ -1,7 +1,7 @@
 <p align="center">
   <img
-    width="80"
-    height="80"
+    width="100"
+    height="100"
     alt="nosock logo"
     src="docs/assets/nosock.svg"
   />
@@ -101,7 +101,7 @@ This demo is available in the [docs](docs/demo/scripts.js) directory.
 
 ## API
 
-- [`script()`]('docs/scripter.md) — the main module used to describe scripts.
+- [`script()`](docs/scripter.md) — the main module used to describe scripts.
 - [`log()`](docs/logger.md) — wrapper for `process.stdout` that adds a time prefix, types and [color injection](docs/logger.md#color-injection).
 
 ## Benchmarks
@@ -115,7 +115,9 @@ In progress...
 <p align="center">
   <sub>
     Inspired by <a href="https://github.com/lukeed">@lukeed</a>'s projects.
-    <br>
-    #youmightnotneedgulpjs
   </sub>
+  <br>
+  <sup>
+    #youmightnotneedgulpjs
+  </sup>
 </p>
