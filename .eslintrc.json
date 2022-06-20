@@ -12,6 +12,12 @@
       }
     },
     {
+      "files": "docs/demo/*",
+      "rules": {
+        "import/no-unresolved": "off"
+      }
+    },
+    {
       "files": "src/*",
       "rules": {
         "import/no-dynamic-require": "off",
