@@ -18,6 +18,21 @@ on:
       - tsconfig.prebuild.json
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@vanyauhalin"
+      - run: npm i -g pnpm
+      - run: pnpm i
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm build
+      - run: pnpm lint
   test:
     name: v${{ matrix.nodejs }}, ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -37,5 +52,4 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
-      - run: npm run lint
       - run: npm run test
