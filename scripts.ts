@@ -5,7 +5,7 @@ import type { BuildOptions } from 'esbuild';
 import { build } from 'esbuild';
 import { script } from './src/index';
 
-const { readdir, rm, writeFile } = promises;
+const { readdir, unlink, writeFile } = promises;
 
 script('build', async () => {
   const LIBRARY = resolve('lib');
@@ -41,7 +41,7 @@ script('build', async () => {
           'import.meta.url': 'imu',
         },
       });
-      await rm('imu.js');
+      await unlink('imu.js');
       return;
     }
     await build(cjs);
