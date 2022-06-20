@@ -56,12 +56,7 @@ script('test', async () => {
     await script(`test/${file.name}`, () => {
       const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
       if (process.status === 0) return;
-      const cleared = process.stdout.toString()
-        .replace(/^.*[•✘].*$/gm, '')
-        .replace(/^ {4}at .*$/gm, '')
-        .replace(/[\S\s]*?FAIL/, 'FAIL')
-        .replace(/(?:\r\n|[\nr]){2,}/g, '\n\n')
-        .trim();
+      const cleared = process.stdout.toString().trim();
       throw new Error(`\n\n   ${cleared}\n`);
     })();
   }));
