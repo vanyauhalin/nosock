@@ -28,24 +28,15 @@ test('founds a scripts file', async () => {
 
 test('resolves a scripts file', async () => {
   await load({
-    cwd: 'lib',
-    file: 'index.js',
+    cwd: 'test/reference',
     require: [],
-  });
-});
-
-test('requires modules', async () => {
-  await load({
-    cwd: 'src',
-    file: 'index.ts',
-    require: ['tsm'],
   });
 });
 
 test('throws an error if a scripts file not found', async () => {
   try {
     await load({
-      cwd: '..',
+      cwd: 'test',
       require: [],
     });
     unreachable();
@@ -55,24 +46,17 @@ test('throws an error if a scripts file not found', async () => {
   }
 });
 
-test('throws an error if a scripts file not exist', async () => {
-  try {
-    await load({
-      cwd: '.',
-      file: 'not-a-file.js',
-      require: [],
-    });
-    unreachable();
-  } catch (error) {
-    instance(error, Error);
-    match((error as Error).message, 'Scripts file not exists');
-  }
+test('requires modules', async () => {
+  await load({
+    cwd: 'test/reference',
+    require: ['tsm'],
+  });
 });
 
 test('throws an error if a module is not found', async () => {
   try {
     await load({
-      cwd: '.',
+      cwd: 'test/reference',
       require: ['not-a-module'],
     });
     unreachable();
@@ -84,14 +68,13 @@ test('throws an error if a module is not found', async () => {
 
 test('returns a loaded options', async () => {
   const loaded = await load({
-    cwd: 'lib',
-    file: 'index.js',
-    require: [],
+    cwd: 'test/reference',
+    require: ['tsm'],
   });
   equal(loaded, {
-    cwd: `${cwd()}/lib`,
-    file: `${cwd()}/lib/index.js`,
-    require: [],
+    cwd: `${cwd()}/test/reference`,
+    file: `${cwd()}/test/reference/scripts.js`,
+    require: ['tsm'],
   });
 });
 

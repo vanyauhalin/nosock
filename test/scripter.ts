@@ -1,46 +1,37 @@
 import { test } from 'uvu';
 import { is, type } from 'uvu/assert';
-import * as contexter from '../lib/context';
-import * as scripter from '../lib/scripter';
+import { global } from '../lib/context';
+import { script } from '../lib/scripter';
 
-test('defines via function', () => {
-  type(scripter.define, 'function');
-});
-
-test('defines as function', () => {
-  const context = contexter.define();
-  const script = scripter.define(context);
+test('is a function', () => {
   type(script, 'function');
 });
 
-test('saves the synchronous script to store', () => {
-  const context = contexter.define();
-  const script = scripter.define(context);
-  script('some', () => 'some');
-  const command = context.store['some']?.command;
-  const value = context.store['some']?.callback();
-  is(command, 'some');
-  is(value, 'some');
+test('saves a synchronous script to store', () => {
+  const context = global();
+  script('sync', () => 'sync');
+  const command = context.store['sync']?.command;
+  const value = context.store['sync']?.callback();
+  is(command, 'sync');
+  is(value, 'sync');
 });
 
-test('saves the asynchronous script to store', async () => {
-  const context = contexter.define();
-  const script = scripter.define(context);
-  script('some', async () => 'some');
-  const command = context.store['some']?.command;
-  const value = await context.store['some']?.callback();
-  is(command, 'some');
-  is(value, 'some');
+test('saves a asynchronous script to store', async () => {
+  const context = global();
+  script('async', async () => 'async');
+  const command = context.store['async']?.command;
+  const value = await context.store['async']?.callback();
+  is(command, 'async');
+  is(value, 'async');
 });
 
-test('saves the promised script to store', async () => {
-  const context = contexter.define();
-  const script = scripter.define(context);
-  script('some', () => Promise.resolve('some'));
-  const command = context.store['some']?.command;
-  const value = await context.store['some']?.callback();
-  is(command, 'some');
-  is(value, 'some');
+test('saves a promised script to store', async () => {
+  const context = global();
+  script('prom', () => Promise.resolve('prom'));
+  const command = context.store['prom']?.command;
+  const value = await context.store['prom']?.callback();
+  is(command, 'prom');
+  is(value, 'prom');
 });
 
 test.run();

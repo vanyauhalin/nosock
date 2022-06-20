@@ -1,17 +1,6 @@
 import { suite } from 'uvu';
-import { is, type } from 'uvu/assert';
+import { type } from 'uvu/assert';
 import * as nosock from '../lib';
-
-const exec = suite('exec');
-
-exec('is a asynchronous function', () => {
-  const AsyncFunction = (async () => {}).constructor;
-  is(nosock.exec instanceof AsyncFunction, true);
-});
-
-exec.run();
-
-// ---
 
 const log = suite('log');
 

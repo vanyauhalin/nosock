@@ -3,6 +3,7 @@ import { is, match } from 'uvu/assert';
 import type { HistoryEvent } from '../lib/context';
 import { define } from '../lib/context';
 import { run } from '../lib/runner';
+import { deepener } from '../lib/utils';
 
 test('is a asynchronous function', () => {
   const AsyncFunction = (async () => {}).constructor;
@@ -11,49 +12,33 @@ test('is a asynchronous function', () => {
 
 // ---
 
-test('finishes resolved script', async () => {
+test('resolves a script', async () => {
   const context = define();
   const script = {
     command: 'some',
     callback: () => 'some',
   };
-  await run(context, script);
+  const result = await run(context, script);
   is(context.state.depth, 0);
-});
-
-test('finishes rejected script', async () => {
-  const context = define();
-  const script = {
-    command: 'some',
-    callback() { throw new Error('some'); },
-  };
-  await run(context, script);
-  is(context.state.depth, 0);
-});
-
-test('resolves the script', async () => {
-  const context = define();
-  const script = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  await run(context, script);
   is(context.state.hasError, false);
+  is(result, 'some');
 });
 
-test('rejects the script', async () => {
+test('rejects a script', async () => {
   const context = define();
   const script = {
     command: 'some',
     callback() { throw new Error('some'); },
   };
-  await run(context, script);
+  const result = await run(context, script);
+  is(context.state.depth, 0);
   is(context.state.hasError, true);
+  is(result, undefined);
 });
 
 // ---
 
-test('saves the script as an event', async () => {
+test('resolves an event', async () => {
   const context = define();
   const script = {
     command: 'some',
@@ -62,42 +47,11 @@ test('saves the script as an event', async () => {
   await run(context, script);
   const event = context.history[0] as HistoryEvent;
   is(event.command, 'some');
-});
-
-test('finishes resolved event', async () => {
-  const context = define();
-  const script = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  await run(context, script);
-  const event = context.history[0] as HistoryEvent;
   match(event.duration || '', 'ms');
-});
-
-test('finishes rejected event', async () => {
-  const context = define();
-  const script = {
-    command: 'some',
-    callback() { throw new Error('some'); },
-  };
-  await run(context, script);
-  const event = context.history[0] as HistoryEvent;
-  match(event.duration || '', 'ms');
-});
-
-test('resolves the event', async () => {
-  const context = define();
-  const script = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  await run(context, script);
-  const event = context.history[0] as HistoryEvent;
   is(event.type, 'done');
 });
 
-test('rejects the event', async () => {
+test('rejects an event', async () => {
   const context = define();
   const script = {
     command: 'some',
@@ -105,275 +59,291 @@ test('rejects the event', async () => {
   };
   await run(context, script);
   const event = context.history[0] as HistoryEvent;
+  is(event.command, 'some');
+  match(event.duration || '', 'ms');
   is(event.type, 'error');
   is(event.error?.message, 'some');
 });
 
-test('returns the value from the resolved script', async () => {
-  const script = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  const context = define();
-  const result = await run(context, script);
-  is(result, 'some');
-});
-
-test('returns undefined from the rejected script', async () => {
-  const script = {
-    command: 'some',
-    callback() { throw new Error('some'); },
-  };
-  const context = define();
-  const result = await run(context, script);
-  is(result, undefined);
-});
-
 // ---
 
-test('finishes resolved nested scripts', async () => {
+test('resolves a script with sequential events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback: () => 'child',
   };
-  await run(context, first);
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await run(context, child);
+      await run(context, pet);
+    },
+  };
+  await run(context, parent);
   is(context.state.depth, 0);
-});
-
-test('finishes rejected nested scripts', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
-  is(context.state.depth, 0);
-});
-
-test('resolves nested scripts', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
   is(context.state.hasError, false);
 });
 
-test('rejects nested scripts', async () => {
+test('rejects a script with sequential events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
   };
-  await run(context, first);
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await run(context, child);
+      await run(context, pet);
+    },
+  };
+  await run(context, parent);
+  is(context.state.depth, 0);
   is(context.state.hasError, true);
 });
 
 // ---
 
-test('saves nested scripts as an event', async () => {
+test('resolves a sequential events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback: () => 'child',
   };
-  await run(context, first);
-  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.command, 'second');
-});
-
-test('finishes resolved nested event', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
-  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  match(event.duration || '', 'ms');
-});
-
-test('finishes rejected nested event', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
-  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  match(event.duration || '', 'ms');
-});
-
-test('finishes canceled nested event', async () => {
-  const context = define();
-  const third = {
-    command: 'third',
-    callback: () => 'third',
-  };
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
+  const parent = {
+    command: 'parent',
     async callback() {
-      await run(context, second);
-      await run(context, third);
+      await run(context, child);
+      await run(context, pet);
     },
   };
-  await run(context, first);
-  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.duration, undefined);
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'done');
+  is(second?.command, 'pet');
+  match(second?.duration || '', 'ms');
+  is(second?.type, 'done');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'done');
 });
 
-test('resolves nested event', async () => {
+test('rejects a sequential events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
   };
-  await run(context, first);
-  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.type, 'done');
-});
-
-test('rejects nested event', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
-  const event = (context.history[0] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.type, 'error');
-  is(event.error?.message, 'second');
-});
-
-test('rejects event with rejected nested event', async () => {
-  const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
-  };
-  await run(context, first);
-  const event = context.history[1] as HistoryEvent;
-  is(event.type, 'error');
-  is(event.error, undefined);
-});
-
-test('cancels nested event', async () => {
-  const context = define();
-  const third = {
-    command: 'third',
-    callback: () => 'third',
-  };
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
-  };
-  const first = {
-    command: 'first',
+  const parent = {
+    command: 'parent',
     async callback() {
-      await run(context, second);
-      await run(context, third);
+      await run(context, child);
+      await run(context, pet);
     },
   };
-  await run(context, first);
-  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.type, 'cancel');
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'error');
+  is(first?.error?.message, 'child');
+  is(second?.command, 'pet');
+  match(second?.duration || '', 'ms');
+  is(second?.type, 'done');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'error');
+  is(third?.error, undefined);
 });
 
-test('disables the cancellation of nested event', async () => {
+test('cancels a sequential events', async () => {
   const context = define();
-  context.options.noCancel = true;
-  const third = {
-    command: 'third',
-    callback: () => 'third',
+  context.options.allowCancellation = true;
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
   };
-  const first = {
-    command: 'first',
+  const parent = {
+    command: 'parent',
     async callback() {
-      await run(context, second);
-      await run(context, third);
+      await run(context, child);
+      await run(context, pet);
     },
   };
-  await run(context, first);
-  const event = (context.history[1] as HistoryEvent[])[0] as HistoryEvent;
-  is(event.type, 'done');
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'error');
+  is(first?.error?.message, 'child');
+  is(second?.command, 'pet');
+  is(second?.duration, undefined);
+  is(second?.type, 'cancel');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'error');
+  is(third?.error, undefined);
 });
 
-test('returns the value from the resolved nested script', async () => {
+// ---
+
+test('resolves a script with parallel events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback: () => 'second',
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback: () => 'child',
   };
-  const result = await run(context, first);
-  is(result, 'second');
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await Promise.all([run(context, child), run(context, pet)]);
+    },
+  };
+  await run(context, parent);
+  is(context.state.depth, 0);
+  is(context.state.hasError, false);
 });
 
-test('returns undefined from the resolved nested script', async () => {
+test('rejects a script with parallel events', async () => {
   const context = define();
-  const second = {
-    command: 'second',
-    callback() { throw new Error('second'); },
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
   };
-  const first = {
-    command: 'first',
-    callback: run.bind(undefined, context, second),
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
   };
-  const result = await run(context, first);
-  is(result, undefined);
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await Promise.all([run(context, child), run(context, pet)]);
+    },
+  };
+  await run(context, parent);
+  is(context.state.depth, 0);
+  is(context.state.hasError, true);
+});
+
+// ---
+
+test('resolves a parallel events', async () => {
+  const context = define();
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
+  };
+  const child = {
+    command: 'child',
+    callback: () => 'child',
+  };
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await Promise.all([run(context, child), run(context, pet)]);
+    },
+  };
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'done');
+  is(second?.command, 'pet');
+  match(second?.duration || '', 'ms');
+  is(second?.type, 'done');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'done');
+});
+
+test('rejects a parallel events', async () => {
+  const context = define();
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
+  };
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
+  };
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await Promise.all([run(context, child), run(context, pet)]);
+    },
+  };
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'error');
+  is(first?.error?.message, 'child');
+  is(second?.command, 'pet');
+  match(second?.duration || '', 'ms');
+  is(second?.type, 'done');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'error');
+  is(third?.error, undefined);
+});
+
+test('cancels a parallel events', async () => {
+  const context = define();
+  context.options.allowCancellation = true;
+  const pet = {
+    command: 'pet',
+    callback: () => 'pet',
+  };
+  const child = {
+    command: 'child',
+    callback() { throw new Error('child'); },
+  };
+  const parent = {
+    command: 'parent',
+    async callback() {
+      await Promise.all([run(context, child), run(context, pet)]);
+    },
+  };
+  await run(context, parent);
+  const [first, second, third] = deepener.raise(context.history);
+  is(first?.command, 'child');
+  match(first?.duration || '', 'ms');
+  is(first?.type, 'error');
+  is(first?.error?.message, 'child');
+  is(second?.command, 'pet');
+  match(second?.duration || '', 'ms');
+  is(second?.type, 'cancel');
+  is(third?.command, 'parent');
+  match(third?.duration || '', 'ms');
+  is(third?.type, 'error');
+  is(third?.error, undefined);
 });
 
 test.run();
