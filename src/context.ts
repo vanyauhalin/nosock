@@ -23,7 +23,7 @@ interface HistoryEvent {
   duration?: string;
   error?: Error;
   type: 'done' | 'error' | 'cancel';
-  cancel?(): void;
+  cancel?(this: void): void;
 }
 
 interface StoreScript {
@@ -31,7 +31,7 @@ interface StoreScript {
   options?: {
     allowCancellation: boolean;
   };
-  callback(): unknown | PromiseLike<unknown>;
+  callback(this: void): unknown | PromiseLike<unknown>;
 }
 
 const actual = (() => {
