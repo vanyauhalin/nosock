@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { promises } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import type { BuildOptions } from 'esbuild';
 import { build } from 'esbuild';
 import { script } from './src/index';
@@ -54,7 +54,7 @@ script('test', async () => {
   await Promise.all(files.map(async (file) => {
     if (!file.isFile()) return;
     await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
+      const process = spawnSync('node', ['-r', 'tsm', join(TEST, file.name)]);
       if (process.status === 0) return;
       const cleared = process.stdout.toString().trim();
       throw new Error(`\n\n   ${cleared}\n`);
