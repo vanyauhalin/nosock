@@ -6,7 +6,7 @@ interface Canceller<C extends () => unknown | PromiseLike<unknown>> {
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  cancel(): void;
+  cancel(this: void): void;
 }
 
 function cancellable<
@@ -19,7 +19,7 @@ function cancellable<
       new Promise((resolve) => {
         cancel = resolve;
       }),
-      Promise.resolve(callback()),
+      Promise.resolve(callback.apply(this)),
     ]);
     cancel(flag);
     return result === flag ? undefined : result;

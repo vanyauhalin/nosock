@@ -14,7 +14,7 @@ interface Scripter {
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  exec(): void;
+  exec(this: void): void;
 }
 
 const script = (() => {
