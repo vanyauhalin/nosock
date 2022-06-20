@@ -1,8 +1,8 @@
-import { existsSync, readdir } from 'node:fs';
+import { promises } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { promisify } from 'node:util';
 
+const { readdir } = promises;
 const require = createRequire(import.meta.url);
 
 function isModuleExists(name: string): boolean {
@@ -27,11 +27,10 @@ interface LoadedOptions {
 
 async function load(options: LoaderOptions): Promise<LoadedOptions> {
   const cwd = resolve(options.cwd);
-  const files = await promisify(readdir)(cwd);
+  const files = await readdir(cwd);
   let file = files.find((name) => /^scripts\.([cm]js|[jt]s)/.test(name));
   if (!file) throw new Error('Scripts file not found');
-  file = resolve(cwd, file);
-  if (!existsSync(file)) throw new Error('Scripts file not exists');
+  file = `${cwd}/${file}`;
 
   const modules = [options.require].flat().filter(Boolean);
   for (const module of modules) {
