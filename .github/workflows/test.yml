@@ -6,26 +6,52 @@ on:
     paths:
       - "!*.md"
       - .github/workflows/test.yml
+      - "bin/**"
+      - "!docs/**"
       - "test/**"
       - .eslintrc.json
       - package.json
       - pnpm-lock.yaml
-      - pnpm-workspace.yaml
+      - scripts.ts
+      - tsconfig.base.json
+      - tsconfig.json
+      - tsconfig.prebuild.json
+  pull_request:
+    branches: main
+    paths:
+      - "!*.md"
+      - .github/workflows/test.yml
+      - "bin/**"
+      - "!docs/**"
+      - "test/**"
+      - .eslintrc.json
+      - package.json
+      - pnpm-lock.yaml
+      - scripts.ts
+      - tsconfig.base.json
+      - tsconfig.json
+      - tsconfig.prebuild.json
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: v${{ matrix.nodejs }}, ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 3
+    strategy:
+      matrix:
+        nodejs: [10, 12, 14]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v1
         with:
-          node-version: 16
+          node-version: ${{ matrix.nodejs }}
           registry-url: "https://npm.pkg.github.com"
           scope: "@vanyauhalin"
       - run: npm i -g pnpm
       - run: pnpm i
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: pnpm lint
       - run: pnpm build
+      - run: pnpm lint
       - run: pnpm test
