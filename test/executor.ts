@@ -1,65 +1,22 @@
-import { env } from 'node:process';
+import { argv, env } from 'node:process';
 import { test } from 'uvu';
 import {
-  equal,
   instance,
   match,
   type,
   unreachable,
 } from 'uvu/assert';
-import { define as defineContext } from '../src/context';
-import { define as defineExecutor } from '../src/executor';
+import { define } from '../src/context';
+import { exec } from '../src/executor';
 
-test('defines via function', () => {
-  type(defineExecutor, 'function');
-});
-
-test('defines as a function', () => {
-  const context = defineContext();
-  type(defineExecutor(context), 'function');
-});
-
-test('executes a run command', async () => {
-  env['npm_lifecycle_event'] = 'some';
-  const context = defineContext();
-  context.store['some'] = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  const executor = defineExecutor(context);
-  await executor();
-});
-
-test('merges the passed options with context options', async () => {
-  env['npm_lifecycle_event'] = 'some';
-  const context = defineContext();
-  context.store['some'] = {
-    command: 'some',
-    callback: () => 'some',
-  };
-  const executor = defineExecutor(context);
-  await executor({
-    cwd: '/lib',
-    file: '/lib/index.js',
-    noCancel: true,
-    noColor: true,
-    require: ['tsm'],
-  });
-  equal(context.options, {
-    command: 'some',
-    cwd: '/lib',
-    file: '/lib/index.js',
-    noCancel: true,
-    noColor: true,
-    require: ['tsm'],
-  });
+test('is a function', () => {
+  type(exec, 'function');
 });
 
 test('throws an error if scripts is missing', async () => {
-  const context = defineContext();
-  const executor = defineExecutor(context);
+  const context = define();
   try {
-    await executor();
+    await exec(context);
     unreachable();
   } catch (error) {
     instance(error, Error);
@@ -67,37 +24,93 @@ test('throws an error if scripts is missing', async () => {
   }
 });
 
-test('throws an error if a run command is missing', async () => {
-  delete env['npm_lifecycle_event'];
-  const context = defineContext();
+// ---
+
+test('executes a command from env', async () => {
+  const saved = env['npm_lifecycle_event'];
+  env['npm_lifecycle_event'] = 'some';
+  const context = define();
   context.store['some'] = {
     command: 'some',
     callback: () => 'some',
   };
-  const executor = defineExecutor(context);
+  await exec(context);
+  env['npm_lifecycle_event'] = saved;
+});
+
+test('throws an error if a command from env is not described', async () => {
+  const saved = env['npm_lifecycle_event'];
+  env['npm_lifecycle_event'] = 'first';
+  const context = define();
+  context.store['second'] = {
+    command: 'second',
+    callback: () => 'second',
+  };
   try {
-    await executor();
+    await exec(context);
+  } catch (error) {
+    instance(error, Error);
+    match((error as Error).message, 'The "first" is not described');
+  }
+  env['npm_lifecycle_event'] = saved;
+});
+
+// ---
+
+test('executes a command from argv', async () => {
+  const saved = env['npm_lifecycle_event'];
+  delete env['npm_lifecycle_event'];
+  argv.push('some');
+  const context = define();
+  context.store['some'] = {
+    command: 'some',
+    callback: () => 'some',
+  };
+  await exec(context);
+  env['npm_lifecycle_event'] = saved;
+  argv.pop();
+});
+
+test('throws an error if a command from argv is not described', async () => {
+  const saved = env['npm_lifecycle_event'];
+  delete env['npm_lifecycle_event'];
+  argv.push('first');
+  const context = define();
+  context.store['second'] = {
+    command: 'second',
+    callback: () => 'second',
+  };
+  try {
+    await exec(context);
+  } catch (error) {
+    instance(error, Error);
+    match((error as Error).message, 'The "first" is not described');
+  }
+  env['npm_lifecycle_event'] = saved;
+  argv.pop();
+});
+
+// ---
+
+test('throws an error if a command is missing', async () => {
+  const savedEnvironment = env['npm_lifecycle_event'];
+  const savedArguments = argv;
+  delete env['npm_lifecycle_event'];
+  process.argv = [];
+  const context = define();
+  context.store['some'] = {
+    command: 'some',
+    callback: () => 'some',
+  };
+  try {
+    await exec(context);
     unreachable();
   } catch (error) {
     instance(error, Error);
     match((error as Error).message, 'Missing a run command');
   }
-});
-
-test('throws an error if a script is not described', async () => {
-  env['npm_lifecycle_event'] = 'first';
-  const context = defineContext();
-  context.store['second'] = {
-    command: 'second',
-    callback: () => 'second',
-  };
-  const executor = defineExecutor(context);
-  try {
-    await executor();
-  } catch (error) {
-    instance(error, Error);
-    match((error as Error).message, 'The "first" is not described');
-  }
+  env['npm_lifecycle_event'] = savedEnvironment;
+  process.argv = savedArguments;
 });
 
 test.run();

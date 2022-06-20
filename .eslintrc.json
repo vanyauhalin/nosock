@@ -21,8 +21,13 @@
     {
       "files": "test/*",
       "rules": {
-        "@typescript-eslint/require-await": "off"
+        "@typescript-eslint/require-await": "off",
+        "promise/prefer-await-to-callbacks": "off",
+        "promise/prefer-await-to-then": "off"
       }
     }
+  ],
+  "ignorePatterns": [
+    "test/reference/*"
   ]
 }

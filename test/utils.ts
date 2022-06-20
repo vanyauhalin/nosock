@@ -7,6 +7,40 @@ import {
 } from 'uvu/assert';
 import * as utils from '../lib/utils';
 
+function delay(ms = 0): Promise<unknown> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+// ---
+
+const cancellable = suite('cancellable');
+
+cancellable('is a function', () => {
+  type(utils.cancellable, 'function');
+});
+
+cancellable('returns a function with cancel method', () => {
+  const callback = utils.cancellable(() => {});
+  type(callback, 'function');
+  type(callback.cancel, 'function');
+});
+
+cancellable('cancels the callback', () => {
+  let result = false;
+  const callback = utils.cancellable(async () => {
+    await delay(1500);
+    result = true;
+  });
+  callback().then(() => result).catch(() => {});
+  callback.cancel();
+});
+
+cancellable.run();
+
+// ---
+
 const deepener = suite('deepener');
 
 deepener('dive is a method', () => {
@@ -39,12 +73,6 @@ deepener('raises all elements of a deep array', () => {
 deepener.run();
 
 // ---
-
-function delay(ms = 0): Promise<unknown> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 const stopwatch = suite('stopwatch');
 
