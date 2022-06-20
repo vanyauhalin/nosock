@@ -1,4 +1,4 @@
-import { actual } from './context';
+import { global } from './context';
 import { exec } from './executor';
 import { run } from './runner';
 
@@ -18,7 +18,7 @@ interface Scripter {
 }
 
 const script = (() => {
-  const context = actual();
+  const context = global();
   function inner(
     command: string,
     callback: () => unknown | PromiseLike<unknown>,

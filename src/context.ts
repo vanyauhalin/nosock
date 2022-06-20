@@ -34,8 +34,8 @@ interface StoreScript {
   callback(this: void): unknown | PromiseLike<unknown>;
 }
 
-const actual = (() => {
-  const context: Context = {
+function define(): Context {
+  return {
     history: [],
     options: {
       allowCancellation: false,
@@ -50,8 +50,12 @@ const actual = (() => {
     },
     store: {},
   };
+}
+
+const global = (() => {
+  const context = define();
   return () => context;
 })();
 
 export type { Context, HistoryEvent, StoreScript };
-export { actual };
+export { define, global };
