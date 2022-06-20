@@ -18,9 +18,9 @@
   ],
   "scripts": {
     "prebuild": "tsc -p tsconfig.prebuild.json",
-    "build": "tsm scripts.ts",
+    "build": "node --experimental-modules --loader tsm scripts.ts",
     "lint": "eslint .",
-    "test": "tsm scripts.ts"
+    "test": "node --experimental-modules --loader tsm scripts.ts"
   },
   "dependencies": {
     "kleur": "^4.1.4",
