@@ -36,6 +36,6 @@ jobs:
       - run: npm i
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm build
-      - run: npm lint
-      - run: npm test
+      - run: npm run build
+      - run: npm run lint
+      - run: npm run test
