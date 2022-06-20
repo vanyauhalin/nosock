@@ -1,6 +1,21 @@
 name: test
 
 on:
+  push:
+    branches: main
+    paths:
+      - "!*.md"
+      - .github/workflows/test.yml
+      - "bin/**"
+      - "!docs/**"
+      - "test/**"
+      - .eslintrc.json
+      - package.json
+      - pnpm-lock.yaml
+      - scripts.ts
+      - tsconfig.base.json
+      - tsconfig.json
+      - tsconfig.prebuild.json
   pull_request:
     branches: main
     paths:
