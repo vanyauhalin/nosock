@@ -56,13 +56,13 @@ log('returns log instance', () => {
 
 log('writes a time prefix', () => {
   const output = spawnOutput('log("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b(?:\\r\\n|\\[nr])$/);
 });
 
 for (const [flag, colorize] of injections.single) {
   log(`writes the ${flag} injection`, () => {
     const output = spawnOutput(`log("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*\\n$/);
+    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\[nr])$/);
     match(output, colorize('b'));
   });
 }
@@ -70,7 +70,7 @@ for (const [flag, colorize] of injections.single) {
 log('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnOutput(`log("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\[nr])$/);
   match(output, colorize('b'));
 });
 
@@ -90,19 +90,19 @@ done('returns log instance', () => {
 
 done('writes a time prefix', () => {
   const output = spawnOutput('log.done("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b(?:\\r\\n|\\[nr])$/);
 });
 
 done('writes the type', () => {
   const output = spawnOutput('log.done("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b(?:\\r\\n|\\[nr])$/);
   match(output, stringify(kleur.green('done')));
 });
 
 for (const [flag, colorize] of injections.single) {
   done(`writes the ${flag} injection`, () => {
     const output = spawnOutput(`log.done("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*\\n$/);
+    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*(?:\\r\\n|\\[nr])$/);
     match(output, stringify(kleur.green('done')));
     match(output, colorize('b'));
   });
@@ -111,7 +111,7 @@ for (const [flag, colorize] of injections.single) {
 done('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnOutput(`log.done("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*(?:\\r\\n|\\[nr])$/);
   match(output, stringify(kleur.green('done')));
   match(output, colorize('b'));
 });
@@ -132,18 +132,18 @@ empty('returns log instance', () => {
 
 empty('writes only a new line', () => {
   const output = spawnOutput('log.empty()');
-  match(output, /^\\n$/);
+  match(output, /^(?:\\r\\n|\\[nr])$/);
 });
 
 empty('writes the message', () => {
   const output = spawnOutput('log.empty("b")');
-  match(output, /^b\\n$/);
+  match(output, /^b(?:\\r\\n|\\[nr])$/);
 });
 
 for (const [flag, colorize] of injections.single) {
   empty(`writes the ${flag} injection`, () => {
     const output = spawnOutput(`log.empty("${flag}", "b")`);
-    match(output, /^\S*\\n$/);
+    match(output, /^\S*(?:\\r\\n|\\[nr])$/);
     match(output, colorize('b'));
   });
 }
@@ -151,7 +151,7 @@ for (const [flag, colorize] of injections.single) {
 empty('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnOutput(`log.empty("${flags}", ${repeat('b')})`);
-  match(output, /^\S*\\n$/);
+  match(output, /^\S*(?:\\r\\n|\\[nr])$/);
   match(output, colorize('b'));
 });
 
@@ -171,19 +171,19 @@ error('returns log instance', () => {
 
 error('writes a time prefix', () => {
   const output = spawnErrorOutput('log.error("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b(?:\\r\\n|\\[nr])$/);
 });
 
 error('writes the type', () => {
   const output = spawnErrorOutput('log.error("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b(?:\\r\\n|\\[nr])$/);
   match(output, stringify(kleur.red('error')));
 });
 
 for (const [flag, colorize] of injections.single) {
   error(`writes the ${flag} injection`, () => {
     const output = spawnErrorOutput(`log.error("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*\\n$/);
+    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*(?:\\r\\n|\\[nr])$/);
     match(output, stringify(kleur.red('error')));
     match(output, colorize('b'));
   });
@@ -192,7 +192,7 @@ for (const [flag, colorize] of injections.single) {
 error('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnErrorOutput(`log.error("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*(?:\\r\\n|\\[nr])$/);
   match(output, stringify(kleur.red('error')));
   match(output, colorize('b'));
 });
@@ -213,19 +213,19 @@ warn('returns log instance', () => {
 
 warn('writes a time prefix', () => {
   const output = spawnOutput('log.warn("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b(?:\\r\\n|\\[nr])$/);
 });
 
 warn('writes the type', () => {
   const output = spawnOutput('log.warn("b")');
   match(output, stringify(kleur.yellow('warn')));
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b(?:\\r\\n|\\[nr])$/);
 });
 
 for (const [flag, colorize] of injections.single) {
   warn(`writes the ${flag} injection`, () => {
     const output = spawnOutput(`log.warn("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*\\n$/);
+    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*(?:\\r\\n|\\[nr])$/);
     match(output, stringify(kleur.yellow('warn')));
     match(output, colorize('b'));
   });
@@ -234,7 +234,7 @@ for (const [flag, colorize] of injections.single) {
 warn('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnOutput(`log.warn("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*\\n$/);
+  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*(?:\\r\\n|\\[nr])$/);
   match(output, stringify(kleur.yellow('warn')));
   match(output, colorize('b'));
 });
