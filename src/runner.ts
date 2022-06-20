@@ -36,6 +36,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
         delete current.cancel;
       }
     } catch (error) {
+      state.hasError = true;
       for (const event of floor) {
         if (event.cancel) {
           event.type = 'cancel';
@@ -45,7 +46,6 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
       }
       current.type = 'error';
       current.error = error as Error;
-      state.hasError = true;
     }
     current.duration = lap();
   }
@@ -60,22 +60,28 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
     floor.push(current);
   }
 
-  const {
-    command,
-    duration,
-    error,
-    type,
-  } = current;
-  switch (type) {
+  switch (current.type) {
     case 'done':
-      log.done('Finished "%p" after %a', command, duration || '');
+      if (current.duration) {
+        log.done('Finished "%p" after %a', current.command, current.duration);
+      } else {
+        log.done('Finished "%p"', current.command);
+      }
       break;
     case 'error':
-      if (error) console.error(error);
-      log.error('Finished "%p" after %a', command, duration || '');
+      if (current.error) console.error(current.error);
+      if (current.duration) {
+        log.error('Finished "%p" after %a', current.command, current.duration);
+      } else {
+        log.error('Finished "%p"', current.command);
+      }
       break;
     case 'cancel':
-      log.warn('Canceled "%p"', command);
+      if (current.duration) {
+        log.warn('Canceled "%p" after %a', current.command, current.duration);
+      } else {
+        log.warn('Canceled "%p"', current.command);
+      }
       break;
     default:
       break;
