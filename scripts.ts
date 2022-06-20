@@ -1,11 +1,11 @@
 import { spawnSync } from 'node:child_process';
 import { promises } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import type { BuildOptions } from 'esbuild';
 import { build } from 'esbuild';
 import { script } from './src/index';
 
-const { readdir, rm, writeFile } = promises;
+const { readdir, unlink, writeFile } = promises;
 
 script('build', async () => {
   const LIBRARY = resolve('lib');
@@ -41,7 +41,7 @@ script('build', async () => {
           'import.meta.url': 'imu',
         },
       });
-      await rm('imu.js');
+      await unlink('imu.js');
       return;
     }
     await build(cjs);
@@ -54,13 +54,13 @@ script('test', async () => {
   await Promise.all(files.map(async (file) => {
     if (!file.isFile()) return;
     await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', ['-r', 'tsm', `${TEST}/${file.name}`]);
+      const process = spawnSync('node', ['-r', 'tsm', join(TEST, file.name)]);
       if (process.status === 0) return;
       const cleared = process.stdout.toString()
         .replace(/^.*[•✘].*$/gm, '')
         .replace(/^ {4}at .*$/gm, '')
         .replace(/[\S\s]*?FAIL/, 'FAIL')
-        .replace(/\n{2,}/g, '\n\n')
+        .replace(/(?:\r\n|[\nr]){2,}/g, '\n\n')
         .trim();
       throw new Error(`\n\n   ${cleared}\n`);
     })();

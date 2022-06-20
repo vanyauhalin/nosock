@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { cwd } from 'node:process';
 import { test } from 'uvu';
 import {
@@ -22,7 +23,7 @@ test('founds a scripts file', async () => {
     unreachable();
   } catch (error) {
     instance(error, Error);
-    match((error as Error).message, `${cwd()}/scripts.ts`);
+    match((error as Error).message, join(cwd(), 'scripts.ts'));
   }
 });
 
@@ -72,8 +73,8 @@ test('returns a loaded options', async () => {
     require: ['tsm'],
   });
   equal(loaded, {
-    cwd: `${cwd()}/test/reference`,
-    file: `${cwd()}/test/reference/scripts.js`,
+    cwd: join(cwd(), 'test', 'reference'),
+    file: join(cwd(), 'test', 'reference', 'scripts.js'),
     require: ['tsm'],
   });
 });
