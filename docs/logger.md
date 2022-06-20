@@ -11,10 +11,10 @@ import { log } from '@vanyauhalin/nosock';
 ```ts
 interface Logger {
   (message: string, ...values: string[]): Logger;
-  done(message: string, ...values: string[]): Logger;
-  empty(message?: string, ...values: string[]): Logger;
-  error(message: string, ...values: string[]): Logger;
-  warn(message: string, ...values: string[]): Logger;
+  done(this: void, message: string, ...values: string[]): Logger;
+  empty(this: void, message?: string, ...values: string[]): Logger;
+  error(this: void, message: string, ...values: string[]): Logger;
+  warn(this: void, message: string, ...values: string[]): Logger;
 }
 ```
 
@@ -39,7 +39,7 @@ log('Hello World!');
 Writes a message with a time prefix, type and [color injection](#color-injection).
 
 ```ts
-log.done(message: string, ...values: string[]): Logger
+log.done(this: void, message: string, ...values: string[]): Logger
 ```
 
 ```js
@@ -55,7 +55,7 @@ log.done('Everything went well');
 Writes an empty new line or message with [color injection](#color-injection).
 
 ```ts
-log.empty(message?: string, ...values: string[]): Logger
+log.empty(this: void, message?: string, ...values: string[]): Logger
 ```
 
 ```js
@@ -72,7 +72,7 @@ Something here is somehow empty
 Writes a message with a time prefix, type and [color injection](#color-injection).
 
 ```ts
-log.error(message: string, ...values: string[]): Logger
+log.error(this: void, message: string, ...values: string[]): Logger
 ```
 
 ```js
@@ -88,7 +88,7 @@ log.error('We screwed up somewhere');
 Writes a message with a time prefix, type and [color injection](#color-injection).
 
 ```ts
-log.warn(message: string, ...values: string[]): Logger
+log.warn(this: void, message: string, ...values: string[]): Logger
 ```
 
 ```js

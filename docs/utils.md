@@ -19,7 +19,7 @@ interface Canceller<C extends () => unknown | PromiseLike<unknown>> {
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  cancel(): void;
+  cancel(this: void): void;
 }
 ```
 

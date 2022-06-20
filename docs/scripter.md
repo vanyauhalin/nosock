@@ -21,7 +21,7 @@ interface Scripter {
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
-  exec(): void;
+  exec(this: void): void;
 }
 ```
 
@@ -93,7 +93,7 @@ In this case, `jerry` script will also be cancelled. But in more complex systems
 Executes scripts and nothing more.
 
 ```ts
-script.exec(): void
+script.exec(this: void): void
 ```
 
 ```js
