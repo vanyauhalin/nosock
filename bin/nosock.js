@@ -33,8 +33,8 @@ sade('nosock [command]')
         cwd,
         require: modules,
       });
-      const { actual } = await cross('nosock/context');
-      actual().options = {
+      const { global } = await cross('nosock/context');
+      global().options = {
         ...loaded,
         ...command ? { command } : {},
         noColor,
