@@ -1,14 +1,24 @@
 import { spawnSync } from 'node:child_process';
-import {
-  readFile,
-  readdir,
-  unlink,
-  writeFile,
-} from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { extname, join, resolve } from 'node:path';
 import type { BuildOptions } from 'esbuild';
 import { build as esbuild } from 'esbuild';
 import { script } from './src/index';
+
+async function oldie(
+  directory: string,
+  file: string,
+  replaces?: [string, string],
+): Promise<void> {
+  const resolved = join(directory, file.replace(extname(file), '.js'));
+  const content = await readFile(resolved);
+  let transformed = content.toString()
+    .replaceAll(/require\("node:/g, 'require("');
+  if (replaces && replaces.length > 0) {
+    transformed = transformed.replace(replaces[0], replaces[1]);
+  }
+  await writeFile(resolved, transformed);
+}
 
 async function build(output: string, toModules = false): Promise<void> {
   const OUTPUT = resolve(output);
@@ -20,36 +30,20 @@ async function build(output: string, toModules = false): Promise<void> {
       allowOverwrite: true,
       platform: 'node',
     };
-    if (toModules) {
-      await esbuild({
-        ...general,
-        outfile: join(OUTPUT, file.replace('.ts', '.mjs')),
-      });
-    }
-    const commonjs: BuildOptions = {
+    await esbuild({
       ...general,
       format: 'cjs',
       outdir: OUTPUT,
-    };
-    if (file.includes('loader')) {
-      /**
-       * @see https://github.com/evanw/esbuild/issues/1492
-       */
-      await writeFile(
-        'imu.js',
-        'export var imu = require("url").pathToFileURL(__filename);',
-      );
-      await esbuild({
-        ...commonjs,
-        inject: ['imu.js'],
-        define: {
-          'import.meta.url': 'imu',
-        },
-      });
-      await unlink('imu.js');
-      return;
-    }
-    await esbuild(commonjs);
+    });
+    await oldie(OUTPUT, file, [
+      'import_meta = {}',
+      'import_meta = { url: require("url").pathToFileURL(__filename) }',
+    ]);
+    if (!toModules) return;
+    await esbuild({
+      ...general,
+      outfile: join(OUTPUT, file.replace('.ts', '.mjs')),
+    });
   }));
 }
 
@@ -93,6 +87,7 @@ script('build-ci', async () => {
         entryPoints: [join(TEST, file.name)],
         outdir: DISTRIBUTION_TEST,
       });
+      await oldie(DISTRIBUTION_TEST, file.name);
     }));
   })();
   await script('build/scripts', async () => {
@@ -101,10 +96,7 @@ script('build-ci', async () => {
       entryPoints: ['scripts.ts'],
       outdir: DISTRIBUTION,
     });
-    const file = join(DISTRIBUTION, 'scripts.js');
-    const content = await readFile(file);
-    const transformed = content.toString().replace('./src', './lib');
-    await writeFile(file, transformed);
+    await oldie(DISTRIBUTION, 'scripts.js', ['./src', './lib']);
   })();
 });
 script('ci', test.bind(undefined, 'dist/test'));
