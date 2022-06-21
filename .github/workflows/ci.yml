@@ -82,3 +82,5 @@ jobs:
           && fnm use \
           && npm i \
           && npm run ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
