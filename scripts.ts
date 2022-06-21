@@ -12,7 +12,9 @@ async function oldie(
 ): Promise<void> {
   const resolved = join(directory, file.replace(extname(file), '.js'));
   const content = await readFile(resolved);
-  let transformed = content.toString().replace(/require\("node:/g, 'require("');
+  let transformed = content.toString()
+    .replace(/require\("node:(.+)"\)/g, 'require("$1")')
+    .replace('require("fs/promises")', 'require("fs").promises');
   if (replaces && replaces.length > 0) {
     transformed = transformed.replace(replaces[0], replaces[1]);
   }
