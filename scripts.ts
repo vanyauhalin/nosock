@@ -86,11 +86,10 @@ async function build(output: string, toModules = false): Promise<void> {
 
 async function test(directory: string, flags: string[] = []): Promise<void> {
   const TEST = resolve(directory);
-  const tests = await readdir(TEST, { withFileTypes: true });
+  const tests = await readdir(TEST);
   await Promise.all(tests.map(async (file) => {
-    if (!file.isFile()) return;
-    await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', [...flags, join(TEST, file.name)]);
+    await script(`test/${file}`, () => {
+      const process = spawnSync('node', [...flags, join(TEST, file)]);
       if (process.status === 0) return;
       const cleared = process.stdout.toString()
         .replace(/^.*[•✘].*$/gm, '')
@@ -116,15 +115,14 @@ script('build-ci', async () => {
   };
   await script('build/sources', build.bind(undefined, 'dist/lib'))();
   await script('build/test', async () => {
-    const tests = await readdir(TEST, { withFileTypes: true });
+    const tests = await readdir(TEST);
     await Promise.all(tests.map(async (file) => {
-      if (!file.isFile()) return;
       await esbuild({
         ...general,
-        entryPoints: [join(TEST, file.name)],
+        entryPoints: [join(TEST, file)],
         outdir: DISTRIBUTION_TEST,
       });
-      await polyfill(DISTRIBUTION_TEST, file.name);
+      await polyfill(DISTRIBUTION_TEST, file);
     }));
   })();
   await script('build/scripts', async () => {
