@@ -20,7 +20,7 @@ async function polyfill(
    * esbuild doesn't transform `import.meta.url`.
    * @see https://github.com/evanw/esbuild/issues/1492
    */
-  if (transformed.includes('import_meta')) {
+  if (!file.includes('scripts') && transformed.includes('import_meta')) {
     transformed = transformed.replace(
       'import_meta = {}',
       'import_meta = { url: require("url").pathToFileURL(__filename) }',
