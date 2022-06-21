@@ -16,12 +16,12 @@ test('is a function', () => {
 
 test('loads a scripts file with modules', async () => {
   const loaded = await load({
-    cwd: 'test/reference',
+    cwd: '.',
     require: ['tsm'],
   });
   equal(loaded, {
-    cwd: join(cwd(), 'test', 'reference'),
-    file: join(cwd(), 'test', 'reference', 'scripts.js'),
+    cwd: cwd(),
+    file: join(cwd(), 'scripts.ts'),
     require: ['tsm'],
   });
 });
@@ -42,7 +42,7 @@ test('throws an error if a scripts file not found', async () => {
 test('throws an error if a module is not found', async () => {
   try {
     await load({
-      cwd: 'test/reference',
+      cwd: '.',
       require: ['not-a-module'],
     });
     unreachable();
