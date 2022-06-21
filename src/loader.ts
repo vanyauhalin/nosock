@@ -1,8 +1,7 @@
-import { promises } from 'node:fs';
+import { readdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 
-const { readdir } = promises;
 const require = createRequire(import.meta.url);
 
 function isModuleExists(name: string): boolean {
