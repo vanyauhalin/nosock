@@ -6,8 +6,7 @@ const require = createRequire(import.meta.url);
 
 function isModuleExists(name: string): boolean {
   try {
-    require.resolve(name);
-    return true;
+    return !!require.resolve(name);
   } catch {
     return false;
   }
