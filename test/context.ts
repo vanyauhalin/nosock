@@ -71,7 +71,7 @@ global('persistence default values', () => {
   const saved = env['npm_lifecycle_event'];
   env['npm_lifecycle_event'] = 'some';
   const globalized = context.global();
-  is(globalized.options.command, 'test');
+  is.not(globalized.options.command, 'some');
   env['npm_lifecycle_event'] = saved;
 });
 
