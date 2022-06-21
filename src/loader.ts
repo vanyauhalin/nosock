@@ -45,12 +45,6 @@ async function load(options: LoaderOptions): Promise<LoadedOptions> {
     require(path);
   }
 
-  if (modules.length > 0) {
-    require(file);
-  } else {
-    await import(`file://${file}`);
-  }
-
   return {
     cwd,
     file,
