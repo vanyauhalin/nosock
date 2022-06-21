@@ -1,55 +1,62 @@
-import { spawnSync } from 'node:child_process';
+import { stderr, stdout } from 'node:process';
 import kleur from 'kleur';
 import { suite } from 'uvu';
-import {
-  equal,
-  is,
-  match,
-  type,
-} from 'uvu/assert';
+import { equal, is, type } from 'uvu/assert';
 import * as logger from '../lib/logger';
 
 function stringify(value: string): string {
   return JSON.stringify(value).replace(/"/g, '');
 }
-
-function spawnErrorOutput(code: string): string {
-  return stringify(spawnSync('node', [
-    '-e', `const { log } = require("./lib/logger"); ${code};`,
-  ]).stderr.toString());
+function wrest(value: string): string {
+  return stringify(value).replace(/\\/g, '\\\\').replace(/\[/g, '\\[');
 }
 
-function spawnOutput(code: string): string {
-  return stringify(spawnSync('node', [
-    '-e', `const { log } = require("./lib/logger"); ${code};`,
-  ]).stdout.toString());
-}
-
+const types = {
+  done: wrest(kleur.green('done')),
+  error: wrest(kleur.red('error')),
+  warn: wrest(kleur.yellow('warn')),
+};
 const injections = (() => {
   const single: [string, (value: string) => string][] = [
-    ['%a', (value) => stringify(kleur.magenta(value))],
-    ['%aa', (value) => stringify(kleur.yellow(value))],
-    ['%an', (value) => stringify(kleur.red(value))],
-    ['%ap', (value) => stringify(kleur.green(value))],
-    ['%p', (value) => stringify(kleur.blue(value))],
+    ['%a', (value) => wrest(kleur.magenta(value))],
+    ['%aa', (value) => wrest(kleur.yellow(value))],
+    ['%an', (value) => wrest(kleur.red(value))],
+    ['%ap', (value) => wrest(kleur.green(value))],
+    ['%p', (value) => wrest(kleur.blue(value))],
   ];
   const multiply = {
-    colorize: (value: string) => single
-      .map(([, colorize]) => colorize(value))
-      .join(''),
-    flags: single
-      .map(([flag]) => flag)
-      .join(''),
-    repeat: (value: string) => `"${value}", `
-      .repeat(single.length)
-      .slice(0, -2),
+    colorize: (value: string) => single.map(([, cl]) => cl(value)).join(''),
+    flags: single.map(([flag]) => flag).join(''),
+    repeat: (value: string) => value.repeat(single.length),
   };
   return { single, multiply };
 })();
 
+let output = '';
+function reset(): void {
+  output = '';
+}
+function actual(): string {
+  return output;
+}
+function update(chunk: string | Uint8Array): void {
+  if (typeof chunk === 'string') output = stringify(chunk);
+}
+const originalStdout = process.stdout.write.bind(process.stdout);
+stdout.write = (chunk) => {
+  update(chunk);
+  return originalStdout(chunk);
+};
+const originalStderr = process.stderr.write.bind(process.stdout);
+stderr.write = (chunk) => {
+  update(chunk);
+  return originalStderr(chunk);
+};
+
 // ---
 
 const log = suite('log');
+log.before.each(reset);
 
 log('is a function', () => {
   type(logger.log, 'function');
@@ -60,26 +67,24 @@ log('returns log instance', () => {
 });
 
 log('writes a time prefix', () => {
-  const output = spawnOutput('log("b")');
-  is(output, '');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b(?:\\r\\n|\\r||\\n)$/);
+  logger.log('b');
+  const regexp = /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b\\n$/;
+  is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
-  log(`writes the ${flag} injection`, () => {
-    const output = spawnOutput(`log("${flag}", "b")`);
-    is(output, '');
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\r||\\n)$/);
-    match(output, colorize('b'));
+  log(`writes ${flag} injection`, () => {
+    logger.log(flag, 'b');
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    is(regexp.test(actual()), true);
   });
 }
 
 log('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
-  const output = spawnOutput(`log("${flags}", ${repeat('b')})`);
-  is(output, '');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\r||\\n)$/);
-  match(output, colorize('b'));
+  logger.log(flags, ...repeat('b'));
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 log.run();
@@ -87,6 +92,7 @@ log.run();
 // ---
 
 const done = suite('log.done');
+done.before.each(reset);
 
 done('is a function', () => {
   type(logger.log.done, 'function');
@@ -96,32 +102,25 @@ done('returns log instance', () => {
   equal(logger.log.done('b'), logger.log);
 });
 
-done('writes a time prefix', () => {
-  const output = spawnOutput('log.done("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b(?:\\r\\n|\\r||\\n)$/);
-});
-
-done('writes the type', () => {
-  const output = spawnOutput('log.done("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}b(?:\\r\\n|\\r||\\n)$/);
-  match(output, stringify(kleur.green('done')));
+done('writes a time prefix with type', () => {
+  logger.log.done('b');
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
-  done(`writes the ${flag} injection`, () => {
-    const output = spawnOutput(`log.done("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*(?:\\r\\n|\\r||\\n)$/);
-    match(output, stringify(kleur.green('done')));
-    match(output, colorize('b'));
+  done(`writes ${flag} injection`, () => {
+    logger.log.done(flag, 'b');
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    is(regexp.test(actual()), true);
   });
 }
 
 done('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
-  const output = spawnOutput(`log.done("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*done\S* {2}\S*(?:\\r\\n|\\r||\\n)$/);
-  match(output, stringify(kleur.green('done')));
-  match(output, colorize('b'));
+  logger.log.done(flags, ...repeat('b'));
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 done.run();
@@ -129,6 +128,7 @@ done.run();
 // ---
 
 const empty = suite('log.empty');
+empty.before.each(reset);
 
 empty('is a function', () => {
   type(logger.log.empty, 'function');
@@ -139,28 +139,30 @@ empty('returns log instance', () => {
 });
 
 empty('writes only a new line', () => {
-  const output = spawnOutput('log.empty()');
-  match(output, /^(?:\\r\\n|\\r||\\n)$/);
+  logger.log.empty();
+  const regexp = /^(?:\\r\\n|\\r|\\n)$/;
+  is(regexp.test(actual()), true);
 });
 
-empty('writes the message', () => {
-  const output = spawnOutput('log.empty("b")');
-  match(output, /^b(?:\\r\\n|\\r||\\n)$/);
+empty('writes a message', () => {
+  logger.log.empty('b');
+  const regexp = /^b(?:\\r\\n|\\r|\\n)$/;
+  is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
-  empty(`writes the ${flag} injection`, () => {
-    const output = spawnOutput(`log.empty("${flag}", "b")`);
-    match(output, /^\S*(?:\\r\\n|\\r||\\n)$/);
-    match(output, colorize('b'));
+  empty(`writes ${flag} injection`, () => {
+    logger.log.empty(flag, 'b');
+    const regexp = new RegExp(`^${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    is(regexp.test(actual()), true);
   });
 }
 
 empty('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
-  const output = spawnOutput(`log.empty("${flags}", ${repeat('b')})`);
-  match(output, /^\S*(?:\\r\\n|\\r||\\n)$/);
-  match(output, colorize('b'));
+  logger.log.empty(flags, ...repeat('b'));
+  const regexp = new RegExp(`^${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 empty.run();
@@ -168,6 +170,7 @@ empty.run();
 // ---
 
 const error = suite('log.error');
+error.before.each(reset);
 
 error('is a function', () => {
   type(logger.log.error, 'function');
@@ -177,32 +180,25 @@ error('returns log instance', () => {
   equal(logger.log.error('b'), logger.log);
 });
 
-error('writes a time prefix', () => {
-  const output = spawnErrorOutput('log.error("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b(?:\\r\\n|\\r||\\n)$/);
-});
-
-error('writes the type', () => {
-  const output = spawnErrorOutput('log.error("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* b(?:\\r\\n|\\r||\\n)$/);
-  match(output, stringify(kleur.red('error')));
+error('writes a time prefix with type', () => {
+  logger.log.error('b');
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
-  error(`writes the ${flag} injection`, () => {
-    const output = spawnErrorOutput(`log.error("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*(?:\\r\\n|\\r||\\n)$/);
-    match(output, stringify(kleur.red('error')));
-    match(output, colorize('b'));
+  error(`writes ${flag} injection`, () => {
+    logger.log.error(flag, 'b');
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    is(regexp.test(actual()), true);
   });
 }
 
 error('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
-  const output = spawnErrorOutput(`log.error("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*error\S* \S*(?:\\r\\n|\\r||\\n)$/);
-  match(output, stringify(kleur.red('error')));
-  match(output, colorize('b'));
+  logger.log.error(flags, ...repeat('b'));
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 error.run();
@@ -210,6 +206,7 @@ error.run();
 // ---
 
 const warn = suite('log.warn');
+warn.before.each(reset);
 
 warn('is a function', () => {
   type(logger.log.warn, 'function');
@@ -219,32 +216,25 @@ warn('returns log instance', () => {
   equal(logger.log.warn('b'), logger.log);
 });
 
-warn('writes a time prefix', () => {
-  const output = spawnOutput('log.warn("b")');
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b(?:\\r\\n|\\r||\\n)$/);
-});
-
-warn('writes the type', () => {
-  const output = spawnOutput('log.warn("b")');
-  match(output, stringify(kleur.yellow('warn')));
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}b(?:\\r\\n|\\r||\\n)$/);
+warn('writes a time prefix with type', () => {
+  logger.log.warn('b');
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
-  warn(`writes the ${flag} injection`, () => {
-    const output = spawnOutput(`log.warn("${flag}", "b")`);
-    match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*(?:\\r\\n|\\r||\\n)$/);
-    match(output, stringify(kleur.yellow('warn')));
-    match(output, colorize('b'));
+  warn(`writes ${flag} injection`, () => {
+    logger.log.warn(flag, 'b');
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    is(regexp.test(actual()), true);
   });
 }
 
 warn('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
-  const output = spawnOutput(`log.warn("${flags}", ${repeat('b')})`);
-  match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] \S*warn\S* {2}\S*(?:\\r\\n|\\r||\\n)$/);
-  match(output, stringify(kleur.yellow('warn')));
-  match(output, colorize('b'));
+  logger.log.warn(flags, ...repeat('b'));
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  is(regexp.test(actual()), true);
 });
 
 warn.run();
