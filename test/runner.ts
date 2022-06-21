@@ -62,7 +62,7 @@ test('rejects an event', async () => {
   is(event.command, 'some');
   match(event.duration || '', 'ms');
   is(event.type, 'error');
-  is(event.error?.message, 'some');
+  is(event.error!.message, 'some');
 });
 
 // ---
@@ -132,15 +132,15 @@ test('resolves a sequential events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'done');
-  is(second?.command, 'pet');
-  match(second?.duration || '', 'ms');
-  is(second?.type, 'done');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'done');
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'done');
+  is(second!.command, 'pet');
+  match(second!.duration || '', 'ms');
+  is(second!.type, 'done');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'done');
 });
 
 test('rejects a sequential events', async () => {
@@ -162,17 +162,17 @@ test('rejects a sequential events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'error');
-  is(first?.error?.message, 'child');
-  is(second?.command, 'pet');
-  match(second?.duration || '', 'ms');
-  is(second?.type, 'done');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'error');
-  is(third?.error, undefined);
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'error');
+  is(first!.error!.message, 'child');
+  is(second!.command, 'pet');
+  match(second!.duration || '', 'ms');
+  is(second!.type, 'done');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'error');
+  is(third!.error, undefined);
 });
 
 test('cancels a sequential events', async () => {
@@ -195,17 +195,17 @@ test('cancels a sequential events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'error');
-  is(first?.error?.message, 'child');
-  is(second?.command, 'pet');
-  is(second?.duration, undefined);
-  is(second?.type, 'cancel');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'error');
-  is(third?.error, undefined);
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'error');
+  is(first!.error!.message, 'child');
+  is(second!.command, 'pet');
+  is(second!.duration, undefined);
+  is(second!.type, 'cancel');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'error');
+  is(third!.error, undefined);
 });
 
 // ---
@@ -272,15 +272,15 @@ test('resolves a parallel events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'done');
-  is(second?.command, 'pet');
-  match(second?.duration || '', 'ms');
-  is(second?.type, 'done');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'done');
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'done');
+  is(second!.command, 'pet');
+  match(second!.duration || '', 'ms');
+  is(second!.type, 'done');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'done');
 });
 
 test('rejects a parallel events', async () => {
@@ -301,17 +301,17 @@ test('rejects a parallel events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'error');
-  is(first?.error?.message, 'child');
-  is(second?.command, 'pet');
-  match(second?.duration || '', 'ms');
-  is(second?.type, 'done');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'error');
-  is(third?.error, undefined);
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'error');
+  is(first!.error!.message, 'child');
+  is(second!.command, 'pet');
+  match(second!.duration || '', 'ms');
+  is(second!.type, 'done');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'error');
+  is(third!.error, undefined);
 });
 
 test('cancels a parallel events', async () => {
@@ -333,17 +333,17 @@ test('cancels a parallel events', async () => {
   };
   await run(context, parent);
   const [first, second, third] = deepener.raise(context.history);
-  is(first?.command, 'child');
-  match(first?.duration || '', 'ms');
-  is(first?.type, 'error');
-  is(first?.error?.message, 'child');
-  is(second?.command, 'pet');
-  match(second?.duration || '', 'ms');
-  is(second?.type, 'cancel');
-  is(third?.command, 'parent');
-  match(third?.duration || '', 'ms');
-  is(third?.type, 'error');
-  is(third?.error, undefined);
+  is(first!.command, 'child');
+  match(first!.duration || '', 'ms');
+  is(first!.type, 'error');
+  is(first!.error!.message, 'child');
+  is(second!.command, 'pet');
+  match(second!.duration || '', 'ms');
+  is(second!.type, 'cancel');
+  is(third!.command, 'parent');
+  match(third!.duration || '', 'ms');
+  is(third!.type, 'error');
+  is(third!.error, undefined);
 });
 
 test.run();
