@@ -68,14 +68,14 @@ log('returns log instance', () => {
 
 log('writes a time prefix', () => {
   logger.log('b');
-  const regexp = /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b\\n$/;
+  const regexp = /^\[\d{2}:\d{2}:\d{2}(?:\.\d{3})?] {7}b\\n$/;
   is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
   log(`writes ${flag} injection`, () => {
     logger.log(flag, 'b');
-    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
     is(regexp.test(actual()), true);
   });
 }
@@ -83,7 +83,7 @@ for (const [flag, colorize] of injections.single) {
 log('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   logger.log(flags, ...repeat('b'));
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] {7}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
@@ -104,14 +104,14 @@ done('returns log instance', () => {
 
 done('writes a time prefix with type', () => {
   logger.log.done('b');
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.done} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
   done(`writes ${flag} injection`, () => {
     logger.log.done(flag, 'b');
-    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
     is(regexp.test(actual()), true);
   });
 }
@@ -119,7 +119,7 @@ for (const [flag, colorize] of injections.single) {
 done('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   logger.log.done(flags, ...repeat('b'));
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.done} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
@@ -182,14 +182,14 @@ error('returns log instance', () => {
 
 error('writes a time prefix with type', () => {
   logger.log.error('b');
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.error} b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
   error(`writes ${flag} injection`, () => {
     logger.log.error(flag, 'b');
-    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
     is(regexp.test(actual()), true);
   });
 }
@@ -197,7 +197,7 @@ for (const [flag, colorize] of injections.single) {
 error('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   logger.log.error(flags, ...repeat('b'));
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.error} ${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
@@ -218,14 +218,14 @@ warn('returns log instance', () => {
 
 warn('writes a time prefix with type', () => {
   logger.log.warn('b');
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.warn} {2}b(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
 for (const [flag, colorize] of injections.single) {
   warn(`writes ${flag} injection`, () => {
     logger.log.warn(flag, 'b');
-    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+    const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
     is(regexp.test(actual()), true);
   });
 }
@@ -233,7 +233,7 @@ for (const [flag, colorize] of injections.single) {
 warn('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   logger.log.warn(flags, ...repeat('b'));
-  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}\\.\\d{3}] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
+  const regexp = new RegExp(`^\\[\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?] ${types.warn} {2}${colorize('b')}(?:\\\\r\\\\n|\\\\r|\\\\n)$`);
   is(regexp.test(actual()), true);
 });
 
