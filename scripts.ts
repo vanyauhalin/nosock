@@ -62,7 +62,7 @@ async function test(directory: string, flags: string[] = []): Promise<void> {
         .replace(/^.*[•✘].*$/gm, '')
         .replace(/^ {4}at .*$/gm, '')
         .replace(/[\S\s]*?FAIL/, 'FAIL')
-        .replace(/(?:\r\n|[\nr]){2,}/g, '\n\n')
+        .replace(/(?:\r\n|\r|\n){2,}/g, '\n\n')
         .trim();
       throw new Error(`\n\n   ${cleared}\n`);
     })();
