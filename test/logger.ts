@@ -1,7 +1,12 @@
 import { spawnSync } from 'node:child_process';
 import kleur from 'kleur';
 import { suite } from 'uvu';
-import { equal, match, type } from 'uvu/assert';
+import {
+  equal,
+  is,
+  match,
+  type,
+} from 'uvu/assert';
 import * as logger from '../lib/logger';
 
 function stringify(value: string): string {
@@ -56,12 +61,14 @@ log('returns log instance', () => {
 
 log('writes a time prefix', () => {
   const output = spawnOutput('log("b")');
+  is(output, '');
   match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}b(?:\\r\\n|\\r||\\n)$/);
 });
 
 for (const [flag, colorize] of injections.single) {
   log(`writes the ${flag} injection`, () => {
     const output = spawnOutput(`log("${flag}", "b")`);
+    is(output, '');
     match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\r||\\n)$/);
     match(output, colorize('b'));
   });
@@ -70,6 +77,7 @@ for (const [flag, colorize] of injections.single) {
 log('writes multiply injections', () => {
   const { colorize, flags, repeat } = injections.multiply;
   const output = spawnOutput(`log("${flags}", ${repeat('b')})`);
+  is(output, '');
   match(output, /^\[\d{2}:\d{2}:\d{2}\.\d{3}] {7}\S*(?:\\r\\n|\\r||\\n)$/);
   match(output, colorize('b'));
 });
