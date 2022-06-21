@@ -90,10 +90,10 @@ async function test(directory: string, flags: string[] = []): Promise<void> {
       const process = spawnSync('node', [...flags, join(TEST, file.name)]);
       if (process.status === 0) return;
       const cleared = process.stdout.toString()
-        .replace(/^.*[•✘].*$/gm, '')
-        .replace(/^ {4}at .*$/gm, '')
-        .replace(/[\S\s]*?FAIL/, 'FAIL')
-        .replace(/(?:\r\n|\r|\n){2,}/g, '\n\n')
+        // .replace(/^.*[•✘].*$/gm, '')
+        // .replace(/^ {4}at .*$/gm, '')
+        // .replace(/[\S\s]*?FAIL/, 'FAIL')
+        // .replace(/(?:\r\n|\r|\n){2,}/g, '\n\n')
         .trim();
       throw new Error(`\n\n   ${cleared}\n`);
     })();
