@@ -3,14 +3,14 @@ import { exec } from './executor';
 import { run } from './runner';
 
 interface Scripter {
-  <C extends () => unknown | PromiseLike<unknown>>(
+  <C extends (...parameters: Parameters<C>) => unknown | PromiseLike<unknown>>(
     command: string,
     callback: C,
     options?: {
       allowCancellation: boolean;
     },
-  ): () => (
-    Promise<C extends () => PromiseLike<unknown>
+  ): (...parameters: Parameters<C>) => (
+    Promise<C extends (...temporary: Parameters<C>) => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
@@ -21,18 +21,26 @@ const script = (() => {
   const context = global();
   function inner(
     command: string,
-    callback: () => unknown | PromiseLike<unknown>,
+    callback: (...parameters: unknown[]) => unknown | PromiseLike<unknown>,
     options?: {
       allowCancellation: boolean;
     },
-  ): () => Promise<unknown> {
+  ): (...parameters: unknown[]) => Promise<unknown> {
     const saved = {
       ...options ? { options } : {},
       command,
       callback,
     };
     context.store[command] = saved;
-    return run.bind(undefined, context, saved);
+    async function container(
+      this: unknown,
+      ...parameters: unknown[]
+    ): Promise<unknown> {
+      saved.callback = saved.callback.bind(this, ...parameters);
+      const result = await run(context, saved);
+      return result;
+    }
+    return container;
   }
   inner.exec = () => {
     setTimeout.call(undefined, exec.bind(undefined, context));

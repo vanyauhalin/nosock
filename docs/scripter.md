@@ -10,14 +10,14 @@ import { script } from '@vanyauhalin/nosock';
 
 ```ts
 interface Scripter {
-  <C extends () => unknown | PromiseLike<unknown>>(
+  <C extends (...parameters: Parameters<C>) => unknown | PromiseLike<unknown>>(
     command: string,
     callback: C,
     options?: {
       allowCancellation: boolean;
     },
-  ): () => (
-    Promise<C extends () => PromiseLike<unknown>
+  ): (...parameters: Parameters<C>) => (
+    Promise<C extends (...temporary: Parameters<C>) => PromiseLike<unknown>
       ? Awaited<ReturnType<C>>
       : ReturnType<C>>
   );
@@ -30,14 +30,16 @@ interface Scripter {
 Describes what needs to be call for a specific command.
 
 ```ts
-script<C extends () => unknown | PromiseLike<unknown>>(
+script<
+  C extends (...parameters: Parameters<C>) => unknown | PromiseLike<unknown>,
+>(
   command: string,
   callback: C,
   options?: {
     allowCancellation: boolean;
   },
-): () => (
-  Promise<C extends () => PromiseLike<unknown>
+): (...parameters: Parameters<C>) => (
+  Promise<C extends (...temporary: Parameters<C>) => PromiseLike<unknown>
     ? Awaited<ReturnType<C>>
     : ReturnType<C>>
 )
@@ -99,5 +101,6 @@ script.exec(this: void): void
 ```js
 script('jerry', () => 'cheese');
 script('tom', () => { throw new Error('anvil'); });
+
 script.exec();
 ```
