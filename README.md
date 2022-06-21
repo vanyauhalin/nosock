@@ -8,8 +8,8 @@
   <br>
   <a href="https://github.com/vanyauhalin/nosock/actions">
     <img
-      alt="test status"
-      src="https://github.com/vanyauhalin/nosock/workflows/test/badge.svg"
+      alt="ci status"
+      src="https://github.com/vanyauhalin/nosock/workflows/ci/badge.svg"
     />
   </a>
   <img
