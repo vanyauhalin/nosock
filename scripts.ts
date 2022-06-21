@@ -12,22 +12,25 @@ async function polyfill(
 ): Promise<void> {
   const resolved = join(directory, file.replace(extname(file), '.js'));
   const content = await readFile(resolved);
-  // NodeJS 10, 12 doesn't resolve `node` modules.
+  // NodeJS v10, v12 doesn't resolve `node` modules.
   let transformed = content.toString()
     .replace(/require\("node:(.+)"\)/g, 'require("$1")')
     .replace('require("fs/promises")', 'require("fs").promises');
   /**
+   * `module.createRequire` has been added in NodeJS v12.
    * esbuild doesn't transform `import.meta.url`.
+   * @see https://nodejs.org/api/module.html#modulecreaterequirefilename
    * @see https://github.com/evanw/esbuild/issues/1492
    */
-  if (!file.includes('scripts') && transformed.includes('import_meta')) {
-    transformed = transformed.replace(
-      'import_meta = {}',
-      'import_meta = { url: require("url").pathToFileURL(__filename) }',
-    );
+  if (file.includes('loader')) {
+    transformed = transformed
+      .replace(/var import_node_module.*(?:\r\n|\r|\n)/, '')
+      .replace(/const import_meta.*(?:\r\n|\r|\n)/, '')
+      .replace(/const require2.*(?:\r\n|\r|\n)/, '')
+      .replace(/require2/g, 'require');
   }
   /**
-   * `Array.prototype.flat()` has been implemented since NodeJS 11.
+   * `Array.prototype.flat()` has been added in NodeJS v11.
    * @see https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
    */
   if (transformed.includes('.flat()')) {
