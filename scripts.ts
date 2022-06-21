@@ -34,7 +34,9 @@ async function build(output: string, toModules = false): Promise<void> {
     await esbuild({
       ...general,
       format: 'cjs',
+      logLevel: 'error',
       outdir: OUTPUT,
+      target: 'node10',
     });
     await oldie(OUTPUT, file, [
       'import_meta = {}',
