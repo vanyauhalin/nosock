@@ -17,9 +17,11 @@
     "lib"
   ],
   "scripts": {
-    "prebuild": "tsc -p tsconfig.prebuild.json",
+    "build-ci": "node -r tsm scripts.ts",
     "build": "node -r tsm scripts.ts",
+    "ci": "node dist/scripts.js",
     "lint": "eslint .",
+    "prebuild": "tsc -p tsconfig.prebuild.json",
     "test": "node -r tsm scripts.ts"
   },
   "dependencies": {

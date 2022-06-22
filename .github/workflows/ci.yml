@@ -5,7 +5,7 @@ on:
     branches: main
     paths:
       - "!*.md"
-      - .github/workflows/test.yml
+      - .github/workflows/ci.yml
       - "bin/**"
       - "!docs/**"
       - "test/**"
@@ -20,7 +20,7 @@ on:
     branches: main
     paths:
       - "!*.md"
-      - .github/workflows/test.yml
+      - .github/workflows/ci.yml
       - "bin/**"
       - "!docs/**"
       - "test/**"
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: 16
           registry-url: "https://npm.pkg.github.com"
@@ -48,6 +48,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm build
       - run: pnpm lint
+      - run: pnpm test
   test:
     name: v${{ matrix.nodejs }}, ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -55,17 +56,41 @@ jobs:
     timeout-minutes: 3
     strategy:
       matrix:
-        nodejs: [14]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        nodejs: [10, 12, 14]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.nodejs }}
+          node-version: 14
           registry-url: "https://npm.pkg.github.com"
           scope: "@vanyauhalin"
-      - run: npm i
+      - run: npm i -g pnpm
+      - run: pnpm i
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run build
-      - run: npm run test
+      - run: pnpm build-ci
+      - if: matrix.os == 'ubuntu-latest'|| matrix.os == 'macOS-latest'
+        run: |
+          rm -rf node_modules
+          brew install fnm
+          eval "$(fnm env)"
+          echo ${{ matrix.nodejs }} > .node-version
+          fnm install
+          fnm use
+          npm i
+          npm run ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - if: matrix.os == 'windows-latest'
+        run: |
+          rm -r -fo node_modules
+          choco install fnm
+          fnm env | Out-String | Invoke-Expression
+          echo ${{ matrix.nodejs }} > .node-version
+          fnm install
+          fnm use
+          npm i
+          npm run ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

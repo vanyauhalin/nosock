@@ -6,8 +6,8 @@ import {
   type,
   unreachable,
 } from 'uvu/assert';
-import { define } from '../src/context';
-import { exec } from '../src/executor';
+import { define } from '../lib/context';
+import { exec } from '../lib/executor';
 
 test('is a function', () => {
   type(exec, 'function');

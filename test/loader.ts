@@ -14,23 +14,15 @@ test('is a function', () => {
   type(load, 'function');
 });
 
-test('founds a scripts file', async () => {
-  try {
-    await load({
-      cwd: '.',
-      require: [],
-    });
-    unreachable();
-  } catch (error) {
-    instance(error, Error);
-    match((error as Error).message, join(cwd(), 'scripts.ts'));
-  }
-});
-
-test('resolves a scripts file', async () => {
-  await load({
-    cwd: 'test/reference',
-    require: [],
+test('loads a scripts file with modules', async () => {
+  const loaded = await load({
+    cwd: '.',
+    require: ['uvu'],
+  });
+  equal(loaded, {
+    cwd: cwd(),
+    file: join(cwd(), 'scripts.ts'),
+    require: ['uvu'],
   });
 });
 
@@ -47,17 +39,10 @@ test('throws an error if a scripts file not found', async () => {
   }
 });
 
-test('requires modules', async () => {
-  await load({
-    cwd: 'test/reference',
-    require: ['tsm'],
-  });
-});
-
 test('throws an error if a module is not found', async () => {
   try {
     await load({
-      cwd: 'test/reference',
+      cwd: '.',
       require: ['not-a-module'],
     });
     unreachable();
@@ -65,18 +50,6 @@ test('throws an error if a module is not found', async () => {
     instance(error, Error);
     match((error as Error).message, 'Cannot fine module "not-a-module"');
   }
-});
-
-test('returns a loaded options', async () => {
-  const loaded = await load({
-    cwd: 'test/reference',
-    require: ['tsm'],
-  });
-  equal(loaded, {
-    cwd: join(cwd(), 'test', 'reference'),
-    file: join(cwd(), 'test', 'reference', 'scripts.js'),
-    require: ['tsm'],
-  });
 });
 
 test.run();

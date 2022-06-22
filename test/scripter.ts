@@ -10,8 +10,8 @@ test('is a function', () => {
 test('saves a synchronous script to store', () => {
   const context = global();
   script('sync', () => 'sync');
-  const command = context.store['sync']?.command;
-  const value = context.store['sync']?.callback();
+  const { callback, command } = context.store['sync']!;
+  const value = callback();
   is(command, 'sync');
   is(value, 'sync');
 });
@@ -19,8 +19,8 @@ test('saves a synchronous script to store', () => {
 test('saves a asynchronous script to store', async () => {
   const context = global();
   script('async', async () => 'async');
-  const command = context.store['async']?.command;
-  const value = await context.store['async']?.callback();
+  const { callback, command } = context.store['async']!;
+  const value = await callback();
   is(command, 'async');
   is(value, 'async');
 });
@@ -28,8 +28,8 @@ test('saves a asynchronous script to store', async () => {
 test('saves a promised script to store', async () => {
   const context = global();
   script('prom', () => Promise.resolve('prom'));
-  const command = context.store['prom']?.command;
-  const value = await context.store['prom']?.callback();
+  const { callback, command } = context.store['prom']!;
+  const value = await callback();
   is(command, 'prom');
   is(value, 'prom');
 });

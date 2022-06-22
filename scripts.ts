@@ -1,70 +1,139 @@
 import { spawnSync } from 'node:child_process';
-import { promises } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { extname, join, resolve } from 'node:path';
 import type { BuildOptions } from 'esbuild';
-import { build } from 'esbuild';
+import { build as esbuild } from 'esbuild';
 import { script } from './src/index';
 
-const { readdir, unlink, writeFile } = promises;
+async function polyfill(
+  directory: string,
+  file: string,
+  replaces?: [string, string],
+): Promise<void> {
+  const resolved = join(directory, file.replace(extname(file), '.js'));
+  const content = await readFile(resolved);
+  // NodeJS v10, v12 doesn't resolve `node` modules.
+  let transformed = content.toString()
+    .replace(/require\("node:(.+)"\)/g, 'require("$1")')
+    .replace('require("fs/promises")', 'require("fs").promises');
+  /**
+   * `module.createRequire` has been added in NodeJS v12.
+   * esbuild doesn't transform `import.meta.url`.
+   * @see https://nodejs.org/api/module.html#modulecreaterequirefilename
+   * @see https://github.com/evanw/esbuild/issues/1492
+   */
+  if (file.includes('loader')) {
+    transformed = transformed
+      .replace(/var import_node_module.*(?:\r\n|\r|\n)/, '')
+      .replace(/const import_meta.*(?:\r\n|\r|\n)/, '')
+      .replace(/const require2.*(?:\r\n|\r|\n)/, '')
+      .replace(/require2/g, 'require');
+  }
+  /**
+   * `Array.prototype.flat()` has been added in NodeJS v11.
+   * @see https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+   */
+  if (transformed.includes('.flat()')) {
+    transformed = transformed.replace(/(module.exports = __toCommonJS.*)/, `$1
+if (!Array.prototype.flat)
+  Object.defineProperty(Array.prototype, 'flat', {
+    configurable: true,
+    value: function flat() {
+      const depth = isNaN(arguments[0]) ? 1 : Number(arguments[0]);
+      return depth ? Array.prototype.reduce.call(this, (accumulator, current) => {
+        if (Array.isArray(current)) {
+          accumulator.push.apply(accumulator, flat.call(current, depth - 1));
+        } else {
+          accumulator.push(current);
+        }
+        return accumulator;
+      }, []) : Array.prototype.slice.call(this);
+    },
+    writable: true,
+  });`);
+  }
+  if (replaces && replaces.length > 0) {
+    transformed = transformed.replace(replaces[0], replaces[1]);
+  }
+  await writeFile(resolved, transformed);
+}
 
-script('build', async () => {
-  const LIBRARY = resolve('lib');
+async function build(output: string, toModules = false): Promise<void> {
+  const OUTPUT = resolve(output);
   const SOURCES = resolve('src');
   const sources = await readdir(SOURCES);
   await Promise.all(sources.map(async (file) => {
-    const options: BuildOptions = {
-      entryPoints: [`${SOURCES}/${file}`],
+    const general: BuildOptions = {
+      entryPoints: [join(SOURCES, file)],
       allowOverwrite: true,
       platform: 'node',
     };
-    await build({
-      ...options,
-      outfile: `${LIBRARY}/${basename(file).replace('.ts', '.mjs')}`,
-    });
-    const cjs: BuildOptions = {
-      ...options,
+    await esbuild({
+      ...general,
       format: 'cjs',
-      outdir: LIBRARY,
-    };
-    if (file.includes('loader')) {
-      /**
-       * @see https://github.com/evanw/esbuild/issues/1492
-       */
-      await writeFile(
-        'imu.js',
-        'export var imu = require("url").pathToFileURL(__filename);',
-      );
-      await build({
-        ...cjs,
-        inject: ['./imu.js'],
-        define: {
-          'import.meta.url': 'imu',
-        },
-      });
-      await unlink('imu.js');
-      return;
-    }
-    await build(cjs);
+      logLevel: 'error',
+      outdir: OUTPUT,
+      target: 'node10',
+    });
+    await polyfill(OUTPUT, file);
+    if (!toModules) return;
+    await esbuild({
+      ...general,
+      outfile: join(OUTPUT, file.replace('.ts', '.mjs')),
+    });
   }));
-});
+}
 
-script('test', async () => {
-  const TEST = resolve('test');
-  const files = await readdir(TEST, { withFileTypes: true });
-  await Promise.all(files.map(async (file) => {
-    if (!file.isFile()) return;
-    await script(`test/${file.name}`, () => {
-      const process = spawnSync('node', ['-r', 'tsm', join(TEST, file.name)]);
+async function test(directory: string, flags: string[] = []): Promise<void> {
+  const TEST = resolve(directory);
+  const tests = await readdir(TEST);
+  await Promise.all(tests.map(async (file) => {
+    await script(`test/${file}`, () => {
+      const process = spawnSync('node', [...flags, join(TEST, file)]);
       if (process.status === 0) return;
       const cleared = process.stdout.toString()
         .replace(/^.*[•✘].*$/gm, '')
         .replace(/^ {4}at .*$/gm, '')
         .replace(/[\S\s]*?FAIL/, 'FAIL')
-        .replace(/(?:\r\n|[\nr]){2,}/g, '\n\n')
+        .replace(/(?:\r\n|\r|\n){2,}/g, '\n\n')
         .trim();
       throw new Error(`\n\n   ${cleared}\n`);
     })();
   }));
+}
+
+script('build', build.bind(undefined, 'lib', true));
+script('test', test.bind(undefined, 'test', ['-r', 'tsm']));
+script('build-ci', async () => {
+  const DISTRIBUTION = resolve('dist');
+  const DISTRIBUTION_TEST = join(DISTRIBUTION, 'test');
+  const TEST = resolve('test');
+  const general: BuildOptions = {
+    allowOverwrite: true,
+    platform: 'node',
+    format: 'cjs',
+  };
+  await script('build/sources', build.bind(undefined, 'dist/lib'))();
+  await script('build/test', async () => {
+    const tests = await readdir(TEST);
+    await Promise.all(tests.map(async (file) => {
+      await esbuild({
+        ...general,
+        entryPoints: [join(TEST, file)],
+        outdir: DISTRIBUTION_TEST,
+      });
+      await polyfill(DISTRIBUTION_TEST, file);
+    }));
+  })();
+  await script('build/scripts', async () => {
+    await esbuild({
+      ...general,
+      entryPoints: ['scripts.ts'],
+      outdir: DISTRIBUTION,
+    });
+    await polyfill(DISTRIBUTION, 'scripts.js', ['./src', './lib']);
+  })();
 });
+script('ci', test.bind(undefined, 'dist/test'));
 
 script.exec();

@@ -4,17 +4,17 @@ const { argv, env, exit } = require('node:process');
 const sade = require('sade');
 const { version } = require('../package.json');
 
+const hasImport = (() => {
+  try {
+    new Function('import').call(0);
+    return true;
+  } catch (error) {
+    return !/unexpected/i.test(error.message);
+  }
+})();
+const dImport = (path) => new Function(`return import('${path}')`).call(0);
 const cross = (() => {
-  const requirer = (() => {
-    try {
-      new Function('import').call(0);
-      return true;
-    } catch (error) {
-      return !/unexpected/i.test(error.message);
-    }
-  })()
-    ? (path) => new Function(`return import('${path}')`).call(0)
-    : require;
+  const requirer = hasImport ? dImport : require;
   return (path) => Promise.resolve(requirer(path));
 })();
 
@@ -33,6 +33,9 @@ sade('nosock [command]')
         cwd,
         require: modules,
       });
+      await (hasImport && loaded.require.length === 0
+        ? dImport(`file://${loaded.file}`)
+        : cross(loaded.file));
       const { global } = await cross('nosock/context');
       global().options = {
         ...loaded,
