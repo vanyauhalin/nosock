@@ -17,12 +17,12 @@ test('is a function', () => {
 test('loads a scripts file with modules', async () => {
   const loaded = await load({
     cwd: '.',
-    require: ['tsm'],
+    require: ['uvu'],
   });
   equal(loaded, {
     cwd: cwd(),
     file: join(cwd(), 'scripts.ts'),
-    require: ['tsm'],
+    require: ['uvu'],
   });
 });
 
