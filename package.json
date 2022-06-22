@@ -21,6 +21,7 @@
       "import": "./lib/index.mjs",
       "require": "./lib/index.js"
     },
+    "./bin/nosock.js": "./bin/nosock.js",
     "./lib/context": {
       "import": "./lib/context.mjs",
       "require": "./lib/context.js",
