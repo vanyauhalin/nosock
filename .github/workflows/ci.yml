@@ -74,13 +74,14 @@ jobs:
         run: |
           rm -rf node_modules
           brew install fnm
+          eval "$(fnm env)"
       - if: matrix.os == 'windows-latest'
         run: |
           rm -r -fo node_modules
           choco install fnm
+          fnm env | iex
       - run: |
           echo ${{ matrix.nodejs }} > .node-version
-          eval "$(fnm env)"
           fnm install
           fnm use
           npm i
