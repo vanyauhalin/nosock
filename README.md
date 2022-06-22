@@ -18,6 +18,13 @@
   />
   <br>
   nosock is a tiny scripts runner
+  <br>
+  <br>
+  <img
+    alt="demo"
+    src="./docs/assets/demo.svg"
+    width="600"
+  />
 </p>
 
 ## Motivation
