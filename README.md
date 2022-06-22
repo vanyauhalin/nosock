@@ -22,7 +22,7 @@
   <br>
   <img
     alt="demo"
-    src="./docs/assets/demo.svg"
+    src="https://raw.githubusercontent.com/vanyauhalin/nosock/main/docs/assets/demo.svg"
     width="600"
   />
 </p>
@@ -106,12 +106,12 @@ Then execute the script.
 npm run build
 ```
 
-This demo is available in the [docs](docs/demo/scripts.js) directory.
+This demo is available in the [docs](https://github.com/vanyauhalin/nosock/tree/main/docs/demo/scripts.js) directory.
 
 ## API
 
-- [`script()`](docs/scripter.md) — the main module used to describe scripts.
-- [`log()`](docs/logger.md) — wrapper for `process.stdout` that adds a time prefix, types and [color injection](docs/logger.md#color-injection).
+- [`script()`](https://github.com/vanyauhalin/nosock/tree/main/docs/scripter.md) — the main module used to describe scripts.
+- [`log()`](https://github.com/vanyauhalin/nosock/tree/main/docs/logger.md) — wrapper for `process.stdout` that adds a time prefix, types and [color injection](https://github.com/vanyauhalin/nosock/tree/main/docs/logger.md#color-injection).
 
 ## Benchmarks
 
@@ -131,7 +131,7 @@ nosock | 131ms       | 10.06ms
 
 Libraries such as [Grunt](https://github.com/gruntjs/grunt), [Brunch](https://github.com/brunch/brunch) do not participate in the comparison. The main reason is the lack of a plugin for [esbuild](https://github.com/evanw/esbuild), which at the time of writing this README is one of my main tools. Also want to note that both libraries do not support configs are written in modules.
 
-This benchmarks is available in the [docs](docs/benchmarks/index.js) directory.
+This benchmarks is available in the [docs](https://github.com/vanyauhalin/nosock/tree/main/docs/benchmarks/index.js) directory.
 
 ## License
 
