@@ -37,7 +37,9 @@ sade('nosock [command]')
         ? dImport(`file://${loaded.file}`)
         : cross(loaded.file));
       const { global } = await cross('nosock/context');
-      global().options = {
+      const context = global();
+      context.options = {
+        ...context.options,
         ...loaded,
         ...command ? { command } : {},
         noColor,
