@@ -71,11 +71,14 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm build-ci
       - if: matrix.os == 'ubuntu-latest'|| matrix.os == 'macOS-latest'
-        run: brew install fnm
-      - if: matrix.os == 'windows-latest'
-        run: choco install fnm
-      - run: |
+        run: |
           rm -rf node_modules
+          brew install fnm
+      - if: matrix.os == 'windows-latest'
+        run: |
+          rm -r -fo node_modules
+          choco install fnm
+      - run: |
           echo ${{ matrix.nodejs }} > .node-version
           eval "$(fnm env)"
           fnm install
