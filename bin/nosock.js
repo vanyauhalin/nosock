@@ -15,7 +15,7 @@ const hasImport = (() => {
 const dImport = (path) => new Function(`return import('${path}')`).call(0);
 const cross = (() => {
   const requirer = hasImport ? dImport : require;
-  return (path) => Promise.resolve(requirer(path));
+  return (path) => Promise.resolve(requirer(`@vanyauhalin/nosock/lib/${path}`));
 })();
 
 sade('nosock [command]')
@@ -28,7 +28,7 @@ sade('nosock [command]')
     try {
       const { cwd, noColor, require: modules = '' } = options;
       env['FORCE_COLOR'] = noColor ? '0' : '1';
-      const { load } = await cross('nosock/loader');
+      const { load } = await cross('loader');
       const loaded = await load({
         cwd,
         require: modules,
@@ -36,8 +36,10 @@ sade('nosock [command]')
       await (hasImport && loaded.require.length === 0
         ? dImport(`file://${loaded.file}`)
         : cross(loaded.file));
-      const { global } = await cross('nosock/context');
-      global().options = {
+      const { global } = await cross('context');
+      const context = global();
+      context.options = {
+        ...context.options,
         ...loaded,
         ...command ? { command } : {},
         noColor,
