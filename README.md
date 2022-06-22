@@ -1,9 +1,9 @@
 <p align="center">
   <img
-    width="100"
-    height="100"
     alt="nosock logo"
-    src="docs/assets/nosock.svg"
+    height="100"
+    src="https://raw.githubusercontent.com/vanyauhalin/nosock/main/docs/assets/nosock.svg"
+    width="100"
   />
   <br>
   <a href="https://github.com/vanyauhalin/nosock/actions">
@@ -18,6 +18,13 @@
   />
   <br>
   nosock is a tiny scripts runner
+  <br>
+  <br>
+  <img
+    alt="demo"
+    src="./docs/assets/demo.svg"
+    width="600"
+  />
 </p>
 
 ## Motivation
@@ -108,7 +115,23 @@ This demo is available in the [docs](docs/demo/scripts.js) directory.
 
 ## Benchmarks
 
-In progress...
+Two parameters are used for comparison.
+
+- `total` is the total process execution time — from startup to termination.
+- `self` is the self-reported execution time.
+
+Each test is run multiple times in order (3 times by default) to avoid the effect of "running on a cold". The tests were run on NodeJS v18.4.0.
+
+```txt
+name   | total       | self   
+------ | ----------- | -------
+gulp   | 270ms       | 19 ms
+nosock | 131ms       | 10.06ms
+```
+
+Libraries such as [Grunt](https://github.com/gruntjs/grunt), [Brunch](https://github.com/brunch/brunch) do not participate in the comparison. The main reason is the lack of a plugin for [esbuild](https://github.com/evanw/esbuild), which at the time of writing this README is one of my main tools. Also want to note that both libraries do not support configs are written in modules.
+
+This benchmarks is available in the [docs](docs/benchmarks/index.js) directory.
 
 ## License
 

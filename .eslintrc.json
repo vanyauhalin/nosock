@@ -12,6 +12,13 @@
       }
     },
     {
+      "files": "docs/benchmarks/*",
+      "rules": {
+        "import/no-extraneous-dependencies": "off",
+        "no-await-in-loop": "off"
+      }
+    },
+    {
       "files": "docs/demo/*",
       "rules": {
         "import/no-unresolved": "off"
