@@ -1,5 +1,5 @@
 {
-  "name": "nosock",
+  "name": "@vanyauhalin/nosock",
   "version": "0.1.0",
   "description": "Tiny scripts runner",
   "keywords": [
