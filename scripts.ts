@@ -1,19 +1,39 @@
 import { spawnSync } from 'node:child_process';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
-import { extname, join, resolve } from 'node:path';
-import type { BuildOptions } from 'esbuild';
+import {
+  basename,
+  extname,
+  join,
+  resolve,
+} from 'node:path';
 import { build as esbuild } from 'esbuild';
 import { script } from './src/index';
 
-async function polyfill(
-  directory: string,
-  file: string,
-  replaces?: [string, string],
-): Promise<void> {
-  const resolved = join(directory, file.replace(extname(file), '.js'));
-  const content = await readFile(resolved);
+function prepare(directory: string, entryPath: string, extension: string): {
+  file: string;
+  filePath: string;
+} {
+  const directoryPath = resolve(directory);
+  const entry = basename(entryPath);
+  const file = entry.replace(extname(entry), extension);
+  const filePath = join(directoryPath, file);
+  return { file, filePath };
+}
+
+async function outdated(directory: string, entryPath: string): Promise<void> {
+  const { file, filePath } = prepare(directory, entryPath, '.js');
+  await esbuild({
+    allowOverwrite: true,
+    entryPoints: [entryPath],
+    format: 'cjs',
+    logLevel: 'error',
+    outfile: filePath,
+    platform: 'node',
+    target: 'node10',
+  });
+  const fileContent = await readFile(filePath);
   // NodeJS v10, v12 doesn't resolve `node` modules.
-  let transformed = content.toString()
+  let transformed = fileContent.toString()
     .replace(/require\("node:(.+)"\)/g, 'require("$1")')
     .replace('require("fs/promises")', 'require("fs").promises');
   /**
@@ -22,7 +42,7 @@ async function polyfill(
    * @see https://nodejs.org/api/module.html#modulecreaterequirefilename
    * @see https://github.com/evanw/esbuild/issues/1492
    */
-  if (file.includes('loader')) {
+  if (file === 'loader.js') {
     transformed = transformed
       .replace(/var import_node_module.*(?:\r\n|\r|\n)/, '')
       .replace(/const import_meta.*(?:\r\n|\r|\n)/, '')
@@ -33,7 +53,7 @@ async function polyfill(
    * `Array.prototype.flat()` has been added in NodeJS v11.
    * @see https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
    */
-  if (transformed.includes('.flat()')) {
+  if (file === 'loader.js' || file === 'utils.js') {
     transformed = transformed.replace(/(module.exports = __toCommonJS.*)/, `$1
 if (!Array.prototype.flat)
   Object.defineProperty(Array.prototype, 'flat', {
@@ -52,35 +72,34 @@ if (!Array.prototype.flat)
     writable: true,
   });`);
   }
-  if (replaces && replaces.length > 0) {
-    transformed = transformed.replace(replaces[0], replaces[1]);
+  if (file === 'scripts.js') {
+    transformed = transformed.replace('./src', './lib');
   }
-  await writeFile(resolved, transformed);
+  await writeFile(filePath, transformed);
 }
 
-async function build(output: string, toModules = false): Promise<void> {
-  const OUTPUT = resolve(output);
+async function modern(directory: string, entryPath: string): Promise<void> {
+  const { filePath } = prepare(directory, entryPath, '.mjs');
+  await esbuild({
+    allowOverwrite: true,
+    entryPoints: [entryPath],
+    outfile: filePath,
+    platform: 'node',
+  });
+  const fileContent = await readFile(filePath);
+  // Modules don't allow relative paths for some reason.
+  const transformed = fileContent.toString()
+    .replace(/from "\.\/(.+)"/g, 'from "@vanyauhalin/nosock/lib/$1"');
+  await writeFile(filePath, transformed);
+}
+
+async function build(output: string, toModern = false): Promise<void> {
   const SOURCES = resolve('src');
   const sources = await readdir(SOURCES);
   await Promise.all(sources.map(async (file) => {
-    const general: BuildOptions = {
-      entryPoints: [join(SOURCES, file)],
-      allowOverwrite: true,
-      platform: 'node',
-    };
-    await esbuild({
-      ...general,
-      format: 'cjs',
-      logLevel: 'error',
-      outdir: OUTPUT,
-      target: 'node10',
-    });
-    await polyfill(OUTPUT, file);
-    if (!toModules) return;
-    await esbuild({
-      ...general,
-      outfile: join(OUTPUT, file.replace('.ts', '.mjs')),
-    });
+    const entry = join(SOURCES, file);
+    await outdated(output, entry);
+    if (toModern) await modern(output, entry);
   }));
 }
 
@@ -105,33 +124,16 @@ async function test(directory: string, flags: string[] = []): Promise<void> {
 script('build', build.bind(undefined, 'lib', true));
 script('test', test.bind(undefined, 'test', ['-r', 'tsm']));
 script('build-ci', async () => {
-  const DISTRIBUTION = resolve('dist');
-  const DISTRIBUTION_TEST = join(DISTRIBUTION, 'test');
   const TEST = resolve('test');
-  const general: BuildOptions = {
-    allowOverwrite: true,
-    platform: 'node',
-    format: 'cjs',
-  };
   await script('build/sources', build.bind(undefined, 'dist/lib'))();
   await script('build/test', async () => {
     const tests = await readdir(TEST);
     await Promise.all(tests.map(async (file) => {
-      await esbuild({
-        ...general,
-        entryPoints: [join(TEST, file)],
-        outdir: DISTRIBUTION_TEST,
-      });
-      await polyfill(DISTRIBUTION_TEST, file);
+      await outdated('dist/test', join(TEST, file));
     }));
   })();
   await script('build/scripts', async () => {
-    await esbuild({
-      ...general,
-      entryPoints: ['scripts.ts'],
-      outdir: DISTRIBUTION,
-    });
-    await polyfill(DISTRIBUTION, 'scripts.js', ['./src', './lib']);
+    await outdated('dist', 'scripts.ts');
   })();
 });
 script('ci', test.bind(undefined, 'dist/test'));

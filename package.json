@@ -16,6 +16,47 @@
     "bin",
     "lib"
   ],
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.js"
+    },
+    "./lib/context": {
+      "import": "./lib/context.mjs",
+      "require": "./lib/context.js",
+      "types": "./lib/context.d.ts"
+    },
+    "./lib/executor": {
+      "import": "./lib/executor.mjs",
+      "require": "./lib/executor.js",
+      "types": "./lib/executor.d.ts"
+    },
+    "./lib/loader": {
+      "import": "./lib/loader.mjs",
+      "require": "./lib/loader.js",
+      "types": "./lib/loader.d.ts"
+    },
+    "./lib/logger": {
+      "import": "./lib/logger.mjs",
+      "require": "./lib/logger.js",
+      "types": "./lib/logger.d.ts"
+    },
+    "./lib/runner": {
+      "import": "./lib/runner.mjs",
+      "require": "./lib/runner.js",
+      "types": "./lib/runner.d.ts"
+    },
+    "./lib/scripter": {
+      "import": "./lib/scripter.mjs",
+      "require": "./lib/scripter.js",
+      "types": "./lib/scripter.d.ts"
+    },
+    "./lib/utils": {
+      "import": "./lib/utils.mjs",
+      "require": "./lib/utils.js",
+      "types": "./lib/utils.d.ts"
+    }
+  },
   "scripts": {
     "build-ci": "node -r tsm scripts.ts",
     "build": "node -r tsm scripts.ts",
