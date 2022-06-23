@@ -17,6 +17,7 @@ define('defines with default values', () => {
       allowCancellation: false,
       command: defined.options.command,
       cwd: '.',
+      isCli: false,
       noColor: false,
       require: [],
     },
