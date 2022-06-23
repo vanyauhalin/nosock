@@ -34,7 +34,7 @@ Do we really need to download [5.5 mb](https://packagephobia.com/result?p=gulp@4
 ## Features
 
 - Tiny size.
-- Supports `async` / `await`.
+- Supports native ES Modules.
 - Supports cancellation.
 - 0.1% new API.
 
@@ -135,7 +135,7 @@ This benchmarks is available in the [docs](https://github.com/vanyauhalin/nosock
 
 ## License
 
-[MIT](LICENSE) License © 2022 [@vanyauhalin](https://github.com/vanyauhalin).
+[MIT](LICENSE) License (c) 2022 [@vanyauhalin](https://github.com/vanyauhalin)
 
 <p align="center">
   <sub>
