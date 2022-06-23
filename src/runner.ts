@@ -28,7 +28,7 @@ async function run(context: Context, script: StoreScript): Promise<unknown> {
     delete current.cancel;
   } else {
     const lap = stopwatch();
-    log('Running "%p" ...', current.command);
+    log('Starting "%p" ...', current.command);
     try {
       result = await callback();
       if (!current.type) {
