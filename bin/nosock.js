@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const console = require('node:console');
+const { error } = require('node:console');
 const { argv, env, exit } = require('node:process');
 const sade = require('sade');
 const { version } = require('../package.json');
@@ -8,8 +8,8 @@ const hasImport = (() => {
   try {
     new Function('import').call(0);
     return true;
-  } catch (error) {
-    return !/unexpected/i.test(error.message);
+  } catch (error_) {
+    return !/unexpected/i.test(error_.message);
   }
 })();
 const dImport = (path) => new Function(`return import('${path}')`).call(0);
@@ -44,8 +44,11 @@ sade('nosock [command]')
         ...command ? { command } : {},
         noColor,
       };
-    } catch (error) {
-      console.error(error.stack || error.message);
+      const { exec } = await cross('executor');
+      const { defer } = await cross('utils');
+      defer(exec.bind(undefined, context));
+    } catch (error_) {
+      error(error_.stack || error_.message);
       exit(1);
     }
   })

@@ -8,6 +8,7 @@ interface Context {
     command: string;
     cwd: string;
     file?: string;
+    isCli: boolean;
     noColor: boolean;
     require: string | string[];
   };
@@ -41,6 +42,7 @@ function define(): Context {
       allowCancellation: false,
       command: env['npm_lifecycle_event'] || [...argv].pop() || '',
       cwd: '.',
+      isCli: argv.some((argument) => /^.*bin[/\\]nosock\.js$/.test(argument)),
       noColor: false,
       require: [],
     },
