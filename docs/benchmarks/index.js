@@ -44,10 +44,10 @@ try {
     const min = mss.indexOf(Math.min(...mss));
     temporary.push(state[min][index]);
   }
-  log('name   | total       | self   ');
-  log('------ | ----------- | -------');
+  log('name   | total | self   ');
+  log('------ | ----- | -------');
   for (const [name, delta, ms] of temporary) {
-    log(`${name} | ${format(delta)}       | ${ms}`);
+    log(`${name} | ${format(delta)} | ${ms}`);
   }
   log();
 } catch (error_) {
