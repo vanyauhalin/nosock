@@ -47,10 +47,23 @@ const deepener = (() => {
   return { dive, raise };
 })();
 
+const defer = (() => {
+  let timeout: NodeJS.Timeout;
+  return (callback: () => unknown) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(callback);
+  };
+})();
+
 function stopwatch(): () => string {
   const start = Number(hrtime.bigint());
   return () => `${((Number(hrtime.bigint()) - start) / 1e6).toFixed(2)}ms`;
 }
 
 export type { Canceller, DeepArray };
-export { cancellable, deepener, stopwatch };
+export {
+  cancellable,
+  deepener,
+  defer,
+  stopwatch,
+};
