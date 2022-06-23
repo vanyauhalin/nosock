@@ -1,6 +1,7 @@
 import { global } from './context';
 import { exec } from './executor';
 import { run } from './runner';
+import { defer } from './utils';
 
 interface Scripter {
   <C extends (...parameters: Parameters<C>) => unknown | PromiseLike<unknown>>(
@@ -43,7 +44,8 @@ const script = (() => {
     return container;
   }
   inner.exec = () => {
-    setTimeout.call(undefined, exec.bind(undefined, context));
+    if (context.options.isCli) return;
+    defer(exec.bind(undefined, context));
   };
   return inner as Scripter;
 })();
