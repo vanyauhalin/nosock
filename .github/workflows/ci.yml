@@ -53,7 +53,7 @@ jobs:
     name: v${{ matrix.nodejs }}, ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: [lint]
-    timeout-minutes: 3
+    timeout-minutes: 5
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
