@@ -123,10 +123,10 @@ Two parameters are used for comparison.
 Each test is run multiple times in order (3 times by default) to avoid the effect of "running on a cold". The tests were run on NodeJS v18.4.0.
 
 ```txt
-name   | total       | self   
------- | ----------- | -------
-gulp   | 270ms       | 19 ms
-nosock | 131ms       | 10.06ms
+name   | total | self   
+------ | ----- | -------
+gulp   | 270ms | 19 ms
+nosock | 131ms | 10.06ms
 ```
 
 Libraries such as [Grunt](https://github.com/gruntjs/grunt), [Brunch](https://github.com/brunch/brunch) do not participate in the comparison. The main reason is the lack of a plugin for [esbuild](https://github.com/evanw/esbuild), which at the time of writing this README is one of my main tools. Also want to note that both libraries do not support configs are written in modules.
